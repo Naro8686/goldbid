@@ -1,0 +1,191 @@
+* {
+  outline: none;
+  box-sizing: border-box;
+}
+
+
+.slider-block {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  overflow: hidden;
+}
+
+.slider .first {
+  display: flex;
+  align-items: center;
+}
+
+.slick-track {
+  will-change: transform;
+}
+
+.slick-list {
+  overflow: visible;
+  will-change: transform;
+}
+
+.slick-slide {
+  padding: 0 100px;
+  width: 100vw;
+  -webkit-filter: drop-shadow(0px 10px 40px rgba(0, 0, 0, 0.55));
+          filter: drop-shadow(0px 10px 40px rgba(0, 0, 0, 0.55));
+}
+.slick-slide img {
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.slider .first img {
+  position: relative;
+  top: 100px;
+}
+
+[type="button"] {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  width: 70px;
+  height: 70px;
+  overflow: hidden;
+  border: 0;
+  text-indent: -9999px;
+  background-color: rgb(0,0,0,0);
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  opacity: 0.9;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  -webkit-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+}
+[type="button"]:hover {
+  opacity: 1;
+}
+[type="button"].slick-next {
+  right: 0;
+  background-image: url(img/right.png);
+}
+[type="button"].slick-next:hover {
+  right: -5px;
+}
+[type="button"].slick-prev {
+  left: 0;
+  background-image: url(img/left.png);
+}
+[type="button"].slick-prev:hover {
+  left: -5px;
+}
+
+@-webkit-keyframes motion-blur {
+  0% {
+    -webkit-filter: url(#blur0);
+            filter: url(#blur0);
+    -webkit-transform: scale(1, 1);
+            transform: scale(1, 1);
+  }
+  15% {
+    -webkit-filter: url(#blur1);
+            filter: url(#blur1);
+    -webkit-transform: scale(1, 0.98);
+            transform: scale(1, 0.98);
+  }
+  30% {
+    -webkit-filter: url(#blur2);
+            filter: url(#blur2);
+    -webkit-transform: scale(1, 0.93);
+            transform: scale(1, 0.93);
+  }
+  45% {
+    -webkit-filter: url(#blur3);
+            filter: url(#blur3);
+    -webkit-transform: scale(1.1, 0.9);
+            transform: scale(1.1, 0.9);
+  }
+  60% {
+    -webkit-filter: url(#blur4);
+            filter: url(#blur4);
+    -webkit-transform: scale(1.2, 0.88);
+            transform: scale(1.2, 0.88);
+  }
+  75%,
+  100% {
+    -webkit-filter: url(#blur5);
+            filter: url(#blur5);
+    -webkit-transform: scale(1.35, 0.85);
+            transform: scale(1.35, 0.85);
+  }
+}
+
+@keyframes motion-blur {
+  0% {
+    -webkit-filter: url(#blur0);
+            filter: url(#blur0);
+    -webkit-transform: scale(1, 1);
+            transform: scale(1, 1);
+  }
+  15% {
+    -webkit-filter: url(#blur1);
+            filter: url(#blur1);
+    -webkit-transform: scale(1, 0.98);
+            transform: scale(1, 0.98);
+  }
+  30% {
+    -webkit-filter: url(#blur2);
+            filter: url(#blur2);
+    -webkit-transform: scale(1, 0.93);
+            transform: scale(1, 0.93);
+  }
+  45% {
+    -webkit-filter: url(#blur3);
+            filter: url(#blur3);
+    -webkit-transform: scale(1.1, 0.9);
+            transform: scale(1.1, 0.9);
+  }
+  60% {
+    -webkit-filter: url(#blur4);
+            filter: url(#blur4);
+    -webkit-transform: scale(1.2, 0.88);
+            transform: scale(1.2, 0.88);
+  }
+  75%,
+  100% {
+    -webkit-filter: url(#blur5);
+            filter: url(#blur5);
+    -webkit-transform: scale(1.35, 0.85);
+            transform: scale(1.35, 0.85);
+  }
+}
+@-webkit-keyframes scale {
+  0%,
+  100% {
+    -webkit-transform: scaleX(1.2);
+            transform: scaleX(1.2);
+  }
+  50% {
+    -webkit-transform: scaleX(1);
+            transform: scaleX(1);
+  }
+}
+@keyframes scale {
+  0%,
+  100% {
+    -webkit-transform: scaleX(1.2);
+            transform: scaleX(1.2);
+  }
+  50% {
+    -webkit-transform: scaleX(1);
+            transform: scaleX(1);
+  }
+}
+.do-transition {
+  -webkit-animation: motion-blur 0.2s linear forwards, motion-blur 0.7s linear reverse forwards 0.2s;
+          animation: motion-blur 0.2s linear forwards, motion-blur 0.7s linear reverse forwards 0.2s;
+}
