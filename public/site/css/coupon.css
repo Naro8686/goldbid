@@ -520,12 +520,6 @@ button {
     .header {
         /* padding: 0 15px; */
     }
-
-    .header .container .left .text {
-        bottom: 13px;
-        left: 26px;
-        white-space: pre-wrap;
-    }
 }
 
 .main .blocks .kupon {

@@ -1,0 +1,274 @@
+/*.main form {*/
+/*    background-color: #F8F8F8;*/
+/*    padding: 40px;*/
+/*    -webkit-box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);*/
+/*    -moz-box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);*/
+/*    box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);*/
+/*}*/
+
+/*.main form h1 {*/
+/*    margin-top: 0;*/
+/*    text-align: center;*/
+/*}*/
+
+/*.main form input[type="text"],  .main form input[type="password"]{*/
+/*    -webkit-box-shadow: inset 0px 0px 24px -10px rgba(0,0,0,0.75);*/
+/*    -moz-box-shadow: inset 0px 0px 24px -10px rgba(0,0,0,0.75);*/
+/*    box-shadow: inset 0px 0px 24px -10px rgba(0,0,0,0.75);*/
+/*    border: none;*/
+/*    outline: none;*/
+/*}*/
+/*.main form input {*/
+/*    margin: 5px 0;*/
+/*    padding: 5px;*/
+/*    width: 100%;*/
+/*}*/
+/*.main form  p {*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*.main form .recovery a {*/
+/*    font-size: 12px;*/
+/*    text-decoration: underline;*/
+/*    color: #494949;*/
+/*}*/
+
+/*.main form  p.warning {*/
+/*    color: #ea203f;*/
+/*    text-align: center;*/
+/*}*/
+
+/*old style.css*/
+.footer {
+    width: 100%;
+    background: #1B8BCB;
+    box-shadow: 0px -4px 4px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    padding: 15px 0px 40px 0px;
+    font-size: 14px;
+}
+
+.footer a {
+    color: #ffffff;
+}
+
+.footer > .container li {
+    margin: 5px 0;
+}
+
+.footer .container {
+    display: flex;
+    /*justify-content: space-between;*/
+}
+
+.footer .container .left {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+}
+
+.footer .container .logo {
+    width: 200px;
+    /*margin-bottom: 10px;*/
+}
+
+.footer .container .left .description {
+    font-size: 16px;
+}
+
+.footer .container .logo img {
+    width: 100%;
+    object-fit: cover;
+    margin-left: -10px;
+}
+
+.footer .container .left p span {
+    font-size: 12px;
+}
+
+.footer .container .social .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.footer .container .social img {
+    width: 25px;
+    height: 25px;
+}
+
+.footer .container .social li {
+    display: flex;
+    align-items: center;
+}
+
+.footer .container .social li span {
+    margin-left: 5px;
+}
+
+.footer .container .right {
+    text-align: right;
+}
+
+.footer .container .right p {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.down-footer {
+    background: #167DB8;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.down-footer .container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.down-footer .container p {
+    padding: 5px 0;
+}
+
+.down-footer .container a {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+/*end*/
+.container {
+    max-width: 992px;
+    margin: 0 auto;
+
+}
+
+.footer > .container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer > .container nav {
+    margin: 10px 0;
+}
+
+.footer .container .left {
+}
+
+.footer > .payment-methods ul {
+    display: flex;
+    justify-content: center;
+}
+
+.footer > .payment-methods li {
+    background-image: url(../img/payment.png);
+    background-repeat: no-repeat;
+    height: 50px;
+    width: 67px;
+    background-size: cover;
+    background-position-y: 0px;
+    margin: 0px 13px;
+}
+
+.footer > .payment-methods li.visa {
+    background-position-x: -5px;
+}
+
+.footer > .payment-methods li.master {
+    background-position-x: -71px;
+}
+
+.footer > .payment-methods li.maestro {
+    background-position-x: -136px;
+}
+
+.footer > .payment-methods li.mir {
+    background-position-x: -203px;
+}
+
+.footer > .payment-methods li.sberbank {
+    background-position-x: -268px;
+}
+
+.footer > .payment-methods li.yandex {
+    background-position-x: -334px;
+}
+
+.footer > .payment-methods li.qiwi {
+    background-position-x: -399px;
+}
+
+.footer > .payment-methods li.mts {
+    background-position-x: -465px;
+}
+
+.footer > .payment-methods li.megafon {
+    background-position-x: -531px;
+}
+
+.footer > .payment-methods li.beeline {
+    background-position-x: -597px;
+}
+
+.footer > .payment-methods li.tele2 {
+    background-position-x: -662px;
+}
+
+.authenticate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 70px 0;
+
+}
+
+.authenticate form {
+    display: flex;
+    flex-direction: column;
+    background-color: #F8F8F8;
+    padding: 40px;
+    -webkit-box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+}
+
+.authenticate form h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.authenticate form input[type="text"], .authenticate form input[type="password"] {
+
+    -webkit-box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.41);
+    -moz-box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.41);
+    box-shadow: inset 0px 0px 6px 0px rgba(0, 0, 0, 0.41);
+    border: none;
+    outline: none;
+}
+
+.authenticate form input {
+    width: 100%;
+    margin: 5px 0;
+    border-radius: 2px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.authenticate form label {
+    margin-bottom: 10px;
+    /*font-weight: bold;*/
+}
+
+.authenticate form button[type="submit"] {
+    margin-top: 10px;
+    background-color: #1B8BCB;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px;
+    box-shadow: 0px 5px 0px 0px #236388;
+    outline: none;
+    text-shadow: 0px 0 0px #f9f9f9;
+    font-weight: 700;
+}
+.authenticate a {
+color: #1B8BCB;
+}

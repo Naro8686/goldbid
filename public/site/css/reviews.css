@@ -622,10 +622,4 @@ button {
     form {
         max-width: 300px;
     }
-
-    .header .container .left .text {
-        bottom: 13px;
-        left: 26px;
-        white-space: pre-wrap;
-    }
 }

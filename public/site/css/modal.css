@@ -47,3 +47,56 @@
 .overlay .modal .title {
   margin-top: 0;
 }
+/*style.css*/
+.overlay .modal.open form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #F8F8F8;
+    padding: 40px;
+    -webkit-box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
+}
+
+.overlay .modal.open form h1 {
+    margin-bottom: 10px;
+}
+
+.overlay .modal.open form p {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.overlay .modal.open form input {
+    margin: 5px 0;
+    padding: 5px;
+    width: 100%;
+}
+
+.overlay .modal.open form input[type="text"], .overlay .modal.open form input[type="password"] {
+    -webkit-box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);
+    -moz-box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);
+    box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);
+    border: none;
+    outline: none;
+    padding: 10px;
+}
+
+form#register a{
+    color: blue !important;
+}
+form#register p{
+    font-weight:bolder !important;
+}
+input[type="checkbox"].fail{
+    box-shadow:inset 0px 0px 5px 0px red;
+}
+.alert.alert-danger{
+    display: block;
+    color: red;
+}
+
+/*end*/

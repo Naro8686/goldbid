@@ -8,10 +8,11 @@
     <title>@yield('title') - {{ config('app.name', 'GoldBid') }}</title>
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     @stack('css')
-    <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/humburger.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/modal.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/agree_cookie.css')}}" rel="stylesheet">
+    <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
+    <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
     <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 <body>
@@ -70,7 +71,8 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="personal_data">
                                         На <a style="text-decoration: underline; color: #494949;"
-                                              href="personalnie-dannie.php">обработку</a> персональных данных согласен
+                                              href="{{route('site.personal_data')}}">обработку</a> персональных данных
+                                        согласен
                                     </label>
                                 </p>
                                 <p style="display: flex; font-size: 14px;">
@@ -78,7 +80,7 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="privacy_policy">
                                         С <a style="text-decoration: underline; color: #494949;"
-                                             href="politika-konfidenchialnosti.php">политикой конфиденциальности</a>
+                                             href="{{route('site.privacy_policy')}}">политикой конфиденциальности</a>
                                         ознакомлен
                                     </label>
                                 </p>
@@ -95,16 +97,16 @@
 
                     <div class='modal' id='modal2'>
                         <div class='content'>
-                            <form action="{{ route('login') }}" method="POST">
+                            <form id="login" action="{{ route('login') }}" method="POST">
                                 @csrf
                                 <h1 class='title'>Войти</h1>
                                 <p>
-                                    <label>Логин/Email
-                                        <input type="text" name="login">
+                                    <label>Введите телефон
+                                        <input type="text" name="phone">
                                     </label>
                                 </p>
                                 <p>
-                                    <label>Пароль
+                                    <label>Введите Пароль
                                         <input type="password" name="password">
                                     </label>
                                 </p>
@@ -204,50 +206,76 @@
 @yield('content')
 <div class="footer">
     <div class="payment-methods">
-        <ul class="container">
+        <div class="container" style="display: none">
             <img src="{{asset('site/img/payment.png')}}" alt="">
+        </div>
+        <ul>
+            <li class="visa"></li>
+            <li class="master"></li>
+            <li class="maestro"></li>
+            <li class="mir"></li>
+            <li class="sberbank"></li>
+            <li class="yandex"></li>
+            <li class="qiwi"></li>
+            <li class="mts"></li>
+            <li class="megafon"></li>
+            <li class="beeline"></li>
+            <li class="tele2"></li>
         </ul>
     </div>
     <div class="container">
-        <div style="justify-content: space-between;" class="left">
-            <div>
-                <div class="logo">
+        <nav>
+            <ul>
+                <li class="logo">
                     <a href="{{url('/')}}"><img src="{{asset('site/img/logo-footer.png')}}" alt=""></a>
-                </div>
-                <p style=" position: relative; top: -10px; left: 10px; font-size: 14px;" class="description">
-                    Мы работаем<br> для вашей выгоды!
-                </p>
-            </div>
-            <div class="social" style="position: relative;left: -150px;">
-                <ul>
-                    <li><p class="title">Мы в соц сетях</p></li>
-                    <li><a href="https://vk.com/publicgoldbid">
-                            <img src="{{asset('site/img/vk.png')}}" alt=""><span>Вконтакте</span>
-                        </a></li>
-                    <li><a href="https://www.instagram.com/onlinegoldbid/">
-                            <img src="{{asset('site/img/inst.png')}}" alt=""><span>Instagram</span>
-                        </a></li>
-                    <li><a href="https://ok.ru/group/54955567481041">
-                            <img src="{{asset('site/img/ok.png')}}" alt=""><span>Одноклассники</span>
-                        </a></li>
-                    <li><a href="https://www.youtube.com/channel/UCZaXpR8ZVzNuYN_ZB46br_w?disable_polymer=true">
-                            <img style="padding:3px 0px 0px 3px; height: 20px; width:20px;"
-                                 src="{{asset('site/img/youtube.png')}}" alt=""><span>YouTube</span>
-                        </a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="right" style="text-align: left;margin-left: -80px;width: 250px;">
+                </li>
+                <li>
+                    <p class="description">
+                        Мы работаем для вашей выгоды!
+                    </p>
+                </li>
+            </ul>
+        </nav>
+        <nav class="social">
+            <ul>
+                <li>
+                    <img src="{{asset('site/img/vk.png')}}" alt="">
+                    <a href="https://vk.com/publicgoldbid">
+                        <span>Вконтакте</span>
+                    </a>
+                </li>
+                <li>
+                    <img src="{{asset('site/img/inst.png')}}" alt="">
+                    <a href="https://www.instagram.com/onlinegoldbid/">
+                        <span>Instagram</span>
+                    </a>
+                </li>
+                <li>
+                    <img src="{{asset('site/img/ok.png')}}" alt="">
+                    <a href="https://ok.ru/group/54955567481041">
+                        <span>Одноклассники</span>
+                    </a>
+                </li>
+                <li>
+                    <img style="padding:3px 0px 0px 3px; height: 20px; width:20px;"
+                         src="{{asset('site/img/youtube.png')}}" alt="">
+                    <a href="https://www.youtube.com/channel/UCZaXpR8ZVzNuYN_ZB46br_w?disable_polymer=true">
+                        <span style="margin-left: 8px;">YouTube</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <nav class="right" style="text-align: left;">
             <ul>
                 <li><a href="/pravila.php">Правила участия в Аукционе</a></li>
-                <li><a href="/polzovatelskoe-soglashenie.php">Пользовательское соглашение</a></li>
+                <li><a href="{{route('site.terms_of_use')}}">Пользовательское соглашение</a></li>
                 <li><a href="/oferta.php">Публичная оферта</a></li>
-                <li><a href="/politika-konfidenchialnosti.php">Политика конфиденциальности</a></li>
-                <li><a href="/personalnie-dannie.php">Персональные данные</a></li>
-                <li><a href="/cookie.php">Файлы cookie</a></li>
+                <li><a href="{{route('site.privacy_policy')}}">Политика конфиденциальности</a></li>
+                <li><a href="{{route('site.personal_data')}}">Персональные данные</a></li>
+                <li><a href="{{route('site.cookie_terms')}}">Файлы cookie</a></li>
             </ul>
-        </div>
-        <div class="right">
+        </nav>
+        <nav class="right">
             <ul>
                 <li><a href="/sposobi-oplati.php">Способы оплаты</a></li>
                 <li><a href="/dostavka-tovarov.php">Доставка товаров</a></li>
@@ -255,8 +283,9 @@
                 <li><a href="/garantii.php">Гарантии</a></li>
                 <li><a href="/rekviziti.php">Реквизиты</a></li>
             </ul>
-        </div>
+        </nav>
     </div>
+
 
 </div>
 
@@ -265,15 +294,20 @@
         <p class="info">@goldbid.ru 2018 - Все права защищены</p>
     </div>
 </div>
-<div class="agree_cookie">
-    <div class="close"></div>
-    <div class="title">Мы используем файлы cookie</div>
-    <div class="desc-text">Продолжая использовать сайт, вы соглашаетесь с <a href="/cookie.php">условиями
-            использования</a> файлов cookie.
+<div class="down-footer">
+    <div class="agree_cookie">
+        <div class="container">
+            <div>
+                Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a href="{{route('site.cookie_terms')}}">условиями использования</a> файлов cookie.
+            </div>
+            <input type="button" class="agree_cookie_btn" value="Согласен">
+            <div class="close">x</div>
+        </div>
     </div>
-    <input class="agree_cookie_btn" value="Согласен">
 </div>
-<script type="text/javascript" src="{{asset('site/js/jquery.js')}}"></script>
+
+<script src="{{asset('site/js/jquery.js')}}"></script>
+<script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>
 <script src="{{asset('site/js/prefixfree.min.js')}}"></script>
 <script src="{{asset('site/js/jquery.cookie.js')}}"></script>
 <script src="{{asset('site/js/imask.js')}}"></script>

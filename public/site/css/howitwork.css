@@ -717,15 +717,6 @@ h3 {
     display: none;
 }
 
-@media screen and (max-width: 575.98px) {
-
-    .header .container .left .text {
-        bottom: 13px;
-        left: 26px;
-        white-space: pre-wrap;
-    }
-}
-
 
 @media screen and (max-width: 991.98px) {
     .main .container {

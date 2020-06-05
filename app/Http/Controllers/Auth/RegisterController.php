@@ -14,6 +14,7 @@ class RegisterController extends Controller
     protected $rules = [
         'nickname.unique' => 'этот ник уже занят',
         'phone.unique' => 'этот номер уже используется',
+        'g-recaptcha-response.required' => 'проверка captcha не пройдена',
     ];
     /*
     |--------------------------------------------------------------------------
@@ -53,7 +54,7 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        $data['phone'] = str_replace(['+', '(', ')', '-'], '',$data['phone']);
+        $data['phone'] = User::unsetPhoneMask($data['phone']);
         return Validator::make($data, [
             'nickname' => ['required', 'string', 'max:16', 'unique:users'],
             'phone' => ['required', 'numeric', 'digits:11', 'unique:users'],
@@ -73,10 +74,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $data['phone'] = str_replace(['+', '(', ')', '-'], '',$data['phone']);
         return User::create([
             'nickname' => $data['nickname'],
-            'phone' => $data['phone'],
+            'phone' => User::unsetPhoneMask($data['phone']),
             'password' => Hash::make($data['password']),
         ]);
     }

@@ -16,6 +16,7 @@
     <link href="{{asset('site/css/style.css')}}" rel="stylesheet">
 @endpush
 @section('content')
+{{--    <div id="defaultCountdown"></div>--}}
     <div class="auction container">
         <div class="favorite"></div>
         <div class="delete-margin">
@@ -86,6 +87,15 @@
     @push('js')
         <script>
             $(document).ready(function () {
+                // let newYear = new Date();
+                // newYear = new Date(newYear.getFullYear()+1, 1 - 1, 1);
+                // $('div#defaultCountdown').countdown(newYear)
+                //     .on('update.countdown', (e) => {
+                //         $(e.currentTarget).html(e.strftime('%w weeks %d days %H:%M:%S'));
+                //     })
+                //     .on('finish.countdown', (e) => {
+                //         console.log(e);
+                //     });
                 $('.slaider').slick({
                     autoplay: true,
                     autoplaySpeed: 3000
