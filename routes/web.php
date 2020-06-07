@@ -21,12 +21,9 @@ Route::group(['as' => 'site.'], function ()
     Route::get('/feedback', 'HomeController@feedback')->name('feedback');
     Route::get('/reviews', 'HomeController@reviews')->name('reviews');
     Route::get('/coupon', 'HomeController@coupon')->name('coupon');
-    Route::get('/terms-of-use', 'HomeController@termsOfUse')->name('terms_of_use');
-    Route::get('/personal-data', 'HomeController@personalData')->name('personal_data');
-    Route::get('/privacy-policy', 'HomeController@privacyPolicy')->name('privacy_policy');
-    Route::get('/cookie-terms-of-use', 'HomeController@cookieTerms')->name('cookie_terms');
+
     //Route::group(['middleware' => 'auth'], function (){});
 });
 Auth::routes();
-
+Route::get('/{slug?}', 'HomeController@dynamicPage')->where(['slug' => '^(?!admin.*$).*']);
 

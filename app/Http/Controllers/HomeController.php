@@ -2,66 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Footer;
+use App\Page;
+use App\Settings\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
     const DIR = 'site.';
+    public $page = null;
 
     /**
      * Create a new controller instance.
      *
-     * @return void
+     * @param Request $request
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
-
+        $slug = Str::slug($request->segment(1));
+        $this->page = (new Setting($slug))->page();
     }
 
     public function index()
     {
-        return view(self::DIR . 'index');
+        $page = $this->page;
+        return view(self::DIR . 'index', compact('page'));
     }
 
     public function howItWorks()
     {
-        return view(self::DIR . 'how_it_works');
+        $page = $this->page;
+        return view(self::DIR . 'how_it_works', compact('page'));
     }
 
     public function feedback()
     {
-        return view(self::DIR . 'feedback');
+        $page = $this->page;
+        return view(self::DIR . 'feedback', compact('page'));
     }
 
     public function reviews()
     {
-        return view(self::DIR . 'reviews');
+        $page = $this->page;
+        return view(self::DIR . 'reviews', compact('page'));
     }
 
     public function coupon()
     {
-        return view(self::DIR . 'coupon');
+        $page = $this->page;
+        return view(self::DIR . 'coupon', compact('page'));
     }
 
-    public function termsOfUse()
-    {
-        return view(self::DIR . 'terms_of_use');
-    }
 
-    public function personalData()
+    public function dynamicPage($slug = null)
     {
-        return view(self::DIR . 'personal_data');
-    }
-
-    public function privacyPolicy()
-    {
-        return view(self::DIR . 'privacy_policy');
-    }
-
-    public function cookieTerms()
-    {
-        return view(self::DIR . 'cookie');
+        $dynamicPage = Page::whereHas('footer', function ($query) use ($slug) {
+            return $query->where('link', '=', $slug);
+        })->firstOrFail();
+        $setting = (new Setting($dynamicPage->slug));
+        $page =  $setting->content();
+        return view(self::DIR . 'dynamic_page', compact('page'));
     }
 
 }

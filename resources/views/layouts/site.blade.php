@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title') - {{ config('app.name', 'GoldBid') }}</title>
+    <title>{{$page->meta->title()}}</title>
+    <meta name="keywords" content="{{$page->meta->keywords}}">
+    <meta name="description" content="{{$page->meta->description}}">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     @stack('css')
     <link href="{{asset('site/css/humburger.css')}}" rel="stylesheet">
@@ -63,7 +65,7 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="terms_of_use">
                                         С <a style="text-decoration: underline; color: #494949;"
-                                             href="{{route('site.terms_of_use')}}"> условиями</a> согласен
+                                             href="{{Setting::dynamicURL('terms-of-use')}}"> условиями</a> согласен
                                     </label>
                                 </p>
                                 <p style="display: flex; font-size: 14px;">
@@ -71,7 +73,7 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="personal_data">
                                         На <a style="text-decoration: underline; color: #494949;"
-                                              href="{{route('site.personal_data')}}">обработку</a> персональных данных
+                                              href="{{Setting::dynamicURL('personal-data')}}">обработку</a> персональных данных
                                         согласен
                                     </label>
                                 </p>
@@ -80,7 +82,7 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="privacy_policy">
                                         С <a style="text-decoration: underline; color: #494949;"
-                                             href="{{route('site.privacy_policy')}}">политикой конфиденциальности</a>
+                                             href="{{Setting::dynamicURL('privacy-policy')}}">политикой конфиденциальности</a>
                                         ознакомлен
                                     </label>
                                 </p>
@@ -238,67 +240,44 @@
         </nav>
         <nav class="social">
             <ul>
+                @foreach($page->footer->social as $social)
                 <li>
-                    <img src="{{asset('site/img/vk.png')}}" alt="">
-                    <a href="https://vk.com/publicgoldbid">
-                        <span>Вконтакте</span>
+                    <img src="{{asset($social->icon)}}" alt="">
+                    <a href="{{$social->link}}">
+                        <span>{{$social->name}}</span>
                     </a>
                 </li>
-                <li>
-                    <img src="{{asset('site/img/inst.png')}}" alt="">
-                    <a href="https://www.instagram.com/onlinegoldbid/">
-                        <span>Instagram</span>
-                    </a>
-                </li>
-                <li>
-                    <img src="{{asset('site/img/ok.png')}}" alt="">
-                    <a href="https://ok.ru/group/54955567481041">
-                        <span>Одноклассники</span>
-                    </a>
-                </li>
-                <li>
-                    <img style="padding:3px 0px 0px 3px; height: 20px; width:20px;"
-                         src="{{asset('site/img/youtube.png')}}" alt="">
-                    <a href="https://www.youtube.com/channel/UCZaXpR8ZVzNuYN_ZB46br_w?disable_polymer=true">
-                        <span style="margin-left: 8px;">YouTube</span>
-                    </a>
-                </li>
+                @endforeach
             </ul>
         </nav>
-        <nav class="right" style="text-align: left;">
+        <nav>
             <ul>
-                <li><a href="/pravila.php">Правила участия в Аукционе</a></li>
-                <li><a href="{{route('site.terms_of_use')}}">Пользовательское соглашение</a></li>
-                <li><a href="/oferta.php">Публичная оферта</a></li>
-                <li><a href="{{route('site.privacy_policy')}}">Политика конфиденциальности</a></li>
-                <li><a href="{{route('site.personal_data')}}">Персональные данные</a></li>
-                <li><a href="{{route('site.cookie_terms')}}">Файлы cookie</a></li>
+                @foreach($page->footer->left as $left)
+                    <li><a href="{{url($left->link)}}">{{$left->name}}</a></li>
+                @endforeach
             </ul>
         </nav>
-        <nav class="right">
+        <nav style="text-align: right">
             <ul>
-                <li><a href="/sposobi-oplati.php">Способы оплаты</a></li>
-                <li><a href="/dostavka-tovarov.php">Доставка товаров</a></li>
-                <li><a href="/vozvrat-tovara.php">Возврат товара и оплаты</a></li>
-                <li><a href="/garantii.php">Гарантии</a></li>
-                <li><a href="/rekviziti.php">Реквизиты</a></li>
+                @foreach($page->footer->right as $right)
+                    <li><a href="{{url($right->link)}}">{{$right->name}}</a></li>
+                @endforeach
             </ul>
         </nav>
     </div>
-
 
 </div>
 
 <div class="down-footer">
     <div class="container">
-        <p class="info">@goldbid.ru 2018 - Все права защищены</p>
+        <p class="info">&copy;  {{config('app.name').' '.date('Y')}} - Все права защищены</p>
     </div>
 </div>
 <div class="down-footer">
     <div class="agree_cookie">
         <div class="container">
             <div>
-                Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a href="{{route('site.cookie_terms')}}">условиями использования</a> файлов cookie.
+                Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a href="{{Setting::dynamicURL('cookie-terms-of-use')}}">условиями использования</a> файлов cookie.
             </div>
             <input type="button" class="agree_cookie_btn" value="Согласен">
             <div class="close">x</div>

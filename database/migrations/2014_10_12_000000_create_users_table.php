@@ -16,6 +16,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_admin')->default(false);
+            $table->boolean('has_ban')->default(false);
             $table->string('nickname')->unique();
             $table->string('avatar')->nullable();
             $table->string('fname',50)->nullable();
@@ -26,7 +27,7 @@ class CreateUsersTable extends Migration
             $table->string('region')->nullable();
             $table->string('city')->nullable();
             $table->string('street')->nullable();
-            $table->enum('gender',[null,'male','female'])->default(null);
+            $table->enum('gender',[null,'male','female'])->nullable();
             $table->date('birthday')->nullable();
             $table->string('sms_code')->nullable();
             $table->timestamp('sms_verified_at')->nullable();
@@ -34,6 +35,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('referral_link')->unique()->nullable();
+            $table->timestamp('is_online')->default(now());
             $table->rememberToken();
             $table->timestamps();
         });

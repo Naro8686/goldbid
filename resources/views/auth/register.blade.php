@@ -37,14 +37,14 @@
                        @if(old('terms_of_use')) checked @endif
                        @error('terms_of_use') class="fail" @enderror
                        name="terms_of_use">
-                С <a href="{{route('site.terms_of_use')}}"> условиями</a> согласен
+                С <a href="{{Setting::dynamicURL('terms-of-use')}}"> условиями</a> согласен
             </label>
             <label>
                 <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                        @if(old('personal_data')) checked @endif
                        @error('personal_data') class="fail" @enderror
                        name="personal_data">
-                На <a href="{{route('site.personal_data')}}">обработку</a> персональных данных
+                На <a href="{{Setting::dynamicURL('personal-data')}}">обработку</a> персональных данных
                 согласен
             </label>
             <label>
@@ -52,7 +52,7 @@
                        @if(old('privacy_policy')) checked @endif
                        @error('privacy_policy') class="fail" @enderror
                        name="privacy_policy">
-                С <a href="{{route('site.privacy_policy')}}">политикой конфиденциальности</a>
+                С <a href="{{Setting::dynamicURL('privacy-policy')}}">политикой конфиденциальности</a>
                 ознакомлен
             </label>
             @if(config('recaptcha.key'))
