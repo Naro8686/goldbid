@@ -174,6 +174,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        //image library
+        Intervention\Image\ImageServiceProvider::class
 
     ],
 
@@ -228,6 +230,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 //        Settings Site
         'Setting' => \App\Settings\Setting::class,
+        'Image' => Intervention\Image\Facades\Image::class
 
     ],
 

@@ -14,6 +14,5 @@ return [
     */
 
     'failed' => 'Эти учетные данные не соответствуют нашим записям.',
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-
+    'throttle' => 'Слишком много попыток входа. Пожалуйста, попробуйте еще раз через :seconds секунд.',
 ];

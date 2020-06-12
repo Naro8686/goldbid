@@ -14,6 +14,7 @@ class CreateFootersTable extends Migration
     public function up()
     {
         Schema::create('footers', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('page_id')->nullable();
             $table->foreign('page_id')
                 ->references('id')

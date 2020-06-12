@@ -6,6 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class User extends Authenticatable
 {
@@ -47,13 +50,16 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
         'has_ban' => 'boolean',
     ];
+    protected $with = ['balanceHistory'];
+    public $bet;
+    public $bonus;
 
     public function avatar()
     {
         return $this->avatar ?? asset('site/img/settings/noavatar.png');
     }
 
-    public function isActive():bool
+    public function isActive(): bool
     {
         return $this->is_online >= Carbon::now();
     }
@@ -65,5 +71,19 @@ class User extends Authenticatable
     public static function unsetPhoneMask(?string $phone)
     {
         return is_null($phone) ? $phone : str_replace(['+', '(', ')', '-'], '', $phone);
+    }
+
+    public function balanceHistory()
+    {
+        return $this->hasMany(Balance::class);
+    }
+
+    public function balance()
+    {
+        $balances = new stdClass;
+        $balances->bet = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bets') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bets'));
+        $balances->bonus = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bonuses') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bonuses'));
+
+        return $balances;
     }
 }

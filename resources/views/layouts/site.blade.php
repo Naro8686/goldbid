@@ -126,8 +126,8 @@
             @else
                 <div class="userin">
                     <div class="balance">
-                        <p>Ставки:&nbsp<span class="phpbalance"> </span>&nbspшт</p>
-                        <p>Бонусы:&nbsp<span class="phpbonus"> </span>&nbspшт</p>
+                        <p>Ставки:&nbsp<span class="phpbalance">{{auth()->user()->balance()->bet}}</span>&nbspшт</p>
+                        <p>Бонусы:&nbsp<span class="phpbonus">{{auth()->user()->balance()->bonus}}</span>&nbspшт</p>
                     </div>
                     <div class="accaunt">
                         <a href="cabinet.php?str=1">

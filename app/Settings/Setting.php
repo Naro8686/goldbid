@@ -46,11 +46,18 @@ class Setting
         return $this->page;
     }
 
+    /**
+     * @return stdClass
+     */
     public function content(){
         $this->page->content = $this->page->meta->content;
         return $this->page;
     }
 
+    /**
+     * @param string $slug
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
     public static function dynamicURL(string $slug){
         $slug = Str::slug($slug);
         $page = Page::whereSlug($slug)->with('footer')->first();
