@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PostRequest;
 use App\Page;
 use App\Settings\ImageTrait;
+use App\Settings\Setting;
+use App\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -15,9 +17,11 @@ use Illuminate\Validation\Rule;
 class PageController extends Controller
 {
     use ImageTrait;
+    public const DIR = 'admin.pages.';
     public const INSERT = 'insert';
     public const UPDATE = 'update';
     public const DELETE = 'delete';
+
 
     /**
      * @return \Illuminate\Support\Collection
@@ -194,7 +198,7 @@ class PageController extends Controller
         if (!$request['social']) {
             $page = Page::with('footer')->create($request->all());
             $page->footer()->create($request->all());
-        }else{
+        } else {
             Footer::create($request->all());
         }
 
@@ -202,13 +206,25 @@ class PageController extends Controller
 
     private function updateFooterLink(PostRequest $request)
     {
-
         $footer = Footer::query()->findOrFail($request['id']);
-
         if ($image = $request->file('image')) {
             $request['icon'] = $this->icon($image);
         }
         $footer->update($request->all());
         if ($footer->page) $footer->page->update($request->all());
+    }
+
+    public function footerPageUploadImg(Request $request)
+    {
+        $image = $request->file('upload');
+        $upload = $this->postUploadImage($image);
+        return response()->json($upload);
+    }
+    public function homePage(Request $request){
+        $sliders = Slider::all();
+        $slug = Str::slug('/');
+        $meta = (new Setting($slug))->mete();
+        return view(self::DIR.'home',compact('sliders','meta'));
+
     }
 }

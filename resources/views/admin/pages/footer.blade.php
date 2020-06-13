@@ -5,7 +5,7 @@
     @push('js')
         <script>
             $(document).ready(function () {
-                var getTextByEditor;
+
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -90,39 +90,22 @@
                     data.content = button.data('metaContent');
                     let div = modal.find('.modal-body form .render-html').empty();
                     let input = renderModalItems(data);
-
                     div.append(input);
                     modal.find('.modal-title').text(`Link ${data.type}`);
                     modal.find('.modal-body form input[name="type"]').val(data.type);
                     modal.find('.modal-body form input[name="id"]').val(data.id);
                     modal.find('.modal-body form input[name="social"]').val(data.social);
                     if (!data.social && data.type !== 'delete') {
-                        ClassicEditor
-                            .create($('textarea#social-content')[0],{
-                                image: {
-                                    toolbar: [ 'imageTextAlternative' ]
-                                }
-                                // toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ],
-                                // heading: {
-                                //     options: [
-                                //         { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                                //         { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-                                //         { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
-                                //     ]
-                                // }
-                            })
-                            .then(editor => {
-                                getTextByEditor = editor;
-                            })
-                            .catch(error => {
-                                console.error(error);
+                        window.editor = CKEDITOR
+                            .replace($('textarea#social-content')[0], {
+                                customConfig: "{{asset('ckeditor/config.js')}}",
                             });
-
                     }
                 });
                 $(document).on('click', 'button.submit', function () {
-                    $('textarea#social-content').val(getTextByEditor.getData());
                     let form = $('form#footer-crud');
+                    let id = form.find('input[name="id"]').val();
+                    form.find('textarea[id="social-content"]').val(window.editor.getData());
                     let action = form.attr('action');
                     let data = new FormData(form[0]);
                     form.find('small.text-danger').remove();
@@ -136,6 +119,12 @@
                         data: data,
                         success: (data) => {
                             if (data.success) {
+                                $(data.html).find('button[data-type="update"]').each((i, v) => {
+                                    if (id && $(v).data('id') && $(v).data('id') === parseInt(id)) {
+                                        $(v).closest('tr').addClass('shadow-lg bg-light-blue');
+                                        data.html = $(v).closest('div#dynamic_link');
+                                    }
+                                });
                                 $("div#dynamic_link").replaceWith(data.html);
                             }
                             $('#exampleModal').modal("hide");
@@ -150,7 +139,7 @@
                                     input.after(`<small class="text-danger">${errors[key][0]}</small>`);
                                 });
                             } else {
-                                // window.location.reload();
+                                window.location.reload();
                             }
                             preloaderHide();
                         }

@@ -819,4 +819,14 @@ input[type="checkbox"].fail{
     color: #1B8BCB;
     font-weight: bold;
 }
+.slider____item{
+    position: relative;
+}
+.slider____text{
+    position: absolute;
+    font-size: 4em;
+    font-weight: 500;
+    color: #008ccf;
+    text-shadow: 0 0 5px #3f414a73;
+}
 

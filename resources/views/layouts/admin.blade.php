@@ -16,8 +16,9 @@
     <link href="{{asset('administration/css/preloader.css')}}" rel="stylesheet">
     <link href="{{asset('administration/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('datatables/css/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+    <script type="text/javascript" src="{{asset('ckeditor/ckeditor.js')}}"></script>
     @stack('css')
-    <script src="https://cdn.ckeditor.com/ckeditor5/19.1.1/classic/ckeditor.js"></script>
+
 </head>
 <body id="page-top">
 
@@ -101,16 +102,16 @@
             <a class="nav-link @if(request()->route()->getPrefix()!=='admin/pages') collapsed @endif" href="#" data-toggle="collapse" data-target="#collapsePages"
                aria-expanded="true" aria-controls="collapsePages">
                 <i class="fas fa-fw fa-folder"></i>
-                <span>Pages</span>
+                <span>Страницы</span>
             </a>
             <div id="collapsePages" class="collapse @if(request()->route()->getPrefix()==='admin/pages') show @endif" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
 {{--                    <h6 class="collapse-header">Login Screens:</h6>--}}
 {{--                    <a class="collapse-item" href="login.html">Login</a>--}}
 {{--                    <a class="collapse-item" href="register.html">Register</a>--}}
-{{--                    <a class="collapse-item" href="forgot-password.html">Forgot Password</a>--}}
-{{--                    <div class="collapse-divider"></div>--}}
-                    <h6 class="collapse-header">Other Pages:</h6>
+                    <a class="collapse-item @if(request()->is('admin/pages/home')) active @endif" href="{{route('admin.pages.home')}}">Главная</a>
+                    <div class="collapse-divider"></div>
+                    <h6 class="collapse-header">Другие страницы:</h6>
 
                     <a class="collapse-item @if(request()->is('admin/pages/footer')) active @endif" href="{{route('admin.pages.footer')}}">Подвал сайта</a>
 {{--                    <a class="collapse-item" href="404.html">404 Page</a>--}}

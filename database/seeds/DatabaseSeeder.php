@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
          $this->call([
              AdminSeeder::class,
              SlugSeeder::class,
-             FooterLinksSeeder::class
+             FooterLinksSeeder::class,
+             SliderSeeder::class,
          ]);
     }
 }

@@ -16,12 +16,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
+    Route::resource('sliders', 'SliderController');
     Route::group(['as' => 'pages.', 'prefix' => 'pages','namespace'=>'Pages'], function () {
         Route::get('/footer', 'PageController@footer')->name('footer');
         Route::post('/footer/linkOnOff', 'PageController@linkOnOff')->name('footer.linkOnOff');
         Route::post('/footer/linkPosition', 'PageController@linkPosition')->name('footer.linkPosition');
         Route::post('/footer/linkFloat', 'PageController@linkFloat')->name('footer.linkFloat');
         Route::post('/footer/crud', 'PageController@footerLinkCrud')->name('footer.crud');
+        Route::get('/dynamic-page/image/browse', 'PageController@footerPageBrowseImg')->name('ckeditor.browse');
+        Route::post('/dynamic-page/upload/image', 'PageController@footerPageUploadImg')->name('ckeditor.upload');
+        Route::get('/home', 'PageController@homePage')->name('home');
     });
 });
 

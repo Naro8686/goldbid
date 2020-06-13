@@ -1,11 +1,9 @@
 @extends('layouts.site')
 @section('slider')
     <div class="slaider">
-        <div><img src="{{asset('site/img/slide1.png')}}" alt=""></div>
-        <div><img src="{{asset('site/img/slide2.png')}}" alt=""></div>
-        <div><img src="{{asset('site/img/slide3.png')}}" alt=""></div>
-        <div><img src="{{asset('site/img/slide4.png')}}" alt=""></div>
-        <div><img src="{{asset('site/img/slide5.png')}}" alt=""></div>
+        @foreach($sliders as $slider)
+            <div class="slider____item"><p class="slider____text">{{$slider->text}}</p><img src="{{asset($slider->image)}}" alt="{{$slider->alt}}"></div>
+        @endforeach
     </div>
 @endsection
 @section('title')Аукцион@endsection
@@ -16,7 +14,7 @@
     <link href="{{asset('site/css/style.css')}}" rel="stylesheet">
 @endpush
 @section('content')
-{{--    <div id="defaultCountdown"></div>--}}
+    {{--    <div id="defaultCountdown"></div>--}}
     <div class="auction container">
         <div class="favorite"></div>
         <div class="delete-margin">

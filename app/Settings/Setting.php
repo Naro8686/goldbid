@@ -45,6 +45,10 @@ class Setting
     {
         return $this->page;
     }
+    public function mete()
+    {
+        return $this->page->meta;
+    }
 
     /**
      * @return stdClass

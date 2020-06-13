@@ -6,6 +6,7 @@ use App\Footer;
 use App\Models\User;
 use App\Page;
 use App\Settings\Setting;
+use App\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -28,8 +29,9 @@ class HomeController extends Controller
 
     public function index()
     {
+        $sliders = Slider::all();
         $page = $this->page;
-        return view(self::DIR . 'index', compact('page'));
+        return view(self::DIR . 'index', compact('page','sliders'));
     }
 
     public function howItWorks()
