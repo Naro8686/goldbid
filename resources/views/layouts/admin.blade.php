@@ -7,14 +7,14 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin - {{ config('app.name', 'GoldBid') }}</title>
-    <link href="{{asset('admin/fontawesome-free/css/all.min.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/fontawesome-free/css/all.min.css')}}" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-    <link href="{{asset('admin/css/sb-admin-2.min.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/css/button.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/css/preloader.css')}}" rel="stylesheet">
-    <link href="{{asset('admin/css/custom.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/css/sb-admin-2.min.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/css/button.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/css/preloader.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('datatables/css/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
     @stack('css')
     <script src="https://cdn.ckeditor.com/ckeditor5/19.1.1/classic/ckeditor.js"></script>
@@ -475,17 +475,17 @@
         </div>
     </div>
 </div>
-<script src="{{asset('admin/js/jquery.min.js')}}"></script>
-<script src="{{asset('admin/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('admin/js/jquery.easing.min.js')}}"></script>
-<script src="{{asset('admin/js/sb-admin-2.min.js')}}"></script>
-<script src="{{asset('admin/js/Chart.min.js')}}"></script>
+<script src="{{asset('administration/js/jquery.min.js')}}"></script>
+<script src="{{asset('administration/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('administration/js/jquery.easing.min.js')}}"></script>
+<script src="{{asset('administration/js/sb-admin-2.min.js')}}"></script>
+<script src="{{asset('administration/js/Chart.min.js')}}"></script>
 <!-- Page level plugins -->
 <script src="{{asset('datatables/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{asset('datatables/js/dataTables.bootstrap4.min.js')}}"></script>
 
 <!-- customs -->
-<script src="{{asset('admin/js/customs.js')}}"></script>
+<script src="{{asset('administration/js/customs.js')}}"></script>
 
 @stack('js')
 </body>

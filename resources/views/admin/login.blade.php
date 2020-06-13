@@ -9,11 +9,11 @@
     <title>Login - {{ config('app.name', 'GoldBid') }}</title>
 
     <!-- Custom fonts for this template-->
-    <link href="{{asset('admin/fontawesome-free/css/all.min.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/fontawesome-free/css/all.min.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="{{asset('admin/css/sb-admin-2.min.css')}}" rel="stylesheet">
+    <link href="{{asset('administration/css/sb-admin-2.min.css')}}" rel="stylesheet">
 
 </head>
 
@@ -75,10 +75,10 @@
     </div>
 
 </div>
-<script src="{{asset('admin/js/jquery.min.js')}}"></script>
-<script src="{{asset('admin/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('admin/js/jquery.easing.min.js')}}"></script>
-<script src="{{asset('admin/js/sb-admin-2.min.js')}}"></script>
+<script src="{{asset('administration/js/jquery.min.js')}}"></script>
+<script src="{{asset('administration/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('administration/js/jquery.easing.min.js')}}"></script>
+<script src="{{asset('administration/js/sb-admin-2.min.js')}}"></script>
 <script src="{{asset('site/js/imask.js')}}"></script>
 <script>
     IMask(document.querySelector('input[name="phone"]'), {
