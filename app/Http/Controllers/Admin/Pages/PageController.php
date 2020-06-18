@@ -22,6 +22,12 @@ class PageController extends Controller
     public const UPDATE = 'update';
     public const DELETE = 'delete';
 
+    public function seoUpdate(Request $request, $id)
+    {
+        $page = Page::query()->findOrFail($id);
+        $page->update($request->only(["title", "keywords", "description"]));
+        return redirect()->back()->with('status', 'успешные дествия !');
+    }
 
     /**
      * @return \Illuminate\Support\Collection
@@ -220,11 +226,19 @@ class PageController extends Controller
         $upload = $this->postUploadImage($image);
         return response()->json($upload);
     }
-    public function homePage(Request $request){
+
+    public function homePage()
+    {
         $sliders = Slider::all();
-        $slug = Str::slug('/');
-        $meta = (new Setting($slug))->mete();
-        return view(self::DIR.'home',compact('sliders','meta'));
+        $meta = (new Setting('/'))->mete();
+        return view(self::DIR . 'home', compact('sliders', 'meta'));
+
+    }
+
+    public function howItWorksPage()
+    {
+        $meta = (new Setting('how-it-works'))->mete();
+        return view(self::DIR . 'howitworks', compact('meta'));
 
     }
 }

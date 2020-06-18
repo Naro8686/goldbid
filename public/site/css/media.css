@@ -2,8 +2,8 @@
     .authenticate form{
         padding: 10px 5px;
     }
-    .header {
-
+    .overlay {
+        padding: 0;
     }
 
     .header .container {

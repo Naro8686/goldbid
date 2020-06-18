@@ -23,8 +23,7 @@ class HomeController extends Controller
      */
     public function __construct(Request $request)
     {
-        $slug = Str::slug($request->segment(1));
-        $this->page = (new Setting($slug))->page();
+        $this->page = (new Setting($request->segment(1)))->page();
     }
 
     public function index()
@@ -59,10 +58,10 @@ class HomeController extends Controller
     }
 
 
-    public function dynamicPage($slug = null)
+    public function dynamicPage($link = null)
     {
-        $dynamicPage = Page::whereHas('footer', function ($query) use ($slug) {
-            return $query->where('link', '=', $slug);
+        $dynamicPage = Page::whereHas('footer', function ($query) use ($link) {
+            return $query->where('link', '=', $link);
         })->firstOrFail();
         $setting = (new Setting($dynamicPage->slug));
         $page =  $setting->content();

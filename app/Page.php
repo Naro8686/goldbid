@@ -9,7 +9,6 @@ class Page extends Model
     protected $fillable = [
         'slug', 'title', 'keywords', 'description','content'
     ];
-    //protected $with = ['footer'];
 
     public function title()
     {

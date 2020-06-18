@@ -34,7 +34,6 @@ class PostRequest extends FormRequest
             'image' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'name' => ['sometimes', 'required'],
             'link' => ['sometimes', 'required', 'regex:/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)([\?\w\.-=]*)*\/?$/'],
-            //'link' => ['sometimes', 'required', 'regex:/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/'],
         ];
     }
 }
