@@ -19,6 +19,12 @@ Route::group(['as' => 'admin.'], function () {
     Route::resource('sliders', 'SliderController')->only([
         'create', 'store', 'edit', 'update','destroy'
     ]);
+    Route::resource('howitworks', 'HowitworkController')->only([
+        'create', 'store', 'edit', 'update','destroy'
+    ]);
+    Route::resource('questions', 'QuestionController')->only([
+        'create', 'store', 'edit', 'update','destroy'
+    ]);
     Route::group(['as' => 'pages.', 'prefix' => 'pages','namespace'=>'Pages'], function () {
         Route::post('/seo/{id}/update', 'PageController@seoUpdate')->name('seo.update');
         Route::get('/footer', 'PageController@footer')->name('footer');

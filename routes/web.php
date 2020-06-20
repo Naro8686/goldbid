@@ -21,6 +21,7 @@ Route::group(['as' => 'site.'], function ()
     Route::get('/feedback', 'HomeController@feedback')->name('feedback');
     Route::get('/reviews', 'HomeController@reviews')->name('reviews');
     Route::get('/coupon', 'HomeController@coupon')->name('coupon');
+    Route::get('/cookie-agree', 'HomeController@cookieAgree')->name('cookie_agree');
 
     //Route::group(['middleware' => 'auth'], function (){});
 });

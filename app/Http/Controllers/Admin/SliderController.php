@@ -35,7 +35,7 @@ class SliderController extends Controller
         ]);
         if ($image = $request->file('file')) $request['image'] = $this->uploadImage($image,'site/img/settings/sliders');
 
-        Slider::query()->insert($request->only(['image', 'text', 'alt']));
+        Slider::query()->insert($request->only(['image', 'alt']));
         return redirect()->route('admin.pages.home')->with('status', 'успешные дествия !');
     }
 
@@ -66,7 +66,7 @@ class SliderController extends Controller
         $slider = Slider::query()->findOrFail($id);
         if ($image = $request->file('file')) $request['image'] = $this->uploadImage($image,'site/img/settings/sliders');
         if ($request['image'] && is_file(public_path($slider->image))) unlink(public_path($slider->image));
-        $slider->update($request->only(['image', 'text', 'alt']));
+        $slider->update($request->only(['image', 'alt']));
         return redirect()->route('admin.pages.home')->with('status', 'успешные дествия !');
     }
 

@@ -15,7 +15,6 @@
                         <tr>
                             <th>Картинка</th>
                             <th>Alt</th>
-                            <th>Наименование</th>
                             <th>Действие</th>
                         </tr>
                         </thead>
@@ -34,11 +33,6 @@
                                          width="50"></td>
                                 <td>
                                     <p class="name">{{$slider->alt}}</p>
-                                </td>
-                                <td>
-                                    <p>
-                                        {{$slider->text}}
-                                    </p>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">

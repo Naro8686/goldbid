@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin\Pages;
 
 use App\Footer;
+use App\Howitwork;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostRequest;
 use App\Page;
+use App\Question;
 use App\Settings\ImageTrait;
 use App\Settings\Setting;
 use App\Slider;
@@ -238,7 +240,8 @@ class PageController extends Controller
     public function howItWorksPage()
     {
         $meta = (new Setting('how-it-works'))->mete();
-        return view(self::DIR . 'howitworks', compact('meta'));
-
+        $steps = Howitwork::all();
+        $questions = Question::all();
+        return view(self::DIR . 'howitworks', compact('meta', 'steps', 'questions'));
     }
 }

@@ -273,18 +273,20 @@
         <p class="info">&copy;  {{config('app.name').' '.date('Y')}} - Все права защищены</p>
     </div>
 </div>
+
+@if(!request()->hasCookie('cookiesPolicy'))
 <div class="down-footer">
     <div class="agree_cookie">
         <div class="container">
             <div>
                 Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a href="{{Setting::dynamicURL('cookie-terms-of-use')}}">условиями использования</a> файлов cookie.
             </div>
-            <input type="button" class="agree_cookie_btn" value="Согласен">
-            <div class="close">x</div>
+            <button class="cookie__btn agree_cookie_btn" data-agree="1">Согласен</button>
+            <button class="cookie__btn close" data-agree="0">x</button>
         </div>
     </div>
 </div>
-
+@endif
 <script src="{{asset('site/js/jquery.js')}}"></script>
 <script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>
 <script src="{{asset('site/js/prefixfree.min.js')}}"></script>
@@ -294,6 +296,7 @@
 <script src="{{asset('site/js/humburger.js')}}"></script>
 <script src="{{asset('site/js/modal.js')}}"></script>
 <script src="{{asset('site/js/slick.js')}}"></script>
+<script src="{{asset('site/js/custom.js')}}"></script>
 @stack('js')
 </body>
 </html>

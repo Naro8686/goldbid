@@ -1,5 +1,4 @@
 @extends('layouts.site')
-@section('title')Обратная связь@endsection
 @push('css')
     <link rel="stylesheet" href="{{asset('site/css/feedback.css')}}">
 @endpush

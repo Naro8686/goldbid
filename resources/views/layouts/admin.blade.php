@@ -113,6 +113,8 @@
                     {{--                    <a class="collapse-item" href="register.html">Register</a>--}}
                     <a class="collapse-item @if(request()->is('admin/pages/home')) active @endif"
                        href="{{route('admin.pages.home')}}">Главная</a>
+                    <a class="collapse-item @if(request()->is('admin/pages/howitworks')) active @endif"
+                       href="{{route('admin.pages.howitworks')}}">Как это работает</a>
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">Другие страницы:</h6>
 
@@ -368,15 +370,15 @@
                                 {{ session('status') }}
                             </div>
                         @endif
-                        {{--                        @if ($errors->any())--}}
-                        {{--                            <div class="alert alert-danger">--}}
-                        {{--                                <ul>--}}
-                        {{--                                    @foreach ($errors->all() as $error)--}}
-                        {{--                                        <li>{{ $error }}</li>--}}
-                        {{--                                    @endforeach--}}
-                        {{--                                </ul>--}}
-                        {{--                            </div>--}}
-                        {{--                        @endif--}}
+                        {{-- @if ($errors->any())--}}
+                        {{--    <div class="alert alert-danger">--}}
+                        {{--         <ul>--}}
+                        {{--         @foreach ($errors->all() as $error)--}}
+                        {{--            <li>{{ $error }}</li>--}}
+                        {{--         @endforeach--}}
+                        {{--         </ul>--}}
+                        {{--    </div>--}}
+                        {{-- @endif--}}
                     </div>
                 </div>
             </div>

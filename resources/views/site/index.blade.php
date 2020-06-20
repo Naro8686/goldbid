@@ -2,11 +2,12 @@
 @section('slider')
     <div class="slaider">
         @foreach($sliders as $slider)
-            <div class="slider____item"><p class="slider____text">{{$slider->text}}</p><img src="{{asset($slider->image)}}" alt="{{$slider->alt}}"></div>
+            <div class="slider____item">
+                <img src="{{asset($slider->image)}}" alt="{{$slider->alt}}">
+            </div>
         @endforeach
     </div>
 @endsection
-@section('title')Аукцион@endsection
 @section('name-page')Аукцион@endsection
 @push('css')
     <link href="{{asset('site/css/slick.css')}}" rel="stylesheet">

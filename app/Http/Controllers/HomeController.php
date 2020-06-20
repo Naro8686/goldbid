@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Footer;
+use App\Howitwork;
 use App\Models\User;
 use App\Page;
+use App\Question;
 use App\Settings\Setting;
 use App\Slider;
 use Illuminate\Http\Request;
@@ -30,13 +32,15 @@ class HomeController extends Controller
     {
         $sliders = Slider::all();
         $page = $this->page;
-        return view(self::DIR . 'index', compact('page','sliders'));
+        return view(self::DIR . 'index', compact('page', 'sliders'));
     }
 
     public function howItWorks()
     {
         $page = $this->page;
-        return view(self::DIR . 'how_it_works', compact('page'));
+        $steps = Howitwork::all();
+        $questions = Question::all();
+        return view(self::DIR . 'how_it_works', compact('page', 'steps', 'questions'));
     }
 
     public function feedback()
@@ -64,8 +68,15 @@ class HomeController extends Controller
             return $query->where('link', '=', $link);
         })->firstOrFail();
         $setting = (new Setting($dynamicPage->slug));
-        $page =  $setting->content();
+        $page = $setting->content();
         return view(self::DIR . 'dynamic_page', compact('page'));
+    }
+
+    public function cookieAgree(Request $request)
+    {
+        $time = ($agree = (bool)$request['agree']) ? now()->addMonth() : now()->addDay();
+        $cookie = cookie('cookiesPolicy', $time, $time->diffInMinutes());
+        return response(['agree' => $agree])->cookie($cookie);
     }
 
 }

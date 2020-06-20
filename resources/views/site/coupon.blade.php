@@ -1,5 +1,4 @@
 @extends('layouts.site')
-@section('title')Пакеты ставок@endsection
 @section('name-page')Пакеты ставок@endsection
 @push('css')
     <link rel="stylesheet" href="{{asset('site/css/coupon.css')}}">

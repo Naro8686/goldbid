@@ -1,10 +1,13 @@
 $(document).ready(function () {
     preloaderHide();
+    $(document).on('change', '#upload', function () {
+        readURL($(this)[0]);
+    });
     $('*[data-target="#resourceModal"]').on('click', function (e) {
-        let _this =$(this);
-        let action =_this.data('action');
+        let _this = $(this);
+        let action = _this.data('action');
         let form = $(_this.data('target')).find('form#resource-delete');
-        form.attr('action',action);
+        form.attr('action', action);
     });
     $.fn.modal.Constructor.prototype._enforceFocus = function () {
         let element = $(this._element);
@@ -16,6 +19,12 @@ $(document).ready(function () {
             }
         })
     };
+    if ($('textarea').hasClass('ck__textarea')) {
+        window.editor = CKEDITOR
+            .replace($('textarea.ck__textarea')[0], {
+                customConfig: "/ckeditor/config.js",
+            });
+    }
 });
 
 function preloader() {

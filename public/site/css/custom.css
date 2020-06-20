@@ -272,3 +272,15 @@
 .authenticate a {
 color: #1B8BCB;
 }
+.w-100{
+    width: 100% !important;
+}
+.d-flex{
+    display: flex !important;
+}
+.d-flex.flex-row-reverse{
+    flex-direction: row-reverse !important;
+}
+.d-flex.flex-row{
+    flex-direction: row !important;
+}

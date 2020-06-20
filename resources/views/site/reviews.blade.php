@@ -1,5 +1,4 @@
 @extends('layouts.site')
-@section('title')Отзывы@endsection
 @section('name-page')Отзывы@endsection
 @push('css')
     <link rel="stylesheet" href="{{asset('site/css/reviews.css')}}">

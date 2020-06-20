@@ -76,23 +76,6 @@ $(document).ready(function () {
     //get_balance();
     //setInterval('get_balance()',10000);
 
-    $('.agree_cookie .close').on('click', function () {
-        $('.agree_cookie').toggle();
-    });
-
-    $('.agree_cookie .agree_cookie_btn').on('click', function () {
-        $.cookie('agree_cookie', 'agree');
-        $('.agree_cookie').toggle();
-    });
-
-    if ($.cookie('agree_cookie') != 'agree') {
-        $('.agree_cookie').toggle();
-    }
-
-    $.cookie('agree_cookie');
-    // $.cookie('agree_cookie', '')
-    // $.cookie('agree_cookie', 'cookie_value');
-    // console.log($.cookie('cookie_name'));
     phoneMask();
     $('form#register').on('submit', (e) => {
         e.preventDefault();

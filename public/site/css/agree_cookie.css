@@ -1,6 +1,6 @@
 .agree_cookie {
     position: relative;
-    display: none;
+    /*display: none;*/
     width: 100%;
     box-sizing: border-box;
     padding: 5px;
