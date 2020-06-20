@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
              SlugSeeder::class,
              FooterLinksSeeder::class,
              SliderSeeder::class,
-             StepSeeder::class
+             StepSeeder::class,
+             ReviewsSeed::class,
          ]);
     }
 }

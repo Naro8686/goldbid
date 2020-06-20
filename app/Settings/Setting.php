@@ -5,6 +5,7 @@ namespace App\Settings;
 
 
 use App\Footer;
+use App\Models\User;
 use App\Page;
 use Illuminate\Support\Str;
 use stdClass;
@@ -75,6 +76,15 @@ class Setting
         $slug = Str::slug($slug);
         $page = Page::whereSlug($slug)->with('footer')->first();
         return url($page->footer->link);
+    }
+
+    public static function siteContacts()
+    {
+        $admin = User::query()->where('is_admin', true)->first(['email', 'phone']);
+        $data = new stdClass();
+        $data->email = $admin->email ?? null;
+        $data->phone = User::setPhoneMask($admin->phone) ?? null;
+        return $data;
     }
 
 }

@@ -9,43 +9,15 @@
             <div class="feedback">
                 <ul id="slides">
                     <i><img onclick="nextSlide()" src="{{asset('site/css/img/Arrow-Right-icon.png')}}" alt=""></i>
-                    <li class="slide showing">
-
-                        <img src="{{asset('site/css/img/reviews1.jpg')}}" alt="">
-                        <p>
-                            <span>Оля г. Симферополь </span><br><br>
-                            Друзья, это все правда. Это реальный шанс сэкономить на покупке крутейших гаджетов. Участвую с удовольствием
-                        </p>
-                    </li>
-                    <li class="slide">
-                        <img src="{{asset('site/css/img/reviews2.jpg')}}" alt="">
-                        <p>
-                            <span>Данила г. Иркутск</span><br><br>
-                            Это нереально круто! Я купил MAC за копейки! Ребята, вы в это верите вообще?? Моя самая выгодная покупка в жизни!
-                        </p>
-                    </li>
-                    <li class="slide">
-                        <img src="{{asset('site/css/img/reviews3.jpg')}}" alt="">
-                        <p>
-                            <span>Олеся г. Москва</span><br><br>
-                            Про аукцион мне рассказала подруга, она давно там отоваривается. Я сразу подумала - развод. А потом ради интереса купила 10 ставок. И сразу выиграла! Азарт и адреналин просто зашкаливают! Буду участвовать ещё.
-
-                        </p>
-                    </li>
-                    <li class="slide">
-                        <img src="{{asset('site/css/img/reviews4.jpg')}}" alt="">
-                        <p>
-                            <span>Михаил г. Воронеж</span><br><br>
-                            Ребята, даже не сомневайтесь. Самый крутой и выгодный шопинг в интернете.
-                        </p>
-                    </li>
-                    <li class="slide">
-                        <img src="{{asset('site/css/img/reviews5.jpg')}}" alt="">
-                        <p>
-                            <span>Аслан г. Сочи</span><br><br>
-                            Аааа! Я в шоке! Айфон за 1800 рублей... Я вас люблю GoldBid!
-                        </p>
-                    </li>
+                    @foreach($reviews as $key => $review)
+                        <li class="slide @if($key===0) showing @endif">
+                            <img src="{{asset($review->image)}}" alt="{{$review->alt}}">
+                            <p>
+                                <span>{{$review->title}}</span><br><br>
+                                {{$review->description}}
+                            </p>
+                        </li>
+                    @endforeach
                 </ul>
             </div>
 
@@ -53,20 +25,43 @@
             <hr>
             <div class="send-feedback">
                 <p class="title">Оставить отзыв</p>
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <p>Имя</p>
-                    <input type="text" name="name">
-                    <p>Город</p>
-                    <input type="text" name="city">
-                    <p>Сообщение</p>
-                    <textarea name="message" id="" cols="30" rows="10"></textarea>
-                    <div class="g-recaptcha" data-sitekey="6LfdH30UAAAAAMq5D9CnM_oZGpmkjHy1p0UqzlsO"></div>
+                <form action="{{route('site.reviews')}}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <label for="name">Имя</label>
+                    <input type="text" name="name" id="name" value="{{old('name')}}">
+                    @error('name')
+                    <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                    @enderror
+                    <br><br>
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" id="email" value="{{old('email')}}">
+                    @error('email')
+                    <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                    @enderror
+                    <br><br>
+                    <label for="message">Сообщение</label>
+                    <textarea name="message" id="message" cols="30" rows="10">{{old('message')}}</textarea>
+                    @error('message')
+                    <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                    @enderror
+                    <br><br>
+                    @if(config('recaptcha.key'))
+                        <div class="g-recaptcha"
+                             data-sitekey="{{config('recaptcha.key')}}">
+                        </div>
+                    @endif
+                    @error('g-recaptcha-response')
+                    <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                    @enderror
                     <div class="buttons">
-                        <input type="submit" name="send">
+                        <input type="submit" value="отправить">
                         <label>
-                            <input type="file" name="userfile" id="uploade-file">
+                            <input type="file" name="file" id="uploade-file">
                             <span>Загрузить фото</span>
                         </label>
+                        @error('file')
+                        <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                        @enderror
                     </div>
                 </form>
             </div>
@@ -76,11 +71,11 @@
         <script>
             var slides = document.querySelectorAll('#slides .slide');
             var currentSlide = 0;
-            var slideInterval = setInterval(nextSlide,15000);
+            var slideInterval = setInterval(nextSlide, 15000);
 
             function nextSlide() {
                 slides[currentSlide].className = 'slide';
-                currentSlide = (currentSlide+1)%slides.length;
+                currentSlide = (currentSlide + 1) % slides.length;
                 slides[currentSlide].className = 'slide showing';
             }
         </script>

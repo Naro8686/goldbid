@@ -41,13 +41,5 @@
                 </div>
             </div>
         </form>
-
     </div>
-    @push('js')
-        <script>
-            $(document).on('change', '#upload', function () {
-                readURL($(this)[0]);
-            });
-        </script>
-    @endpush
 @endsection

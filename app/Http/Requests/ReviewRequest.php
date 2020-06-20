@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegistrationValidate extends FormRequest
+class ReviewRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class RegistrationValidate extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,10 +24,8 @@ class RegistrationValidate extends FormRequest
     public function rules()
     {
         return [
-            'nickname' => ['required', 'string', 'max:100','unique:users'],
-            'phone' => ['required', 'string', 'max:100', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'g-recaptcha-response' => ['required','recaptcha']
+            'title'=>['required','string'],
+            'description'=>['required','string'],
         ];
     }
 }

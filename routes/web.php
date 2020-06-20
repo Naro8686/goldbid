@@ -14,12 +14,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::group(['as' => 'site.'], function ()
-{
+Route::group(['as' => 'site.'], function () {
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/how-it-works', 'HomeController@howItWorks')->name('how_it_works');
     Route::get('/feedback', 'HomeController@feedback')->name('feedback');
-    Route::get('/reviews', 'HomeController@reviews')->name('reviews');
+    Route::match(['GET', 'POST'], '/reviews', 'HomeController@reviews')->name('reviews');
     Route::get('/coupon', 'HomeController@coupon')->name('coupon');
     Route::get('/cookie-agree', 'HomeController@cookieAgree')->name('cookie_agree');
 

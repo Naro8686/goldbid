@@ -73,6 +73,11 @@ class User extends Authenticatable
         return is_null($phone) ? $phone : str_replace(['+', '(', ')', '-'], '', $phone);
     }
 
+    public static function setPhoneMask(string $phone)
+    {
+        return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4',$phone);
+    }
+
     public function balanceHistory()
     {
         return $this->hasMany(Balance::class);

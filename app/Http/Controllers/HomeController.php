@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Footer;
 use App\Howitwork;
+use App\Mail\ReviewSendMail;
 use App\Models\User;
 use App\Page;
 use App\Question;
+use App\Review;
 use App\Settings\Setting;
 use App\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class HomeController extends Controller
@@ -49,10 +52,22 @@ class HomeController extends Controller
         return view(self::DIR . 'feedback', compact('page'));
     }
 
-    public function reviews()
+    public function reviews(Request $request)
     {
+        if ($request->isMethod('POST')) {
+            $request->validate([
+                'name' => ['required', 'string', 'max:100'],
+                'email' => ['required', 'email', 'max:150'],
+                'message' => ['required', 'string', 'max:250'],
+                'file' => ['sometimes', 'image', 'mimes:jpeg,jpg,png,gif,svg', 'max:2048'],
+                'g-recaptcha-response' => ['required', 'recaptcha']
+            ]);
+            if (Setting::siteContacts()->email)
+                Mail::to(Setting::siteContacts()->email)->send(new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+        }
         $page = $this->page;
-        return view(self::DIR . 'reviews', compact('page'));
+        $reviews = Review::all();
+        return view(self::DIR . 'reviews', compact('page', 'reviews'))->with(['status'=>'sdsd']);
     }
 
     public function coupon()

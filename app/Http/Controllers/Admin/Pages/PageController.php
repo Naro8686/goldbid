@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PostRequest;
 use App\Page;
 use App\Question;
+use App\Review;
 use App\Settings\ImageTrait;
 use App\Settings\Setting;
 use App\Slider;
@@ -243,5 +244,12 @@ class PageController extends Controller
         $steps = Howitwork::all();
         $questions = Question::all();
         return view(self::DIR . 'howitworks', compact('meta', 'steps', 'questions'));
+    }
+
+    public function reviewsPage()
+    {
+        $meta = (new Setting('reviews'))->mete();
+        $reviews = Review::all();
+        return view(self::DIR . 'reviews', compact('meta', 'reviews'));
     }
 }

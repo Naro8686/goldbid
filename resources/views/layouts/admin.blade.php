@@ -115,6 +115,8 @@
                        href="{{route('admin.pages.home')}}">Главная</a>
                     <a class="collapse-item @if(request()->is('admin/pages/howitworks')) active @endif"
                        href="{{route('admin.pages.howitworks')}}">Как это работает</a>
+                    <a class="collapse-item @if(request()->is('admin/pages/reviews')) active @endif"
+                       href="{{route('admin.pages.reviews')}}">Отзывы</a>
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">Другие страницы:</h6>
 

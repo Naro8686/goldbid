@@ -25,6 +25,9 @@ Route::group(['as' => 'admin.'], function () {
     Route::resource('questions', 'QuestionController')->only([
         'create', 'store', 'edit', 'update','destroy'
     ]);
+    Route::resource('reviews', 'ReviewController')->only([
+        'create', 'store', 'edit', 'update','destroy'
+    ]);
     Route::group(['as' => 'pages.', 'prefix' => 'pages','namespace'=>'Pages'], function () {
         Route::post('/seo/{id}/update', 'PageController@seoUpdate')->name('seo.update');
         Route::get('/footer', 'PageController@footer')->name('footer');
@@ -36,6 +39,7 @@ Route::group(['as' => 'admin.'], function () {
         Route::post('/dynamic-page/upload/image', 'PageController@footerPageUploadImg')->name('ckeditor.upload');
         Route::get('/home', 'PageController@homePage')->name('home');
         Route::get('/howitworks', 'PageController@howItWorksPage')->name('howitworks');
+        Route::get('/reviews', 'PageController@reviewsPage')->name('reviews');
     });
 });
 
