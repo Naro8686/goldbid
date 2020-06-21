@@ -4,9 +4,9 @@
 namespace App\Settings;
 
 
-use App\Footer;
+use App\Models\Pages\Footer;
 use App\Models\User;
-use App\Page;
+use App\Models\Pages\Page;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -87,4 +87,26 @@ class Setting
         return $data;
     }
 
+    /**
+     * @param int|null $id
+     * @return array|mixed
+     */
+    public static function feedbackTheme(?int $id)
+    {
+        $themes = [
+            ['id' => 1, 'value' => 'Регистрация'],
+            ['id' => 2, 'value' => 'Аккаунт'],
+            ['id' => 3, 'value' => 'Баланс'],
+            ['id' => 4, 'value' => 'Игровой процесс'],
+            ['id' => 5, 'value' => 'Прочее'],
+        ];
+        foreach ($themes as $theme) {
+            if ($theme['id'] === $id) {
+                $themes = $theme['value'];
+                break;
+            }
+        }
+
+        return $themes;
+    }
 }

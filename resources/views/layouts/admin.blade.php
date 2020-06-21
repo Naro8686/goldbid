@@ -117,6 +117,10 @@
                        href="{{route('admin.pages.howitworks')}}">Как это работает</a>
                     <a class="collapse-item @if(request()->is('admin/pages/reviews')) active @endif"
                        href="{{route('admin.pages.reviews')}}">Отзывы</a>
+                    <a class="collapse-item @if(request()->is('admin/pages/feedback')) active @endif"
+                       href="{{route('admin.pages.feedback')}}">Обратная связь</a>
+                    <a class="collapse-item @if(request()->is('admin/pages/coupon')) active @endif"
+                       href="{{route('admin.pages.coupon')}}">Пополнить баланс</a>
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">Другие страницы:</h6>
 
@@ -401,6 +405,7 @@
             <!-- End of preloader -->
 
             <!-- Begin Page Content -->
+
         @yield('content')
         <!-- /.container-fluid -->
         </div>
@@ -441,7 +446,8 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Отмена</button>
                 <a class="btn btn-primary" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">Выход из системы</a>
+                                                     document.getElementById('logout-form').submit();">Выход из
+                    системы</a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>

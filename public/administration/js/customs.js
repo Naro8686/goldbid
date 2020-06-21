@@ -100,6 +100,27 @@ function renderModalItems(data) {
         input += `<div class="form-group"><h2 class="text-center">Вы уверены ?</h2></div>`;
     }
     return input;
-
 }
+
+function oNoFF(element, action, data = {}, method = "GET") {
+    if (method === "PUT") {
+        data._method = "PUT";
+        method = "POST";
+    }
+    data.visibly = $(element).attr('aria-pressed') === 'true' ? 0 : 1;
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: method,
+        url: action,
+        data: data,
+        success: () => {
+        },
+        error: (error) => {
+            console.log(error)
+        }
+    });
+}
+
 

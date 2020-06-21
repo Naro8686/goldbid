@@ -1,6 +1,6 @@
 <?php
 
-use App\Page;
+use App\Models\Pages\Page;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 

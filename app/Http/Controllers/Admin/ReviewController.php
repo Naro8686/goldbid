@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewRequest;
-use App\Review;
+use App\Models\Pages\Review;
 use App\Settings\ImageTrait;
 
 class ReviewController extends Controller

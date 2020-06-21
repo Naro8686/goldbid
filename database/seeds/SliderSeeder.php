@@ -1,6 +1,6 @@
 <?php
 
-use App\Slider;
+use App\Models\Pages\Slider;
 use Illuminate\Database\Seeder;
 
 class SliderSeeder extends Seeder

@@ -28,6 +28,9 @@ Route::group(['as' => 'admin.'], function () {
     Route::resource('reviews', 'ReviewController')->only([
         'create', 'store', 'edit', 'update','destroy'
     ]);
+    Route::resource('packages', 'PackageController')->only([
+        'create', 'store', 'edit', 'update','destroy'
+    ]);
     Route::group(['as' => 'pages.', 'prefix' => 'pages','namespace'=>'Pages'], function () {
         Route::post('/seo/{id}/update', 'PageController@seoUpdate')->name('seo.update');
         Route::get('/footer', 'PageController@footer')->name('footer');
@@ -40,6 +43,8 @@ Route::group(['as' => 'admin.'], function () {
         Route::get('/home', 'PageController@homePage')->name('home');
         Route::get('/howitworks', 'PageController@howItWorksPage')->name('howitworks');
         Route::get('/reviews', 'PageController@reviewsPage')->name('reviews');
+        Route::get('/feedback', 'PageController@feedbackPage')->name('feedback');
+        Route::get('/coupon', 'PageController@couponPage')->name('coupon');
     });
 });
 

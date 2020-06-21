@@ -24,8 +24,9 @@ class User extends Authenticatable
         'fname', 'lname', 'mname',
         'phone', 'postcode', 'region', 'city',
         'street', 'gender', 'birthday', 'sms_code',
-        'sms_verified_at', 'email', 'email_verified_at', 'referral_link',
-        'password', 'remember_token', 'is_online'
+        'sms_verified_at', 'email', 'email_verified_at',
+        'password', 'remember_token', 'is_online',
+        'email_code','email_code_verified'
     ];
 
     /**
@@ -45,14 +46,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'sms_verified_at' => 'datetime',
+        'email_code_verified' => 'datetime',
         'is_online' => 'datetime',
         'birthday' => 'date',
         'is_admin' => 'boolean',
         'has_ban' => 'boolean',
     ];
     protected $with = ['balanceHistory'];
-    public $bet;
-    public $bonus;
 
     public function avatar()
     {

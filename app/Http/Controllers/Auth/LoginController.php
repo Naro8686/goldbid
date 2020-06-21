@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Page;
 use App\Providers\RouteServiceProvider;
 use App\Settings\Setting;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;

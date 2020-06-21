@@ -1,6 +1,6 @@
 <?php
 
-use App\Review;
+use App\Models\Pages\Review;
 use Illuminate\Database\Seeder;
 
 class ReviewsSeed extends Seeder

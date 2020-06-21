@@ -32,9 +32,10 @@ class CreateUsersTable extends Migration
             $table->string('sms_code')->nullable();
             $table->timestamp('sms_verified_at')->nullable();
             $table->string('email')->unique()->nullable();
+            $table->integer('email_code')->nullable()->index();
+            $table->timestamp('email_code_verified')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('referral_link')->unique()->nullable();
             $table->timestamp('is_online')->default(now());
             $table->rememberToken();
             $table->timestamps();

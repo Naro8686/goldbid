@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models\Pages;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Slider extends Model
+class Howitwork extends Model
 {
     protected $fillable = ['image','alt'];
 }

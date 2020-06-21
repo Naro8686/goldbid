@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Howitwork;
+use App\Models\Pages\Howitwork;
 use App\Http\Controllers\Controller;
 use App\Settings\ImageTrait;
 use Illuminate\Http\Request;

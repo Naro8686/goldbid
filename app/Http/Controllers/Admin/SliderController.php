@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Settings\ImageTrait;
-use App\Slider;
+use App\Models\Pages\Slider;
 use Illuminate\Http\Request;
 
 class SliderController extends Controller

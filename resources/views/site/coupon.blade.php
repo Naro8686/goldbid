@@ -10,76 +10,16 @@
             <p>Чем крупнее пакет ставок выберите, тем больше получите Бонусов! Это даст огромное преимущество перед
                 другими игроками!</p>
             <div class="blocks">
-                <div class="kupon">
-                    <label id="10" class="uncheck"></label>
-                    <input id='one' name="select" type='text' value="10"/>
-                    <img src="{{asset('site/img/10bid.png')}}" alt="">
-                    <p class="price">10 ставок <br> 100 руб</p>
-                </div>
-                <div class="kupon">
-                    <label id="50" class="uncheck"></label>
-                    <img src="{{asset('site/img/50bid.png')}}" alt="">
-                    <div class="kupon-bonus">+5 Бонусов</div>
-                    <p class="price">50 ставок <br> 500 руб</p>
-                </div>
-                <div class="kupon">
-                    <label id="100" class="uncheck"></label>
-                    <img src="{{asset('site/img/100bid.png')}}" alt="">
-                    <div class="kupon-bonus">+20 Бонусов</div>
-                    <p class="price">100 ставок <br> 1000 руб</p>
-                </div>
-                <div class="kupon">
-                    <label id="500" class="uncheck"></label>
-                    <img src="{{asset('site/img/500bid.png')}}" alt="">
-                    <div class="kupon-bonus">+150 Бонусов</div>
-                    <p class="price">500 ставок <br> 5000 руб</p>
-                </div>
-                <div class="kupon">
-                    <label id="1000" class="uncheck"></label>
-                    <img src="{{asset('site/img/1000bid.png')}}" alt="">
-                    <div class="kupon-bonus">+500 Бонусов</div>
-                    <p class="price">1000 ставок <br> 10000 руб</p>
-                </div>
-                <!-- <div class="kupon">
-                    <input id='six' name="select" type='radio' />
-                    <label class="check" for='six'>
-                        <span></span>
-                    </label>
-                    <img src="img/10bonus.png" alt="">
-                    <p class="price">10 бонусов <br> 500 руб</p>
-                </div>
-                <div class="kupon">
-                    <input id='seven' name="select" type='radio' />
-                    <label class="check" for='seven'>
-                        <span></span>
-                    </label>
-                    <img src="img/50bonus.png" alt="">
-                    <p class="price">50 бонусов <br> 500 руб</p>
-                </div>
-                <div class="kupon">
-                    <input id='eight' name="select" type='radio' />
-                    <label class="check" for='eight'>
-                        <span></span>
-                    </label>
-                    <img src="img/100bonus.png" alt="">
-                    <p class="price">100 бонусов<br> 500 руб</p>
-                </div>
-                <div class="kupon">
-                    <input id='nine' name="select" type='radio' />
-                    <label class="check" for='nine'>
-                        <span></span>
-                    </label>
-                    <img src="img/500bonus.png" alt="">
-                    <p class="price">500 бонусов <br> 500 руб</p>
-                </div>
-                <div class="kupon">
-                    <input id='ten' name="select" type='radio' />
-                    <label class="check" for='ten'>
-                        <span></span>
-                    </label>
-                    <img src="img/1000bonus.png" alt="">
-                    <p class="price">1000 бонусов <br> 500 руб</p>
-                </div> -->
+                @foreach($packages as $package)
+                    <div class="kupon">
+                        <label id="{{$package->id}}" class="uncheck"></label>
+                        <img src="{{asset($package->image)}}" alt="{{$package->alt}}">
+                        @if((int)$package->bonus)
+                        <div class="kupon-bonus">{{'+'.$package->bonus.' Бонусов'}}</div>
+                        @endif
+                        <p class="price">{{$package->bet.' ставок'}} <br> {{$package->price.' руб'}}</p>
+                    </div>
+                    @endforeach
             </div>
             <p class="title">2. Выберите способ оплаты</p>
             <div class="payment">

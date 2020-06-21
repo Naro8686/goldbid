@@ -9,24 +9,64 @@
                 Обратная связь
             </div>
 
-            <form action="" method="POST" enctype="multipart/form-data">
-                <p>Имя</p>
-                <input type="text" name="name">
-                <p>E-mail</p>
-                <input type="text" name="email">
-                <p>Сообщение</p>
-                <textarea name="message" id="" cols="30" rows="10"></textarea>
-                <div class="g-recaptcha" data-sitekey="6LfdH30UAAAAAMq5D9CnM_oZGpmkjHy1p0UqzlsO"></div>
+            <form action="{{route('site.feedback')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <label for="name">Имя</label>
+                <input type="text" name="name" id="name" value="{{old('name')}}">
+                @error('name')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
+                <br><br>
+                <label for="email">E-mail</label>
+                <input type="email" name="email" id="email" value="{{old('email')}}">
+                @error('email')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
+                <br><br>
+                <label for="theme">Тема обращения</label>
+
+                <select name="theme" id="theme">
+                    <option value="">Выберите тему обращение</option>
+                    @foreach($themes as $theme)
+                        <option value="{{$theme['id']}}"
+                                @if(old('theme')==$theme['id']) selected @endif>{{$theme['value']}}</option>
+                    @endforeach
+                </select>
+                @error('theme')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
+                <br><br>
+
+                <label for="message">Сообщение</label>
+                <textarea name="message" id="message" cols="30" rows="10">{{old('message')}}</textarea>
+                @error('message')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
+                <br><br>
+                @if(config('recaptcha.key'))
+                    <div class="g-recaptcha"
+                         data-sitekey="{{config('recaptcha.key')}}">
+                    </div>
+                @endif
+                @error('g-recaptcha-response')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
                 <div class="buttons">
+                    <input type="submit" value="отправить" style="margin-right: 5px">
                     <label>
-                        <input type="file" name="userfile" id="uploade-file">
+                        <input type="file" name="file" id="uploade-file">
                         <span>Загрузить файл</span>
                     </label>
-                    <input type="submit" name="send">
                 </div>
-                <div style="margin-top: -40px;margin-bottom: 40px;">Почта: GoldBid24@gmail.com
-                    <span style="float: right;">Тел.:+7(918)127-47-76</span></div>
+                @error('file')
+                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                @enderror
+                <div style="display: flex;justify-content: space-between">
+                    <span>Почта: {{$contact->email}}</span>
+                    <span>Тел.: {{$contact->phone}}</span>
+                </div>
             </form>
+
         </div>
     </div>
 @endsection

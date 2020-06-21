@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Page;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Settings\Setting;
@@ -80,6 +79,7 @@ class RegisterController extends Controller
             'nickname' => $data['nickname'],
             'phone' => User::unsetPhoneMask($data['phone']),
             'password' => Hash::make($data['password']),
+            'email_code' => rand(1000,9999),
         ]);
     }
     public function showRegistrationForm()

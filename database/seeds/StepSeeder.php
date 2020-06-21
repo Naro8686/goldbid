@@ -1,7 +1,7 @@
 <?php
 
-use App\Howitwork;
-use App\Question;
+use App\Models\Pages\Howitwork;
+use App\Models\Pages\Question;
 use Illuminate\Database\Seeder;
 
 class StepSeeder extends Seeder

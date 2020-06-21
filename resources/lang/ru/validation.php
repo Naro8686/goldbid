@@ -190,5 +190,8 @@ return [
         'time'                  => 'Время',
         'available'             => 'Доступно',
         'size'                  => 'Размер',
+        'message'               => 'Сообщение',
+        'g-recaptcha-response'  => 'CAPTCHA',
+        'theme'                 => 'Тема',
     ],
 ];

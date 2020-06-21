@@ -1,5 +1,7 @@
 <?php
 
+use App\Settings\Setting;
+
 return [
 
     /*
@@ -229,7 +231,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 //        Settings Site
-        'Setting' => \App\Settings\Setting::class,
+        'Setting' => Setting::class,
         'Image' => Intervention\Image\Facades\Image::class
 
     ],

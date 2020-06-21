@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Admin\Pages;
 
-use App\Footer;
-use App\Howitwork;
+use App\Models\Pages\Footer;
+use App\Models\Pages\Howitwork;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostRequest;
-use App\Page;
-use App\Question;
-use App\Review;
+use App\Models\Pages\Package;
+use App\Models\Pages\Page;
+use App\Models\Pages\Question;
+use App\Models\Pages\Review;
 use App\Settings\ImageTrait;
 use App\Settings\Setting;
-use App\Slider;
+use App\Models\Pages\Slider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -251,5 +252,18 @@ class PageController extends Controller
         $meta = (new Setting('reviews'))->mete();
         $reviews = Review::all();
         return view(self::DIR . 'reviews', compact('meta', 'reviews'));
+    }
+
+    public function feedbackPage()
+    {
+        $meta = (new Setting('feedback'))->mete();
+        return view(self::DIR . 'feedback', compact('meta'));
+    }
+
+    public function couponPage()
+    {
+        $meta = (new Setting('coupon'))->mete();
+        $packages = Package::all();
+        return view(self::DIR . 'coupon', compact('meta','packages'));
     }
 }

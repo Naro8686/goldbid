@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Footer;
-use App\Howitwork;
+use App\Mail\FeedbackSendMail;
+use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
-use App\Models\User;
-use App\Page;
-use App\Question;
-use App\Review;
+use App\Models\Pages\Package;
+use App\Models\Pages\Page;
+use App\Models\Pages\Question;
+use App\Models\Pages\Review;
 use App\Settings\Setting;
-use App\Slider;
+use App\Models\Pages\Slider;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+
 
 class HomeController extends Controller
 {
@@ -46,10 +47,29 @@ class HomeController extends Controller
         return view(self::DIR . 'how_it_works', compact('page', 'steps', 'questions'));
     }
 
-    public function feedback()
+    public function feedback(Request $request)
     {
+        if ($request->isMethod('POST')) {
+            $request->validate([
+                'name' => ['required', 'string', 'max:100'],
+                'email' => ['required', 'email', 'max:150'],
+                'theme' => ['required', 'integer'],
+                'message' => ['required', 'string', 'max:250'],
+                'file' => ['sometimes', 'mimes:jpeg,jpg,png,gif,svg,doc,docx,pdf', 'max:2048'],
+                'g-recaptcha-response' => ['required', 'recaptcha']
+            ]);
+            try {
+                $request['theme'] = Setting::feedbackTheme($request['theme']);
+                Mail::to(config('mail.from.address'))->send(new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
+            } catch (Exception $exception) {
+                Log::error($exception->getMessage());
+            }
+        }
+        $themes = Setting::feedbackTheme(null);
         $page = $this->page;
-        return view(self::DIR . 'feedback', compact('page'));
+        $contact = Setting::siteContacts();
+
+        return view(self::DIR . 'feedback', compact('page', 'themes', 'contact'));
     }
 
     public function reviews(Request $request)
@@ -62,18 +82,22 @@ class HomeController extends Controller
                 'file' => ['sometimes', 'image', 'mimes:jpeg,jpg,png,gif,svg', 'max:2048'],
                 'g-recaptcha-response' => ['required', 'recaptcha']
             ]);
-            if (Setting::siteContacts()->email)
-                Mail::to(Setting::siteContacts()->email)->send(new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+            try {
+                Mail::to(config('mail.from.address'))->send(new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+            } catch (Exception $exception) {
+                Log::error($exception->getMessage());
+            }
         }
         $page = $this->page;
         $reviews = Review::all();
-        return view(self::DIR . 'reviews', compact('page', 'reviews'))->with(['status'=>'sdsd']);
+        return view(self::DIR . 'reviews', compact('page', 'reviews'))->with(['status' => 'sdsd']);
     }
 
     public function coupon()
     {
         $page = $this->page;
-        return view(self::DIR . 'coupon', compact('page'));
+        $packages = Package::where('visibly',true)->get();
+        return view(self::DIR . 'coupon', compact('page','packages'));
     }
 
 

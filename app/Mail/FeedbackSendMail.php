@@ -7,11 +7,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ReviewSendMail extends Mailable
+class FeedbackSendMail extends Mailable
 {
     use Queueable, SerializesModels;
     protected $data;
-    public $subject = 'Отзывы';
 
     /**
      * Create a new message instance.
@@ -31,8 +30,8 @@ class ReviewSendMail extends Mailable
     public function build()
     {
         $data = $this->data;
-        $mail = $this->view('emails.review', compact('data'))
-            ->subject($this->subject);
+        $mail = $this->view('emails.feedback', compact('data'))
+            ->subject($data['theme']);
         if (isset($data['file'])) {
             $mail->attach($data['file']->getRealPath(),
                 [
