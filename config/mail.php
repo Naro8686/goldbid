@@ -1,6 +1,5 @@
 <?php
 
-use App\Settings\Setting;
 
 return [
 
@@ -86,7 +85,7 @@ return [
     */
 
     'from' => [
-        'address' => Setting::siteContacts()->email ?? env('MAIL_FROM_ADDRESS', 'goldbid24@gmail.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'goldbid24@gmail.com'),
         'name' => env('MAIL_FROM_NAME', 'GoldBid'),
     ],
 

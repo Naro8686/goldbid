@@ -1,5 +1,6 @@
 <?php
 
+use App\Providers\MailConfigServiceProvider;
 use App\Settings\Setting;
 
 return [
@@ -108,7 +109,7 @@ return [
     |
     */
 
-    'faker_locale' => 'en_US',
+    'faker_locale' => 'ru_RU',
 
     /*
     |--------------------------------------------------------------------------
@@ -177,7 +178,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         //image library
-        Intervention\Image\ImageServiceProvider::class
+        Intervention\Image\ImageServiceProvider::class,
+        //Mail Config
+        MailConfigServiceProvider::class
 
     ],
 

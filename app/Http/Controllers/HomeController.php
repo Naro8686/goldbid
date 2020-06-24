@@ -90,14 +90,14 @@ class HomeController extends Controller
         }
         $page = $this->page;
         $reviews = Review::all();
-        return view(self::DIR . 'reviews', compact('page', 'reviews'))->with(['status' => 'sdsd']);
+        return view(self::DIR . 'reviews', compact('page', 'reviews'));
     }
 
     public function coupon()
     {
         $page = $this->page;
-        $packages = Package::where('visibly',true)->get();
-        return view(self::DIR . 'coupon', compact('page','packages'));
+        $packages = Package::where('visibly', true)->get();
+        return view(self::DIR . 'coupon', compact('page', 'packages'));
     }
 
 

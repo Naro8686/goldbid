@@ -4,8 +4,10 @@
 namespace App\Settings;
 
 
+use App\Models\Mail;
 use App\Models\Pages\Footer;
 use App\Models\User;
+use App\Models\Setting as Config;
 use App\Models\Pages\Page;
 use Illuminate\Support\Str;
 use stdClass;
@@ -80,10 +82,9 @@ class Setting
 
     public static function siteContacts()
     {
-        $admin = User::query()->where('is_admin', true)->first(['email', 'phone']);
-        $data = new stdClass();
-        $data->email = $admin->email ?? null;
-        $data->phone = User::setPhoneMask($admin->phone) ?? null;
+        $data = Config::first(['phone_number','email']);
+        $data->phone = User::setPhoneMask($data->phone_number);
+        $data->name = config('app.name') ?? null;
         return $data;
     }
 
@@ -108,5 +109,14 @@ class Setting
         }
 
         return $themes;
+    }
+
+    public static function mailConfig()
+    {
+        return Mail::query()->first() ?? Mail::query()->create(['driver' => null]);
+    }
+    public static function siteConfig()
+    {
+        return Config::query()->first() ?? Config::create(['phone_number' => '70000000000','email'=>'goldbid24@gmail.com']);
     }
 }

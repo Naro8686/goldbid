@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
              StepSeeder::class,
              ReviewsSeed::class,
              PackagesSeed::class,
+             MailingSeeder::class,
          ]);
     }
 }

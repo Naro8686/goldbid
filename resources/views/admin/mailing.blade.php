@@ -1,90 +1,128 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login - {{ config('app.name', 'GoldBid') }}</title>
-
-    <!-- Custom fonts for this template-->
-    <link href="{{asset('administration/fontawesome-free/css/all.min.css')}}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="{{asset('administration/css/sb-admin-2.min.css')}}" rel="stylesheet">
-
-</head>
-
-<body class="bg-gradient-primary">
-
-<div class="container">
-
-    <!-- Outer Row -->
-    <div class="row justify-content-center">
-
-        <div class="col-xl-10 col-lg-12 col-md-9">
-
-            <div class="card o-hidden border-0 shadow-lg my-5">
-                <div class="card-body p-0">
-                    <!-- Nested Row within Card Body -->
-                    <div class="row">
-                        <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                        <div class="col-lg-6">
-                            <div class="p-5">
-                                <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">С возвращением!</h1>
-                                </div>
-                                <form class="user" method="POST" action="{{ route('login') }}">
-                                    @csrf
-                                    <div class="form-group text-center">
-                                        <input type="text" name="phone" class="form-control form-control-user @error('phone') is-invalid @enderror" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Введите номер телефона..." value="{{old('phone')}}">
-                                        @error('phone')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group text-center">
-                                        <input type="password" name="password" class="form-control form-control-user @error('password') is-invalid @enderror" id="exampleInputPassword" placeholder="пароль">
-                                        @error('password')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-checkbox small">
-                                            <input type="checkbox" class="custom-control-input" name="remember" id="customCheck" {{ old('remember') ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="customCheck">Запомни меня</label>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary btn-user btn-block">
-                                        Вход
+@extends('layouts.admin')
+@section('content')
+    <div class="container-fluid">
+        <h1 class="h3 mb-2 text-gray-800">Рассылки</h1>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Сервисные рассылки</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" width="100%" cellspacing="0" align="center">
+                        <thead>
+                        <tr>
+                            <th>Тема</th>
+                            <th>Текст</th>
+                            <th>Вкл./Выкл.</th>
+                            <th>Действие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($mailings['no_ads'] as $mailing)
+                            <tr>
+                                <td>
+                                    <p class="name">{{$mailing->subject}}</p>
+                                </td>
+                                <td>
+                                    <p class="name">{{$mailing->text}}</p>
+                                </td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-toggle @if($mailing->visibly) active @endif"
+                                            data-toggle="button" @if($mailing->visibly) aria-pressed="true"
+                                            @else aria-pressed="false" @endif  autocomplete="off"
+                                            onclick='oNoFF("{{route('admin.mailings.update',[$mailing->id])}}",{visibly:($(this).attr("aria-pressed") === "true" ? 0 : 1),},"PUT")'>
+                                        <span class="handle"></span>
                                     </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                                        <a href="{{route('admin.mailings.edit',[$mailing->id])}}" class="btn btn-info btn-icon-split">
+                                            <span class="icon text-white-50">
+                                              <i class="fas fa-info-circle"></i>
+                                            </span>
+                                            <span class="text">изменить</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
-
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Рекламные рассылки</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" width="100%" cellspacing="0" align="center">
+                        <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Тема</th>
+                            <th>Текст</th>
+                            <th>Действие</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th colspan="4">
+                                <a href="{{route('admin.mailings.create')}}" class="btn btn-success btn-icon-split float-right">
+                                            <span class="icon text-white-50">
+                                              <i class="fas fa-check"></i>
+                                            </span>
+                                    <span class="text">добавить</span>
+                                </a>
+                            </th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        @foreach($mailings['ads'] as $mailing)
+                            <tr>
+                                <td>
+                                    <p class="name">{{$mailing->title}}</p>
+                                </td>
+                                <td>
+                                    <p class="name">{{$mailing->subject}}</p>
+                                </td>
+                                <td>
+                                    <p class="name">{{$mailing->text}}</p>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                                        <a href="{{route('admin.mailings.edit',[$mailing->id])}}" class="btn btn-info btn-icon-split">
+                                            <span class="icon text-white-50">
+                                              <i class="fas fa-info-circle"></i>
+                                            </span>
+                                            <span class="text">изменить</span>
+                                        </a>
+                                        <button class="btn btn-danger btn-icon-split"
+                                                type="button"
+                                                data-toggle="modal"
+                                                data-target="#resourceModal"
+                                                data-action="{{route('admin.mailings.destroy',[$mailing->id])}}">
+                                            <span class="icon text-white-50">
+                                              <i class="fas fa-trash"></i>
+                                            </span>
+                                            <span class="text">удалить</span>
+                                        </button>
+                                        <a href="{{route('admin.mailings.send',[$mailing->id])}}" class="btn btn-success btn-icon-split">
+                                            <span class="icon text-white-50">
+                                              <i class="fas fa-check"></i>
+                                            </span>
+                                            <span class="text">Отправить</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-
-</div>
-<script src="{{asset('administration/js/jquery.min.js')}}"></script>
-<script src="{{asset('administration/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('administration/js/jquery.easing.min.js')}}"></script>
-<script src="{{asset('administration/js/sb-admin-2.min.js')}}"></script>
-<script src="{{asset('site/js/imask.js')}}"></script>
-<script>
-    IMask(document.querySelector('input[name="phone"]'), {
-        mask: '+{7}(000)000-00-00'
-    });
-</script>
-</body>
-
-</html>
+@endsection

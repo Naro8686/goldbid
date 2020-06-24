@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    phoneMask();
     preloaderHide();
     $(document).on('change', '#upload', function () {
         readURL($(this)[0]);
@@ -102,12 +103,11 @@ function renderModalItems(data) {
     return input;
 }
 
-function oNoFF(element, action, data = {}, method = "GET") {
+function oNoFF(action, data = {}, method = "GET") {
     if (method === "PUT") {
-        data._method = "PUT";
+        data._method = method;
         method = "POST";
     }
-    data.visibly = $(element).attr('aria-pressed') === 'true' ? 0 : 1;
     $.ajax({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -120,6 +120,14 @@ function oNoFF(element, action, data = {}, method = "GET") {
         error: (error) => {
             console.log(error)
         }
+    });
+}
+function phoneMask() {
+    let phones = document.querySelectorAll('input.mask');
+    [].forEach.call(phones, function (phone) {
+        IMask(phone, {
+            mask: '+{7}(000)000-00-00'
+        });
     });
 }
 

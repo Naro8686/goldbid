@@ -47,55 +47,58 @@
         </li>
 
         <!-- Divider -->
-        <hr class="sidebar-divider">
+    {{--        <hr class="sidebar-divider">--}}
 
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Interface
-        </div>
+    {{--        <!-- Heading -->--}}
+    {{--        <div class="sidebar-heading">--}}
+    {{--            Interface--}}
+    {{--        </div>--}}
 
-        <!-- Nav Item - Pages Collapse Menu -->
-    {{--        <li class="nav-item">--}}
-    {{--            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"--}}
-    {{--               aria-expanded="true" aria-controls="collapseTwo">--}}
-    {{--                <i class="fas fa-fw fa-cog"></i>--}}
-    {{--                <span>Components</span>--}}
-    {{--            </a>--}}
-    {{--            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">--}}
-    {{--                <div class="bg-white py-2 collapse-inner rounded">--}}
-    {{--                    <h6 class="collapse-header">Custom Components:</h6>--}}
-    {{--                    <a class="collapse-item" href="buttons.html">Buttons</a>--}}
-    {{--                    <a class="collapse-item" href="cards.html">Cards</a>--}}
+    {{--        <!-- Nav Item - Pages Collapse Menu -->--}}
+    {{--            <li class="nav-item">--}}
+    {{--                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"--}}
+    {{--                   aria-expanded="true" aria-controls="collapseTwo">--}}
+    {{--                    <i class="fas fa-fw fa-cog"></i>--}}
+    {{--                    <span>Components</span>--}}
+    {{--                </a>--}}
+    {{--                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">--}}
+    {{--                    <div class="bg-white py-2 collapse-inner rounded">--}}
+    {{--                        <h6 class="collapse-header">Custom Components:</h6>--}}
+    {{--                        <a class="collapse-item" href="buttons.html">Buttons</a>--}}
+    {{--                        <a class="collapse-item" href="cards.html">Cards</a>--}}
+    {{--                    </div>--}}
     {{--                </div>--}}
-    {{--            </div>--}}
-    {{--        </li>--}}
+    {{--            </li>--}}
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    {{--        <li class="nav-item">--}}
-    {{--            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"--}}
-    {{--               aria-expanded="true" aria-controls="collapseUtilities">--}}
-    {{--                <i class="fas fa-fw fa-wrench"></i>--}}
-    {{--                <span>Utilities</span>--}}
-    {{--            </a>--}}
-    {{--            <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"--}}
-    {{--                 data-parent="#accordionSidebar">--}}
-    {{--                <div class="bg-white py-2 collapse-inner rounded">--}}
-    {{--                    <h6 class="collapse-header">Custom Utilities:</h6>--}}
-    {{--                    <a class="collapse-item" href="utilities-color.html">Colors</a>--}}
-    {{--                    <a class="collapse-item" href="utilities-border.html">Borders</a>--}}
-    {{--                    <a class="collapse-item" href="utilities-animation.html">Animations</a>--}}
-    {{--                    <a class="collapse-item" href="utilities-other.html">Other</a>--}}
-    {{--                </div>--}}
-    {{--            </div>--}}
-    {{--        </li>--}}
+        <li class="nav-item">
+            <a class="nav-link @if(request()->route()->getPrefix()!=='admin/settings') collapsed @endif" href="#"
+               data-toggle="collapse" data-target="#collapseUtilities"
+               aria-expanded="true" aria-controls="collapseUtilities">
+                <i class="fas fa-fw fa-wrench"></i>
+                <span>Настройки</span>
+            </a>
+            <div id="collapseUtilities"
+                 class="collapse @if(request()->route()->getPrefix()==='admin/settings') show @endif"
+                 aria-labelledby="headingUtilities"
+                 data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    {{--                        <a class="collapse-item" href="utilities-color.html">Colors</a>--}}
+                    {{--                        <a class="collapse-item" href="utilities-border.html">Borders</a>--}}
+                    <a class="collapse-item @if(request()->is('admin/settings/mailing')) active @endif"
+                       href="{{route('admin.settings.mailing')}}">Рассылки</a>
 
-    <!-- Divider -->
-        <hr class="sidebar-divider">
+                    <div class="collapse-divider"></div>
+                    <h6 class="collapse-header">Другие:</h6>
+                    <a class="collapse-item @if(request()->is('admin/settings/mail')) active @endif"
+                       href="{{route('admin.settings.mail')}}">Настройки Е-майл</a>
+                    <a class="collapse-item @if(request()->is('admin/settings/site')) active @endif"
+                       href="{{route('admin.settings.site')}}">Настройки сайта</a>
+                </div>
+            </div>
+        </li>
 
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Addons
-        </div>
+        <!-- Divider -->
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
@@ -108,9 +111,6 @@
             <div id="collapsePages" class="collapse @if(request()->route()->getPrefix()==='admin/pages') show @endif"
                  aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    {{--                    <h6 class="collapse-header">Login Screens:</h6>--}}
-                    {{--                    <a class="collapse-item" href="login.html">Login</a>--}}
-                    {{--                    <a class="collapse-item" href="register.html">Register</a>--}}
                     <a class="collapse-item @if(request()->is('admin/pages/home')) active @endif"
                        href="{{route('admin.pages.home')}}">Главная</a>
                     <a class="collapse-item @if(request()->is('admin/pages/howitworks')) active @endif"
@@ -123,11 +123,8 @@
                        href="{{route('admin.pages.coupon')}}">Пополнить баланс</a>
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">Другие страницы:</h6>
-
                     <a class="collapse-item @if(request()->is('admin/pages/footer')) active @endif"
                        href="{{route('admin.pages.footer')}}">Подвал сайта</a>
-                    {{--                    <a class="collapse-item" href="404.html">404 Page</a>--}}
-                    {{--                    <a class="collapse-item" href="blank.html">Blank Page</a>--}}
                 </div>
             </div>
         </li>
@@ -376,6 +373,11 @@
                                 {{ session('status') }}
                             </div>
                         @endif
+                        @if(session('error'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         {{-- @if ($errors->any())--}}
                         {{--    <div class="alert alert-danger">--}}
                         {{--         <ul>--}}
@@ -501,7 +503,7 @@
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="resourceModalLabel">Delete</h5>
+                    <h5 class="modal-title" id="resourceModalLabel">Удалить</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -510,8 +512,20 @@
                     <h3 class="text-center">Вы уверены ?</h3>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Submit</button>
+                    <div class="btn-group w-100" role="group" aria-label="Basic example">
+                        <button type="button" data-dismiss="modal" class="btn btn-secondary btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-info-circle"></i>
+                        </span>
+                            <span class="text">Нет</span>
+                        </button>
+                        <button type="submit" class="btn btn-danger btn-icon-split">
+                        <span class="icon text-white-50">
+                          <i class="fas fa-trash"></i>
+                        </span>
+                            <span class="text">Да</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -525,7 +539,7 @@
 <!-- Page level plugins -->
 <script src="{{asset('datatables/js/jquery.dataTables.min.js')}}"></script>
 <script src="{{asset('datatables/js/dataTables.bootstrap4.min.js')}}"></script>
-
+<script src="{{asset('site/js/imask.js')}}"></script>
 <!-- customs -->
 <script src="{{asset('administration/js/customs.js')}}"></script>
 

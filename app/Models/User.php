@@ -77,6 +77,10 @@ class User extends Authenticatable
     {
         return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4',$phone);
     }
+    public function login()
+    {
+        return self::setPhoneMask($this->phone);
+    }
 
     public function balanceHistory()
     {
@@ -90,5 +94,9 @@ class User extends Authenticatable
         $balances->bonus = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bonuses') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bonuses'));
 
         return $balances;
+    }
+    public function subscribe()
+    {
+        return $this->belongsToMany(Mailing::class,'subscriptions','user_id','mailing_id');
     }
 }
