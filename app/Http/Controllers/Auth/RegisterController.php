@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Settings\Setting;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -75,11 +76,12 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $referred_by = Cookie::get('referral');
         return User::create([
             'nickname' => $data['nickname'],
             'phone' => User::unsetPhoneMask($data['phone']),
             'password' => Hash::make($data['password']),
-            'email_code' => rand(1000,9999),
+            'referred_by' => $referred_by,
         ]);
     }
     public function showRegistrationForm()

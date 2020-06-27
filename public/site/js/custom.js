@@ -14,3 +14,23 @@ $(document).ready(function () {
         });
     })
 });
+
+function oNoFF(action, data = {}, method = "GET") {
+    if (method === "PUT" || method === "DELETE") {
+        data._method = method;
+        method = "POST";
+    }
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: method,
+        url: action,
+        data: data,
+        success: () => {
+        },
+        error: (error) => {
+            console.log(error)
+        }
+    });
+}

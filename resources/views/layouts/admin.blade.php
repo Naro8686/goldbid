@@ -30,7 +30,7 @@
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{route('admin.dashboard')}}">
             <div class="sidebar-brand-icon">
-                <img class="img-fluid img-thumbnail" src="{{asset('site/img/logo.png')}}">
+                <img class="img-fluid img-thumbnail logo" src="{{asset('site/img/logo.png')}}" alt="logo">
                 {{--                <i class="fas fa-laugh-wink"></i>--}}
             </div>
             <div class="sidebar-brand-text mx-3">Admin</div>

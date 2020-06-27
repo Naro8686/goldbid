@@ -193,5 +193,8 @@ return [
         'message'               => 'Сообщение',
         'g-recaptcha-response'  => 'CAPTCHA',
         'theme'                 => 'Тема',
+        'current_password'      => 'Действующий пароль',
+        'new_password'          => 'Новый пароль',
+        'new_confirm_password'  => 'Подтвердите пароль',
     ],
 ];

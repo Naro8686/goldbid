@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\LastActivityUser;
+use App\Http\Middleware\ReferralMiddleware;
 use App\Http\Middleware\SiteMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -23,7 +24,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        //SiteMiddleware::class,
+        SiteMiddleware::class,
     ];
 
     /**
@@ -41,6 +42,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LastActivityUser::class,
+            ReferralMiddleware::class,
         ],
 
         'api' => [

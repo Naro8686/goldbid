@@ -26,6 +26,13 @@ $(document).ready(function () {
                 customConfig: "/ckeditor/config.js",
             });
     }
+    $('.sidebar-brand').click(function (e) {
+        e.preventDefault();
+        let url = '/';
+        if (!$(e.target).hasClass('logo'))
+            url += 'admin';
+        window.location.href = url;
+    })
 });
 
 function preloader() {
@@ -122,6 +129,7 @@ function oNoFF(action, data = {}, method = "GET") {
         }
     });
 }
+
 function phoneMask() {
     let phones = document.querySelectorAll('input.mask');
     [].forEach.call(phones, function (phone) {

@@ -33,7 +33,9 @@ button {
 	background-color: #F8F8F8;
 	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
 }
-
+.payment-methods img{
+    width: 100% !important;
+}
 	.header .container {
 		display: flex;
 		justify-content: space-between;
@@ -49,7 +51,7 @@ button {
 				width: 190px;
 				height: 98px;
 			}
-	
+
 	.header .container .right {
 		display: flex;
 		flex-direction: column;
@@ -172,7 +174,7 @@ button {
 				display: block;
 
 			}
-		
+
 			.overlay .modal.open form {
 				display: flex;
 				flex-direction: column;
@@ -182,19 +184,19 @@ button {
 				-webkit-box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);
 				-moz-box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);
 				box-shadow: 0px 0px 24px -4px rgba(0,0,0,0.75);
-			}	
-	
+			}
+
 			.overlay .modal.open form h1 {
 				margin-bottom: 10px;
 			}
-	
+
 				.overlay .modal.open form p {
 					display: block;
 					margin-bottom: 10px;
 					width: 100%;
 					text-align: left;
 				}
-	
+
 				.overlay .modal.open form input {
 					margin: 5px 0;
 					padding: 5px;
@@ -218,18 +220,18 @@ button {
 	box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
 	height: 48px;
 }
-	
+
 	.nav .active {
 			border-bottom: 4px solid #1B8BCB;
 			position: relative;
 		}
-	
+
 	.nav ul {
 		display: flex;
 		justify-content: space-around;
 		box-sizing: border-box;
 	}
-	
+
 		.nav ul li {
 			display: flex;
 		}
@@ -269,7 +271,7 @@ button {
 	.footer  a {
 	color: #ffffff;
 }
-	
+
 	.footer .container {
 		display: flex;
 		justify-content: space-between;
@@ -316,7 +318,7 @@ button {
 			.footer .container .social li span {
 				margin-left: 5px;
 			}
-	
+
 	.footer .container .right {
 		text-align: right;
 	}
@@ -341,11 +343,11 @@ button {
 		display: flex;
 		justify-content: space-between;
 	}
-		
+
 		.down-footer .container p {
 			padding: 5px 0;
 		}
-		
+
 		.down-footer .container a {
 			text-decoration: underline;
 			color: #ffffff;
@@ -456,7 +458,7 @@ button {
 					background: #095785;
 					border-radius: 30px 0px 0px 30px;
 					cursor: default;
-					width: 60%;	
+					width: 60%;
 					height: 35px;
 					text-align: center;
 				}
@@ -479,8 +481,8 @@ button {
 					padding: 0 5px;
 					min-height: 35px;
 					background: none;
-					color: #ffffff;	
-					width: 100%;				
+					color: #ffffff;
+					width: 100%;
 				}
 
 
@@ -492,14 +494,14 @@ button {
 				right: 110px;
 				height: 30px;
 			}
-				
+
 				.main .container .card .autobid p {
 					text-align: center;
 					font-size: 14px;
 					margin-right: 5px;
 					color: #ffffff;
 				}
-				
+
 				.main .container .card .autobid form {
 					display: flex;
 				}
@@ -534,7 +536,7 @@ button {
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					
+
 					cursor: pointer;
 					text-transform: uppercase;
 				}
@@ -555,7 +557,7 @@ button {
 					background: #095785;
 					border-radius: 30px 0px 0px 30px;
 					cursor: default;
-					width: 60%;	
+					width: 60%;
 					text-align: center;
 				}
 
@@ -580,7 +582,7 @@ button {
 					display: flex;
 					justify-content: center;
 				}
-			
+
 			.main .container .card .dashboard .roz-price  .feed {
 				margin-top: 10px;
 				display: flex;
@@ -602,13 +604,13 @@ button {
 					height: 30px;
 					width: 60px;
 				}
-		
+
 		.main .container .card .dashboard .log-bid {
 			margin-top: auto;
 			background: #095785;
 			box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.25);
 		}
-			
+
 			.main .container .card .dashboard .log-bid table {
 				padding: 10px;
 			}
@@ -616,7 +618,7 @@ button {
 				.main .container .card .dashboard .log-bid table td{
 					padding: 0 20px;
 				}
-		
+
 		.main .card .left {
 			width: 50%;
 			border: 1px solid #C2C2C2;
@@ -635,7 +637,7 @@ button {
 			.main .card .slaider div {
 				display: flex;
 				justify-content: center;
-				align-items: center;			
+				align-items: center;
 			}
 
 			.main .card .slaider div img {
@@ -650,9 +652,9 @@ button {
 			.main .card .slaider .slick-dots {
 
 			}
-			
+
 			.main .card .slaider .slick-dots li button:before{
-				
+
 			}
 
 			.main .card .slaider .slick-active {
@@ -760,7 +762,7 @@ button {
 		-ms-transform: rotate(179deg);
 		transform: rotate(179deg);
 	}
-	.accordeon ul li i:before, 
+	.accordeon ul li i:before,
 	.accordeon ul li i:after {
 	  content: "";
 	  position: absolute;
@@ -806,7 +808,7 @@ button {
 	    transform: rotateX(0deg);
 	  }
 	}
-	
+
 	.transition, .accordeon p, .accordeon ul li i:before, .accordeon ul li i:after {
   transition: all 0.25s ease-in-out;
 }
@@ -834,7 +836,7 @@ button {
 
 @media screen and (max-width: 767.98px) {
 	.main .container .card {
-		display: flex; 
+		display: flex;
 		flex-direction: column;
 		height: 100%;
 		margin: 0 15px;
@@ -860,7 +862,7 @@ button {
 }
 
 @media screen and (max-width: 575.98px) {
-	
+
 	.main .container .card .dashboard .name {
 		margin: 10px 0;
 		font-size: 20px;
@@ -877,7 +879,7 @@ button {
 	.main .container .card .dashboard .hr {
 		width: 90%;
 	}
-	
+
 	.main .container .card .dashboard .bid {
 		width: 90%;
 	}
@@ -887,7 +889,7 @@ button {
 			align-items: center;
 			justify-content: center;
 		}
-		
+
 
 	.main .container .card .autobid {
 		height: 30px;
@@ -904,7 +906,7 @@ button {
 		top: 790px;
 		right: calc(50% - 113px);
 	}
-}		
+}
 
 .avtobid {
 	height: 50px;
@@ -913,8 +915,8 @@ button {
 .none {
 	display: none;
 }
-  
-  
+
+
 #popap {
 	position: fixed;
 	top: calc(50% - 197px);
@@ -950,14 +952,14 @@ button {
 			line-height: 1.2;
 			-moz-transform: scale(1.01, 1);
 			-webkit-transform: scale(1.01, 1);
-			-ms-transform: scale(1.01, 1);		  
+			-ms-transform: scale(1.01, 1);
 		}
 
 		#popap .block1 .content .tovar {
 			width: 350px;
 		}
-		
-		
+
+
 
 
 #popap .block2 {
@@ -994,8 +996,8 @@ button {
 	#popap .block2 .price {
 		font-size: 34px;
 		color: rgb(150, 149, 149);
-		font-weight: bold;		
-		margin-bottom: 60px;  
+		font-weight: bold;
+		margin-bottom: 60px;
 	}
 
 	#popap .block2 .price .rub {
@@ -1011,7 +1013,7 @@ button {
 		background-color: #5a7380;
 		font-size: 15px;
 		font-weight: bold;
-		color: #ffffff; 
+		color: #ffffff;
 		border-radius: 4px;
 		border: none;
 		position: absolute;

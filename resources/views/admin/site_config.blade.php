@@ -11,7 +11,7 @@
                     <div class="form-row">
                         @csrf
                         <div class="form-group col-md-6">
-                            <label for="email" class="col-form-label">E-mail</label>
+                            <label for="email" class="col-form-label">E-mail для показа на сайте </label>
                             <input type="email" class="form-control" id="email"
                                 name="email" value="{{old('email')??$site->email}}">
                             @error('email')
@@ -19,7 +19,7 @@
                             @enderror
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="phone" class="col-form-label">Телефон</label>
+                            <label for="phone" class="col-form-label">Телефон для показа на сайте </label>
                             <input
                                 type="text" class="form-control mask" id="phone" name="phone_number"
                                 value="{{old('phone_number')??$site->phone_number}}">

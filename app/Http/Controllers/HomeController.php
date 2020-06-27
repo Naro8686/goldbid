@@ -30,21 +30,20 @@ class HomeController extends Controller
     public function __construct(Request $request)
     {
         $this->page = (new Setting($request->segment(1)))->page();
+        view()->share('page',$this->page);
     }
 
     public function index()
     {
         $sliders = Slider::all();
-        $page = $this->page;
-        return view(self::DIR . 'index', compact('page', 'sliders'));
+        return view(self::DIR . 'index', compact( 'sliders'));
     }
 
     public function howItWorks()
     {
-        $page = $this->page;
         $steps = Howitwork::all();
         $questions = Question::all();
-        return view(self::DIR . 'how_it_works', compact('page', 'steps', 'questions'));
+        return view(self::DIR . 'how_it_works', compact( 'steps', 'questions'));
     }
 
     public function feedback(Request $request)
@@ -66,10 +65,9 @@ class HomeController extends Controller
             }
         }
         $themes = Setting::feedbackTheme(null);
-        $page = $this->page;
         $contact = Setting::siteContacts();
 
-        return view(self::DIR . 'feedback', compact('page', 'themes', 'contact'));
+        return view(self::DIR . 'feedback', compact( 'themes', 'contact'));
     }
 
     public function reviews(Request $request)
@@ -88,16 +86,14 @@ class HomeController extends Controller
                 Log::error($exception->getMessage());
             }
         }
-        $page = $this->page;
         $reviews = Review::all();
-        return view(self::DIR . 'reviews', compact('page', 'reviews'));
+        return view(self::DIR . 'reviews', compact( 'reviews'));
     }
 
     public function coupon()
     {
-        $page = $this->page;
         $packages = Package::where('visibly', true)->get();
-        return view(self::DIR . 'coupon', compact('page', 'packages'));
+        return view(self::DIR . 'coupon', compact( 'packages'));
     }
 
 

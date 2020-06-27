@@ -27,7 +27,7 @@ class CreateUsersTable extends Migration
             $table->string('region')->nullable();
             $table->string('city')->nullable();
             $table->string('street')->nullable();
-            $table->enum('gender',[null,'male','female'])->nullable();
+            $table->enum('gender',['male','female'])->default('male')->nullable();
             $table->date('birthday')->nullable();
             $table->string('sms_code')->nullable();
             $table->timestamp('sms_verified_at')->nullable();
@@ -37,6 +37,13 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->timestamp('is_online')->default(now());
+            $table->unsignedTinyInteger('payment_type')->nullable();
+            $table->unsignedInteger('ccnum')->nullable();
+            $table->unsignedBigInteger('referred_by')->nullable();
+            $table->foreign('referred_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

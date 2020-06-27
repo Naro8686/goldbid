@@ -1,5 +1,4 @@
 @extends('layouts.site')
-@section('title')Авторизация@endsection
 @push('css')
     <link rel="stylesheet" href="{{asset('site/css/style.css')}}">
 @endpush

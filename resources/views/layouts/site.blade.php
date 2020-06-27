@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{$page->meta->title()}}</title>
-    <meta name="keywords" content="{{$page->meta->keywords}}">
-    <meta name="description" content="{{$page->meta->description}}">
+    <title>{{$page->meta->title()??''}}</title>
+    <meta name="keywords" content="{{$page->meta->keywords??''}}">
+    <meta name="description" content="{{$page->meta->description??''}}">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     @stack('css')
     <link href="{{asset('site/css/humburger.css')}}" rel="stylesheet">
@@ -91,7 +91,8 @@
                                          data-sitekey="{{config('recaptcha.key')}}">
                                     </div>
                                 @endif
-                                <p><input class="registration sub" type="submit" name="send" value="Зарегистрироваться">
+                                <p>
+                                    <input class="registration sub" type="submit" name="send" value="Зарегистрироваться">
                                 </p>
                             </form>
                         </div>
@@ -130,25 +131,26 @@
                         <p>Бонусы:&nbsp<span class="phpbonus">{{auth()->user()->balance()->bonus}}</span>&nbspшт</p>
                     </div>
                     <div class="accaunt">
-                        <a href="cabinet.php?str=1">
+                        <a href="{{route('profile.index')}}">
                             <p class="username">{{auth()->user()->nickname}}</p>
                             <div id="avatar" class="avatar"
-                                 style="background-image: url('{{auth()->user()->avatar()}}'); background-position: center; background-size: cover; border-radius: 50%;"></div>
+                                 style="background-image: url({{asset(auth()->user()->avatar())}}); background-position: center; background-size: cover; border-radius: 50%;"></div>
                         </a>
+
                         <ul class="drop-menu">
-                            <img src="{{asset('site/img/drop-bg.png')}}" alt="">
-                            <li><img src="{{asset('site/img/1cat.png')}}" alt=""><a href="cabinet.php?str=1"><p>Мой
+                            <img src="{{asset('site/img/drop-bg.png')}}" alt="drop">
+                            <li><img src="{{asset('site/img/1cat.png')}}" alt=""><a href="{{route('profile.index')}}"><p>Мой
                                         профиль</p></a></li>
-                            <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a href="cabinet.php?str=2"><p>
+                            <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a href="{{route('profile.personal')}}"><p>
                                         Персональные данные</p>
                                 </a>
                             </li>
-                            <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a href="cabinet.php?str=3"><p>
+                            <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a href="{{route('profile.balance')}}"><p>
                                         Баланс</p></a></li>
-                            <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a href="cabinet.php?str=4"><p>История
+                            <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a href="{{route('profile.auctions_history')}}"><p>История
                                         аукционов</p></a>
                             </li>
-                            <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a href="cabinet.php?str=5"><p>
+                            <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a href="{{route('profile.referral_program')}}"><p>
                                         Реферальная программа</p>
                                 </a>
                             </li>
@@ -196,15 +198,15 @@
             <li data-text="Пополнить баланс"><a href="{{route('site.coupon')}}">Пополнить баланс</a></li>
             <li data-text="Отзывы"><a href="{{route('site.reviews')}}">Отзывы</a></li>
             <li data-text="Обратная связь"><a href="{{route('site.feedback')}}">Обратная связь</a></li>
-            <li data-text="Личный кабинет"><a href="/cabinet.php?str=1">Личный кабинет</a></li>
+            <li data-text="Личный кабинет"><a href="{{route('profile.index')}}">Личный кабинет</a></li>
         </ul>
     </nav>
 </div>
-@if (session('status'))
-    <div class="alert alert-success" role="alert">
-        {{ session('status') }}
-    </div>
-@endif
+{{--@if (session('status'))--}}
+{{--    <div class="alert alert-success" role="alert">--}}
+{{--        {{ session('status') }}--}}
+{{--    </div>--}}
+{{--@endif--}}
 @yield('content')
 <div class="footer">
     <div class="payment-methods">

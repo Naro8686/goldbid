@@ -9,8 +9,12 @@ use App\Models\Pages\Footer;
 use App\Models\User;
 use App\Models\Setting as Config;
 use App\Models\Pages\Page;
+use App\Settings\Api\SMSC_SMPP;
+use Exception;
 use Illuminate\Support\Str;
+
 use stdClass;
+
 
 class Setting
 {
@@ -27,7 +31,7 @@ class Setting
         $this->page = new stdClass;
 
         $this->page->footer = new stdClass;
-        $this->page->meta = Page::whereSlug($slug)->first();
+        $this->page->meta = Page::whereSlug($slug)->first() ?? Page::query()->firstOrNew();
         $this->page->footer->social = Footer::query()
             ->where('show', true)
             ->where('social', true)
@@ -80,9 +84,12 @@ class Setting
         return url($page->footer->link);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     */
     public static function siteContacts()
     {
-        $data = self::siteConfig()->first(['phone_number','email']);
+        $data = self::siteConfig()->first(['phone_number', 'email']);
         $data->phone = User::setPhoneMask($data->phone_number);
         $data->name = config('app.name') ?? null;
         return $data;
@@ -107,16 +114,47 @@ class Setting
                 break;
             }
         }
+        return (is_int($id) && is_array($themes))?null:$themes;
+    }
 
-        return $themes;
+    public static function paymentType(?int $id)
+    {
+        $payments = [
+            ['id' => 1, 'value' => 'Банковская карта'],
+            ['id' => 2, 'value' => 'Yandex деньги'],
+            ['id' => 3, 'value' => 'Qiwi кошелек'],
+        ];
+        foreach ($payments as $payment) {
+            if ($payment['id'] === $id) {
+                $payments = $payment['value'];
+                break;
+            }
+        }
+        return (is_int($id) && is_array($payments))?null:$payments;
     }
 
     public static function mailConfig()
     {
         return Mail::query()->first() ?? Mail::query()->create(['driver' => null]);
     }
+
     public static function siteConfig()
     {
-        return Config::query()->first() ?? Config::create(['phone_number' => '70000000000','email'=>'goldbid24@gmail.com']);
+        return Config::query()->first() ?? Config::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
+    }
+
+    public static function sms_init($port = 0)
+    {
+        try {
+            $sms_init = new SMSC_SMPP($port);
+        } catch (Exception $e) {
+            $sms_init = false;
+        }
+        return $sms_init;
+    }
+
+    public static function emailRandomCode()
+    {
+        return mt_rand(100000, 999999);
     }
 }

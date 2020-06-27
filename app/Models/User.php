@@ -26,7 +26,8 @@ class User extends Authenticatable
         'street', 'gender', 'birthday', 'sms_code',
         'sms_verified_at', 'email', 'email_verified_at',
         'password', 'remember_token', 'is_online',
-        'email_code','email_code_verified'
+        'email_code', 'email_code_verified',
+        'payment_type', 'ccnum', 'referred_by'
     ];
 
     /**
@@ -47,12 +48,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'sms_verified_at' => 'datetime',
         'email_code_verified' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'is_online' => 'datetime',
         'birthday' => 'date',
         'is_admin' => 'boolean',
         'has_ban' => 'boolean',
     ];
     protected $with = ['balanceHistory'];
+    /**
+     * @var int
+     */
+    public $bet;
+    /**
+     * @var int
+     */
+    public $bonus;
 
     public function avatar()
     {
@@ -75,8 +86,9 @@ class User extends Authenticatable
 
     public static function setPhoneMask(string $phone)
     {
-        return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4',$phone);
+        return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4', $phone);
     }
+
     public function login()
     {
         return self::setPhoneMask($this->phone);
@@ -89,14 +101,32 @@ class User extends Authenticatable
 
     public function balance()
     {
-        $balances = new stdClass;
-        $balances->bet = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bets') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bets'));
-        $balances->bonus = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bonuses') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bonuses'));
-
-        return $balances;
+        $this->bet = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bets') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bets'));
+        $this->bonus = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bonuses') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bonuses'));
+        return $this;
     }
+
     public function subscribe()
     {
-        return $this->belongsToMany(Mailing::class,'subscriptions','user_id','mailing_id');
+        return $this->belongsToMany(Mailing::class, 'subscriptions', 'user_id', 'mailing_id');
+    }
+
+    public function referral()
+    {
+        return $this->hasMany(self::class, 'referred_by');
+    }
+
+    public function fullProfile()
+    {
+        $data = array_filter([
+            $this->fname, $this->lname, $this->mname,
+            $this->phone, $this->postcode, $this->region, $this->city,
+            $this->street, $this->gender, $this->birthday,
+            $this->email_code_verified,
+        ], static function ($var) {
+            return $var === null;
+        });
+
+        return !(boolean)count($data);
     }
 }
