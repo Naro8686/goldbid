@@ -30,9 +30,9 @@
             @foreach($balance as $data)
                 <tr>
                     <td style="white-space: nowrap;">{{$data->created_at}}</td>
-                    <td>{{$data->bets}}</td>
-                    <td>{{$data->bonuses}}</td>
-                    <td>{{$data->description}}</td>
+                    <td>{{$data->bet}}</td>
+                    <td>{{$data->bonus}}</td>
+                    <td>{{$data->reason}}</td>
                 </tr>
             @endforeach
         </table>

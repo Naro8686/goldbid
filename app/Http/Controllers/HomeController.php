@@ -12,6 +12,8 @@ use App\Models\Pages\Review;
 use App\Settings\Setting;
 use App\Models\Pages\Slider;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -30,20 +32,20 @@ class HomeController extends Controller
     public function __construct(Request $request)
     {
         $this->page = (new Setting($request->segment(1)))->page();
-        view()->share('page',$this->page);
+        view()->share('page', $this->page);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $sliders = Slider::all();
-        return view(self::DIR . 'index', compact( 'sliders'));
+        return view(self::DIR . 'index', compact('sliders'));
     }
 
     public function howItWorks()
     {
         $steps = Howitwork::all();
         $questions = Question::all();
-        return view(self::DIR . 'how_it_works', compact( 'steps', 'questions'));
+        return view(self::DIR . 'how_it_works', compact('steps', 'questions'));
     }
 
     public function feedback(Request $request)
@@ -67,7 +69,7 @@ class HomeController extends Controller
         $themes = Setting::feedbackTheme(null);
         $contact = Setting::siteContacts();
 
-        return view(self::DIR . 'feedback', compact( 'themes', 'contact'));
+        return view(self::DIR . 'feedback', compact('themes', 'contact'));
     }
 
     public function reviews(Request $request)
@@ -87,13 +89,15 @@ class HomeController extends Controller
             }
         }
         $reviews = Review::all();
-        return view(self::DIR . 'reviews', compact( 'reviews'));
+        return view(self::DIR . 'reviews', compact('reviews'));
     }
 
     public function coupon()
     {
+        $payments = Setting::paymentCoupon(null);
+
         $packages = Package::where('visibly', true)->get();
-        return view(self::DIR . 'coupon', compact( 'packages'));
+        return view(self::DIR . 'coupon', compact('packages','payments'));
     }
 
 

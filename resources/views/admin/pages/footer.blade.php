@@ -105,6 +105,7 @@
                 $(document).on('click', 'button.submit', function () {
                     let form = $('form#footer-crud');
                     let id = form.find('input[name="id"]').val();
+                    if(form.find('textarea[id="social-content"]').length)
                     form.find('textarea[id="social-content"]').val(window.editor.getData());
                     let action = form.attr('action');
                     let data = new FormData(form[0]);

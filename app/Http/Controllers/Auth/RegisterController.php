@@ -72,22 +72,24 @@ class RegisterController extends Controller
      * Create a new user instance after a valid registration.
      *
      * @param array $data
-     * @return User
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model
      */
     protected function create(array $data)
     {
         $referred_by = Cookie::get('referral');
-        return User::create([
+        $user = User::query()->create([
             'nickname' => $data['nickname'],
             'phone' => User::unsetPhoneMask($data['phone']),
             'password' => Hash::make($data['password']),
-            'referred_by' => $referred_by,
         ]);
+        $user->referred()->attach($referred_by);
+        return $user;
     }
+
     public function showRegistrationForm()
     {
         $page = (new Setting('register'))->page();
-        return view('auth.register' ,compact('page'));
+        return view('auth.register', compact('page'));
     }
 
 }

@@ -390,6 +390,7 @@ button {
     font-weight: bold;
     font-size: 20px;
     margin: 0 auto;
+    cursor: pointer;
 }
 
 .footer a {

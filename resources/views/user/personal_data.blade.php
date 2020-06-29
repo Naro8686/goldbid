@@ -55,7 +55,7 @@
                     <label class="personal-item" for="birthday">
                         <span class="personal-item-title">Дата рождения:</span>
                         <input type="date" class="@error('birthday')is-invalid @enderror"
-                               value="{{old('birthday')??$user->birthday?$user->birthday->format('Y-m-d'):''}}"
+                               value="{{old('birthday')??($user->birthday?$user->birthday->format('Y-m-d'):'')}}"
                                name="birthday" id="birthday">
                     </label>
                 </div>

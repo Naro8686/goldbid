@@ -40,7 +40,6 @@ class ProfileController extends Controller
             view()->share(['user' => $this->user, 'page' => (new Setting($this->slug))->page()]);
             return $next($request);
         });
-
     }
 
     public function index(Request $request)
@@ -85,7 +84,7 @@ class ProfileController extends Controller
                 'city' => ['required', 'string', 'max:50'],
                 'street' => ['required', 'string', 'max:50'],
                 'email' => ['required', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
-                'payment_type' => ['required', 'integer', 'min:1', 'max:' . count($payments)],
+                'payment_type' => ['required', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
                 'ccnum' => ['nullable', 'digits_between:8,16'],
             ]);
             $this->user->update($request->only([
@@ -93,6 +92,14 @@ class ProfileController extends Controller
                 'birthday', 'postcode', 'region', 'city',
                 'street', 'email', 'payment_type', 'ccnum'
             ]));
+            if ($this->user->fullProfile()) {
+                $this->user->balanceHistory()
+                    ->where('reason', Balance::REGISTRATION_BONUS_REASON)
+                    ->firstOrCreate([
+                        'bonus' => Balance::bonusCount(Balance::REGISTRATION_BONUS_REASON),
+                        'reason' => Balance::REGISTRATION_BONUS_REASON,
+                    ]);
+            }
             return redirect()->back()->with('status', 'Изменения успешно сохранились ');
         }
 
@@ -102,7 +109,7 @@ class ProfileController extends Controller
     public function balance()
     {
         $balance = $this->user->balanceHistory()
-            ->where('type', Balance::REPLENISHMENT)
+            ->where('type', Balance::PLUS)
             ->paginate(10);
         return view('user.balance', compact('balance'));
     }
@@ -114,8 +121,14 @@ class ProfileController extends Controller
 
     public function referralProgram()
     {
-        $referral = $this->user->referral()->get();
-        return view('user.referral_program', compact('referral'));
+//  LOGIC
+//        $referred = $this->user->referred()->first();
+//        $referred->pivot->update(['referral_bonus' => Balance::bonusCount(Balance::REFERRAL_BONUS_REASON)]);
+//        $referred->balanceHistory()->create(['bonus' => $referred->pivot->referral_bonus]);
+//  END
+
+        $referrals = $this->user->referrals;
+        return view('user.referral_program', compact('referrals'));
     }
 
     public function subscribe(Request $request, int $id)

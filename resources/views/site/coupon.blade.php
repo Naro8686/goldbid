@@ -12,113 +12,128 @@
             <div class="blocks">
                 @foreach($packages as $package)
                     <div class="kupon">
-                        <label id="{{$package->id}}" class="uncheck"></label>
+                        <label data-id="{{$package->id}}" data-bet="{{$package->bet}}" data-bonus="{{$package->bonus}}"
+                               data-price="{{$package->price}}" class="uncheck"></label>
                         <img src="{{asset($package->image)}}" alt="{{$package->alt}}">
                         @if((int)$package->bonus)
-                        <div class="kupon-bonus">{{'+'.$package->bonus.' Бонусов'}}</div>
+                            <div class="kupon-bonus">{{'+'.$package->bonus.' Бонусов'}}</div>
                         @endif
                         <p class="price">{{$package->bet.' ставок'}} <br> {{$package->price.' руб'}}</p>
                     </div>
-                    @endforeach
+                @endforeach
             </div>
             <p class="title">2. Выберите способ оплаты</p>
             <div class="payment">
-                <div id="AC" class="pay">
-                    <img src="{{asset('site/img/payment/visa.png')}}" alt=""
-                         style="position: absolute;height: 39px;top: -1px;">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/mastercard.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/Maestro.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/Mir-logo.jpg')}}" alt=""
-                         style="position: absolute;height: 39px;top: 0;">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/sberbank.jpg')}}" alt=""
-                         style="position: absolute;top: 0px;height: 39px;">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/yandex.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/qiwi.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/mts.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/megafon.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/beeline.png')}}" alt="">
-                </div>
-                <div class="pay">
-                    <img src="{{asset('site/img/payment/tele2.png')}}" alt="">
-                </div>
-
+                @foreach($payments as $payment)
+                    <div class="pay" data-id="{{$payment['id']}}">
+                        <img src="{{asset($payment['img'])}}" alt="img">
+                    </div>
+                @endforeach
             </div>
-            <div class="center" style="display:block;">
-                <form name="form" method="POST" style="text-align:center" onsubmit="return validate()"
-                      action="https://money.yandex.ru/quickpay/confirm.xml">
-                    <input type="hidden" name="receiver" value="410016649153663">
-                    <input type="hidden" name="label" value="{{$uservalue['id']??''}}">
-                    <input type="hidden" name="quickpay-form" value="shop">
-                    <input type="hidden" name="targets" value="{{$_SESSION['user']??''}}">
-                    <input type="hidden" name="sum" value="" data-type="number">
-                    <input type="hidden" name="successURL" value="{{route('site.home')}}">
-                    <input type="hidden" name="paymentType" value="">
-                    <p style="text-align:left">В соответствии с ФЗ №54 при онлайн-оплате кассовый чек будет
-                        предоставлен в электронном виде на указанный при регистрации адрес электронной почты или в
-                        СМС сообщении</p><br/>
 
-                    <input class="buy" name="pay" type="submit" value="Купить пакет ставок">
+
+            {{--            <div class="center" style="display:block;">--}}
+            {{--                <form name="form" method="POST" onsubmit="return validate()"--}}
+            {{--                      action="https://money.yandex.ru/quickpay/confirm.xml">--}}
+            {{--                    <input type="hidden" name="receiver" value="410016649153663">--}}
+            {{--                    <input type="hidden" name="label" value="$order_id">--}}
+            {{--                    <input type="hidden" name="quickpay-form" value="shop">--}}
+            {{--                    <input type="hidden" name="targets" value="транзакция {order_id}">--}}
+            {{--                    <input type="hidden" name="sum" value="" data-type="number">--}}
+            {{--                    <input type="hidden" name="comment" value="coupon">--}}
+            {{--                    <input type="hidden" name="paymentType" value="">--}}
+            {{--                    <input type="hidden" name="successURL" value="{{route('site.home')}}">--}}
+            {{--                    <input class="buy" name="pay" type="submit" value="Купить пакет ставок">--}}
+            {{--                </form>--}}
+            {{--            </div>--}}
+            <div class="center" style="display:block;">
+                <form name="form" method="POST" onsubmit="return validate()"
+                      action="{{route('payment.coupon.buy')}}">
+                    @csrf
+                    @auth
+                        <p class="title">3. Заказ </p>
+                        <br>
+                        <div>
+                            <p>Номер Вашего заказа: <b id="order">{{App\Settings\Setting::orderNumCoupon(auth()->id())}}</b></p>
+                            <p>Наименование товара: <b>Пакет ставок <span id="bet">0</span></b></p>
+                            <p>Количество бонусов: <b id="bonus">0</b></p>
+                            <p>Итоговая стоимость: <b id="price">0</b> <b>руб</b></p>
+                        </div>
+                        <br><br>
+                        @if(auth()->user()->email)
+                            <div>
+                                <p>Кассовый чек будет предоставлен в электроном виде на адрес электронной почты ,
+                                    указаний в
+                                    личном
+                                    кабинете </p>
+                            </div>
+                        @else
+                            <div>
+                                <label>
+                                    Укажите адрес электронный почты
+                                    <input class="@error('email')is-invalid @enderror" style="width: 200px;height: 30px"
+                                           type="email" name="email">
+                                    @error('email')
+                                    {{$message}}
+                                    @enderror
+                                </label>
+                            </div>
+                        @endif
+                    @endauth
+                    <input type="hidden" name="coupon_id" id="coupon_id">
+                    <input type="hidden" name="payment_id" id="payment_id">
+                    <br><br>
+                    <div style="text-align: center">
+                        <input class="buy" type="submit" value="Купить пакет ставок">
+                    </div>
                 </form>
             </div>
-
         </div>
-
     </div>
     @push('js')
         <script>
+            $(".main .payment .pay").click(function (e) {
+                e.preventDefault();
+                $(".main .payment .pay").removeClass('active');
+                $(this).addClass('active');
+            });
+
+
+            $('.uncheck').click(function () {
+                let coupon_id = $(this).attr("data-id");
+                for (const [key, value] of Object.entries($(this).data())) {
+                    $(`#${key}`).text(`${value}`);
+                }
+                $(this).removeClass('uncheck');
+                $('.check').removeClass('check').addClass('uncheck');
+                $(this).addClass('check');
+                $('[name="coupon_id"]').val(coupon_id);
+            });
+
             function validate() {
                 //Считаем значения из полей name и email в переменные x и y
-                var paymentType = $('[name = paymentType]').val();
-                var sum = $('[name = sum]').val();
+                let payment_id = $('[name="payment_id"]').val();
+                let coupon_id = $('[name="coupon_id"]').val();
                 //Если поле name пустое выведем сообщение и предотвратим отправку формы
-                if (paymentType.length === 0) {
+                if (payment_id.length === 0) {
                     alert("Выберите метод оплаты");
                     return false;
                 }
                 //Если поле email пустое выведем сообщение и предотвратим отправку формы
-                if (sum.length === 0) {
+                if (coupon_id.length === 0) {
                     alert("Выберите купон");
                     return false;
                 }
             }
 
-            function getvalue(id) {
-                var val = $('#' + id).val();
-                $('[name = sum]').val(val * 10);
+            function getpayment(id) {
+                $('[name="payment_id"]').val(id);
             }
 
-            function getpayment(payment) {
-                $('[name = paymentType]').val(payment);
-            }
-
-            $(function () {
-                $('[name = select]').on("click", function () {
-                    var id = $(this).attr("id");
-                    getvalue(id);
-                });
-                $('.pay').on("click", function () {
-                    var payment = $(this).attr("id");
-                    getpayment(payment);
-                });
-            })
+            $('.pay').on("click", function () {
+                let payment_id = $(this).data("id");
+                getpayment(payment_id);
+            });
 
         </script>
     @endpush

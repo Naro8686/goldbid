@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Referral;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -25,6 +26,6 @@ class AdminSeeder extends Seeder
             'email_code_verified' => now(),
         ]);
         Setting::query()->firstOrCreate(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
-        factory(User::class, 10)->create();
+        //factory(User::class, 10)->create();
     }
 }

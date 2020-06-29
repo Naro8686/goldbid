@@ -18,6 +18,21 @@
     <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 <body>
+
+@if (session('bonus_modal'))
+    <div class="notify__modal">
+        <div class="notify__item">
+            <button class="notify__modal__btn__close btn__close">X</button>
+            <div class="notify__modal__body" style="text-align: center">
+                <p>Заполни персональные данные и получи на счет </p>
+                <h2>30 <sup>Бонусов</sup></h2>
+            </div>
+            <div class="notify__modal__footer">
+                <a href="{{route('profile.personal')}}" class="button__app">Получить</a>
+            </div>
+        </div>
+    </div>
+@endif
 <div class="resss"></div>
 <div class="header">
     <div class="container">
@@ -73,7 +88,8 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="personal_data">
                                         На <a style="text-decoration: underline; color: #494949;"
-                                              href="{{Setting::dynamicURL('personal-data')}}">обработку</a> персональных данных
+                                              href="{{Setting::dynamicURL('personal-data')}}">обработку</a> персональных
+                                        данных
                                         согласен
                                     </label>
                                 </p>
@@ -82,7 +98,8 @@
                                         <input style="width: 15px; margin-bottom: 0;" type="checkbox"
                                                name="privacy_policy">
                                         С <a style="text-decoration: underline; color: #494949;"
-                                             href="{{Setting::dynamicURL('privacy-policy')}}">политикой конфиденциальности</a>
+                                             href="{{Setting::dynamicURL('privacy-policy')}}">политикой
+                                            конфиденциальности</a>
                                         ознакомлен
                                     </label>
                                 </p>
@@ -92,7 +109,8 @@
                                     </div>
                                 @endif
                                 <p>
-                                    <input class="registration sub" type="submit" name="send" value="Зарегистрироваться">
+                                    <input class="registration sub" type="submit" name="send"
+                                           value="Зарегистрироваться">
                                 </p>
                             </form>
                         </div>
@@ -139,18 +157,23 @@
 
                         <ul class="drop-menu">
                             <img src="{{asset('site/img/drop-bg.png')}}" alt="drop">
-                            <li><img src="{{asset('site/img/1cat.png')}}" alt=""><a href="{{route('profile.index')}}"><p>Мой
+                            <li><img src="{{asset('site/img/1cat.png')}}" alt=""><a href="{{route('profile.index')}}">
+                                    <p>Мой
                                         профиль</p></a></li>
-                            <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a href="{{route('profile.personal')}}"><p>
+                            <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a
+                                    href="{{route('profile.personal')}}"><p>
                                         Персональные данные</p>
                                 </a>
                             </li>
-                            <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a href="{{route('profile.balance')}}"><p>
+                            <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a href="{{route('profile.balance')}}">
+                                    <p>
                                         Баланс</p></a></li>
-                            <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a href="{{route('profile.auctions_history')}}"><p>История
+                            <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a
+                                    href="{{route('profile.auctions_history')}}"><p>История
                                         аукционов</p></a>
                             </li>
-                            <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a href="{{route('profile.referral_program')}}"><p>
+                            <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a
+                                    href="{{route('profile.referral_program')}}"><p>
                                         Реферальная программа</p>
                                 </a>
                             </li>
@@ -243,12 +266,12 @@
         <nav class="social">
             <ul>
                 @foreach($page->footer->social as $social)
-                <li>
-                    <img src="{{asset($social->icon)}}" alt="">
-                    <a href="{{$social->link}}">
-                        <span>{{$social->name}}</span>
-                    </a>
-                </li>
+                    <li>
+                        <img src="{{asset($social->icon)}}" alt="">
+                        <a href="{{$social->link}}">
+                            <span>{{$social->name}}</span>
+                        </a>
+                    </li>
                 @endforeach
             </ul>
         </nav>
@@ -272,22 +295,23 @@
 
 <div class="down-footer">
     <div class="container">
-        <p class="info">&copy;  {{config('app.name').' '.date('Y')}} - Все права защищены</p>
+        <p class="info">&copy; {{config('app.name').' '.date('Y')}} - Все права защищены</p>
     </div>
 </div>
 
 @if(!request()->hasCookie('cookiesPolicy'))
-<div class="down-footer">
-    <div class="agree_cookie">
-        <div class="container">
-            <div>
-                Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a href="{{Setting::dynamicURL('cookie-terms-of-use')}}">условиями использования</a> файлов cookie.
+    <div class="down-footer">
+        <div class="agree_cookie">
+            <div class="container">
+                <div>
+                    Мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с <a
+                        href="{{Setting::dynamicURL('cookie-terms-of-use')}}">условиями использования</a> файлов cookie.
+                </div>
+                <button class="cookie__btn agree_cookie_btn" data-agree="1">Согласен</button>
+                <button class="cookie__btn close" data-agree="0">x</button>
             </div>
-            <button class="cookie__btn agree_cookie_btn" data-agree="1">Согласен</button>
-            <button class="cookie__btn close" data-agree="0">x</button>
         </div>
     </div>
-</div>
 @endif
 <script src="{{asset('site/js/jquery.js')}}"></script>
 <script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>

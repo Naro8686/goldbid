@@ -49,15 +49,15 @@
             </b>
             <table>
                 <tr>
-                    <th>Дата регистрации</th>
+                    <th>Время зачисление</th>
                     <th>Имя реферала</th>
                     <th>Бонусов</th>
                 </tr>
-                @foreach($referral as $data)
+                @foreach($referrals as $referral)
                     <tr>
-                        <td>{{$data->created_at}}</td>
-                        <td>{{$data->nickname}}</td>
-                        <td>ref_bonus</td>
+                        <td>{{$referral->pivot->updated_at}}</td>
+                        <td>{{$referral->nickname}}</td>
+                        <td>{{$referral->pivot->referral_bonus}}</td>
                     </tr>
                 @endforeach
             </table>

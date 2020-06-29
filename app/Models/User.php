@@ -27,7 +27,8 @@ class User extends Authenticatable
         'sms_verified_at', 'email', 'email_verified_at',
         'password', 'remember_token', 'is_online',
         'email_code', 'email_code_verified',
-        'payment_type', 'ccnum', 'referred_by'
+        'payment_type', 'ccnum',
+        'referred_by','referral_bonus'
     ];
 
     /**
@@ -65,11 +66,17 @@ class User extends Authenticatable
      */
     public $bonus;
 
+    /**
+     * @return mixed|string
+     */
     public function avatar()
     {
         return $this->avatar ?? asset('site/img/settings/noavatar.png');
     }
 
+    /**
+     * @return bool
+     */
     public function isActive(): bool
     {
         return $this->is_online >= Carbon::now();
@@ -84,25 +91,38 @@ class User extends Authenticatable
         return is_null($phone) ? $phone : str_replace(['+', '(', ')', '-'], '', $phone);
     }
 
+    /**
+     * @param string $phone
+     * @return string|string[]|null
+     */
     public static function setPhoneMask(string $phone)
     {
         return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4', $phone);
     }
 
+    /**
+     * @return string|string[]|null
+     */
     public function login()
     {
         return self::setPhoneMask($this->phone);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function balanceHistory()
     {
         return $this->hasMany(Balance::class);
     }
 
+    /**
+     * @return $this
+     */
     public function balance()
     {
-        $this->bet = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bets') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bets'));
-        $this->bonus = (int)($this->balanceHistory->where('type', Balance::REPLENISHMENT)->sum('bonuses') - $this->balanceHistory->where('type', Balance::DEFRAYAL)->sum('bonuses'));
+        $this->bet = (int)($this->balanceHistory->where('type', Balance::PLUS)->sum('bet') - $this->balanceHistory->where('type', Balance::MINUS)->sum('bet'));
+        $this->bonus = (int)($this->balanceHistory->where('type', Balance::PLUS)->sum('bonus') - $this->balanceHistory->where('type', Balance::MINUS)->sum('bonus'));
         return $this;
     }
 
@@ -111,18 +131,34 @@ class User extends Authenticatable
         return $this->belongsToMany(Mailing::class, 'subscriptions', 'user_id', 'mailing_id');
     }
 
-    public function referral()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function referrals()
     {
-        return $this->hasMany(self::class, 'referred_by');
+        return $this->belongsToMany(self::class,Referral::class, 'referred_by','referral_id')
+            ->withPivot('referral_bonus','created_at','updated_at');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function referred()
+    {
+        return $this->belongsToMany(self::class, Referral::class, 'referral_id','referred_by')
+            ->withPivot('referral_bonus','created_at','updated_at');
+    }
+
+    /**
+     * @return bool
+     */
     public function fullProfile()
     {
         $data = array_filter([
             $this->fname, $this->lname, $this->mname,
-            $this->phone, $this->postcode, $this->region, $this->city,
-            $this->street, $this->gender, $this->birthday,
-            $this->email_code_verified,
+            $this->phone, $this->postcode, $this->region,
+            $this->city, $this->street, $this->gender,
+            $this->birthday, $this->email_code_verified,
         ], static function ($var) {
             return $var === null;
         });

@@ -33,6 +33,10 @@ Route::group(['prefix' => '/cabinet', 'middleware' => 'auth', 'as' => 'profile.'
     Route::match(['GET', 'POST'], '/code-email-confirm', 'ProfileController@codeEmailConfirm')->name('email_code_confirm');
     Route::post('/{id}/subscribe', 'ProfileController@subscribe')->name('subscribe');
 });
+
+Route::group(['prefix' => '/payment', 'middleware' => 'auth', 'as' => 'payment.', 'namespace' => 'Payments'], function () {
+    Route::post( '/buy-coupon', 'CouponController@buy')->name('coupon.buy');
+});
 Auth::routes();
 Route::get('/{slug?}', 'HomeController@dynamicPage')->where(['slug' => '^(?!admin.*$).*']);
 

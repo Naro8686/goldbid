@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Balance;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,10 +16,10 @@ class CreateBalancesTable extends Migration
     {
         Schema::create('balances', function (Blueprint $table) {
             $table->id();
-            $table->integer('type')->unsigned()->default(0);
-            $table->string('description')->nullable();
-            $table->integer('bets')->unsigned()->default(0);
-            $table->integer('bonuses')->unsigned()->default(0);
+            $table->integer('type')->unsigned()->default(Balance::PLUS);
+            $table->string('reason')->nullable();
+            $table->integer('bet')->unsigned()->default(0);
+            $table->integer('bonus')->unsigned()->default(0);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')
                 ->references('id')

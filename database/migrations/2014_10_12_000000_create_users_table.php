@@ -39,11 +39,6 @@ class CreateUsersTable extends Migration
             $table->timestamp('is_online')->default(now());
             $table->unsignedTinyInteger('payment_type')->nullable();
             $table->unsignedInteger('ccnum')->nullable();
-            $table->unsignedBigInteger('referred_by')->nullable();
-            $table->foreign('referred_by')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

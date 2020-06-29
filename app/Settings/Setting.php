@@ -114,7 +114,7 @@ class Setting
                 break;
             }
         }
-        return (is_int($id) && is_array($themes))?null:$themes;
+        return (is_int($id) && is_array($themes)) ? null : $themes;
     }
 
     public static function paymentType(?int $id)
@@ -130,7 +130,38 @@ class Setting
                 break;
             }
         }
-        return (is_int($id) && is_array($payments))?null:$payments;
+        return (is_int($id) && is_array($payments)) ? null : $payments;
+    }
+
+    public static function paymentCoupon(?int $id)
+    {
+        $payments = [
+            ['id' => 1, 'value' => 'visa', 'img' => asset('site/img/payment/visa.png')],
+            ['id' => 2, 'value' => 'mastercard', 'img' => asset('site/img/payment/mastercard.png')],
+            ['id' => 3, 'value' => 'maestro', 'img' => asset('site/img/payment/Maestro.png')],
+            ['id' => 4, 'value' => 'mir', 'img' => asset('site/img/payment/Mir-logo.jpg')],
+            ['id' => 5, 'value' => 'sberbank', 'img' => asset('site/img/payment/sberbank.jpg')],
+            ['id' => 6, 'value' => 'yandex', 'img' => asset('site/img/payment/yandex.png')],
+            ['id' => 7, 'value' => 'qiwi', 'img' => asset('site/img/payment/qiwi.png')],
+            ['id' => 8, 'value' => 'mts', 'img' => asset('site/img/payment/mts.png')],
+            ['id' => 9, 'value' => 'megafon', 'img' => asset('site/img/payment/megafon.png')],
+            ['id' => 10, 'value' => 'beeline', 'img' => asset('site/img/payment/beeline.png')],
+            ['id' => 11, 'value' => 'tele2', 'img' => asset('site/img/payment/tele2.png')],
+
+        ];
+        foreach ($payments as $payment) {
+            if ($payment['id'] === $id) {
+                $payments = $payment['value'];
+                break;
+            }
+        }
+        return (is_int($id) && is_array($payments)) ? null : $payments;
+    }
+
+    public static function orderNumCoupon(int $num)
+    {
+        $data_format = now()->format('ymd-Hi');
+        return "{$data_format}-{$num}";
     }
 
     public static function mailConfig()

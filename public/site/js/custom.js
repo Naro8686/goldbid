@@ -12,9 +12,13 @@ $(document).ready(function () {
                 btn.closest('.agree_cookie').slideUp("slow");
             }
         });
-    })
+    });
 });
-
+$(document).on('click','.notify__modal__btn__close', function () {
+    let btn = $(this);
+    let modal = btn.closest('.notify__modal');
+    modal.toggleClass('close');
+});
 function oNoFF(action, data = {}, method = "GET") {
     if (method === "PUT" || method === "DELETE") {
         data._method = method;
