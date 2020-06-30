@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Mailing;
 use App\Models\User;
+use App\Settings\Setting;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,6 +32,8 @@ class MailingSendMail extends Mailable
         $this->mailing = Mailing::no_ads($type)
             ->where('visibly', true)
             ->first();
+        if ($type === Mailing::MAIL_CONFIRM)
+            $user->update(['email_code' => Setting::emailRandomCode()]);
         if (is_null($this->mailing)) throw new Exception();
         $this->user = $user;
     }

@@ -1,6 +1,6 @@
 <div>
     <p>
-        <b>Заказ: N </b> {{$coupon_order->order}}
+        <b>Заказ: № </b> {{$coupon_order->order}}
     </p>
     <p>
         <b>Наименование товара :</b> Пакет ставок {{$coupon_order->coupon->bet}}

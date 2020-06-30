@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Mail\CodeConfirmSendMail;
+use App\Mail\MailingSendMail;
 use App\Models\Balance;
 use App\Models\Mailing;
 use App\Models\User;
@@ -153,7 +153,7 @@ class ProfileController extends Controller
             if (!empty($this->user->email)) {
                 try {
                     $request['theme'] = Setting::feedbackTheme($request['theme']);
-                    Mail::to($this->user->email)->send(new CodeConfirmSendMail($this->user));
+                    Mail::to($this->user->email)->send(new MailingSendMail($this->user,Mailing::MAIL_CONFIRM));
                 } catch (Exception $exception) {
                     $text = 'что то пошло не так !';
                     $status = 'error';
