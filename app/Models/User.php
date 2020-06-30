@@ -165,4 +165,9 @@ class User extends Authenticatable
 
         return !(boolean)count($data);
     }
+
+    public function couponOrder()
+    {
+        return $this->hasMany(CouponOrder::class);
+    }
 }

@@ -95,7 +95,6 @@ class HomeController extends Controller
     public function coupon()
     {
         $payments = Setting::paymentCoupon(null);
-
         $packages = Package::where('visibly', true)->get();
         return view(self::DIR . 'coupon', compact('packages','payments'));
     }

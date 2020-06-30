@@ -20,27 +20,7 @@
             течение 3-х суток Вам будут зачислены бонусы в размере 50% от количества ставок
             купленных Вашим рефералом.
         </p>
-        <div class="list-ref">
-            <p>Что бы получить реферальную ссылку необходимо: </p>
-            <ol style="list-style: dodgerblue;" type="1">
-                @if(!$user->fullProfile())
-                    <li>
-                        <a href="{{route('profile.personal')}}" style="color: #1B8BCB;">
-                            Заполнить свои персональные данные и номер телефона
-                        </a>
-                    </li>
-                @endif
-                @if (count([]) == 0)
-                    <li>
-                        <a href="{{route('site.coupon')}}" style="color: #1B8BCB; ">
-                            Приобрести любой пакет ставок
-                        </a>
-                    </li>
-                @endif
-            </ol>
-
-        </div>
-        @if($user->fullProfile())
+        @if($user->fullProfile() && $user->couponOrder()->count())
             <b style="margin-top: 15px;">Реферальная ссылка:
                 <input id="cont" class="ref-link" style="padding: 4px; font-weight: normal;" type="text"
                        value="{{route('site.home',['ref'=>$user->id])}}">
@@ -61,6 +41,26 @@
                     </tr>
                 @endforeach
             </table>
+        @else
+            <div class="list-ref">
+                <p>Что бы получить реферальную ссылку необходимо: </p>
+                <ol style="list-style: dodgerblue;" type="1">
+                    @if(!$user->fullProfile())
+                        <li>
+                            <a href="{{route('profile.personal')}}" style="color: #1B8BCB;">
+                                Заполнить свои персональные данные и номер телефона
+                            </a>
+                        </li>
+                    @endif
+                    @if (!$user->couponOrder()->count())
+                        <li>
+                            <a href="{{route('site.coupon')}}" style="color: #1B8BCB; ">
+                                Приобрести любой пакет ставок
+                            </a>
+                        </li>
+                    @endif
+                </ol>
+            </div>
         @endif
     </div>
 @endsection

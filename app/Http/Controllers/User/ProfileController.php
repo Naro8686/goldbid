@@ -37,6 +37,14 @@ class ProfileController extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->user = Auth::user();
+            if ($this->user->fullProfile()) {
+                $this->user->balanceHistory()
+                    ->where('reason', Balance::REGISTRATION_BONUS_REASON)
+                    ->firstOrCreate([
+                        'bonus' => Balance::bonusCount(Balance::REGISTRATION_BONUS_REASON),
+                        'reason' => Balance::REGISTRATION_BONUS_REASON,
+                    ]);
+            }
             view()->share(['user' => $this->user, 'page' => (new Setting($this->slug))->page()]);
             return $next($request);
         });
@@ -92,17 +100,8 @@ class ProfileController extends Controller
                 'birthday', 'postcode', 'region', 'city',
                 'street', 'email', 'payment_type', 'ccnum'
             ]));
-            if ($this->user->fullProfile()) {
-                $this->user->balanceHistory()
-                    ->where('reason', Balance::REGISTRATION_BONUS_REASON)
-                    ->firstOrCreate([
-                        'bonus' => Balance::bonusCount(Balance::REGISTRATION_BONUS_REASON),
-                        'reason' => Balance::REGISTRATION_BONUS_REASON,
-                    ]);
-            }
             return redirect()->back()->with('status', 'Изменения успешно сохранились ');
         }
-
         return view('user.personal_data', compact('payments'));
     }
 
@@ -121,12 +120,6 @@ class ProfileController extends Controller
 
     public function referralProgram()
     {
-//  LOGIC
-//        $referred = $this->user->referred()->first();
-//        $referred->pivot->update(['referral_bonus' => Balance::bonusCount(Balance::REFERRAL_BONUS_REASON)]);
-//        $referred->balanceHistory()->create(['bonus' => $referred->pivot->referral_bonus]);
-//  END
-
         $referrals = $this->user->referrals;
         return view('user.referral_program', compact('referrals'));
     }
