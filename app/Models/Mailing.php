@@ -16,7 +16,7 @@ class Mailing extends Model
 
     public static function ads()
     {
-        return self::where('type', self::ADS)
+        return self::query()->where('type', self::ADS)
             ->get(['id', 'type', 'title', 'subject', 'text']);
     }
 
@@ -47,7 +47,7 @@ class Mailing extends Model
 
         $replacements[0] = $data->nickname;
         $replacements[1] = $data->login();
-        $replacements[2] = $data->password;
+        //$replacements[2] = $data->password;
         $replacements[3] = $data->email_code;
         $replacements[4] = 'order';
         $replacements[5] = 'auction';

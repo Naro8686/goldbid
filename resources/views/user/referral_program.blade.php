@@ -22,10 +22,10 @@
         </p>
         @if($user->fullProfile() && $user->couponOrder()->count())
             <b style="margin-top: 15px;">Реферальная ссылка:
-                <input id="cont" class="ref-link" style="padding: 4px; font-weight: normal;" type="text"
+                <input id="ref-link" class="ref-link" style="padding: 4px; font-weight: normal;" type="text"
                        value="{{route('site.home',['ref'=>$user->id])}}">
-                <input id="userButton" style="margin-left: 15px; border-radius: 20px; padding: 5px; outline: none;"
-                       type="submit" value="КОПИРОВАТЬ">
+                <input id="copyButton" style="margin-left: 10px; border-radius: 20px; padding: 5px; outline: none;"
+                       type="button" value="КОПИРОВАТЬ">
             </b>
             <table>
                 <tr>
@@ -63,4 +63,11 @@
             </div>
         @endif
     </div>
+    @push('js')
+        <script>
+            document.getElementById("copyButton").addEventListener("click", function() {
+                copyToClipboard(document.getElementById("ref-link"));
+            });
+        </script>
+    @endpush
 @endsection

@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
+    Route::resource('users', 'UserController')->only([
+        'index', 'edit', 'update','destroy'
+    ]);
     Route::resource('sliders', 'SliderController')->only([
         'create', 'store', 'edit', 'update','destroy'
     ]);

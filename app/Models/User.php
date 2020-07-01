@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Settings\Setting as SettingApp;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,7 +29,6 @@ class User extends Authenticatable
         'password', 'remember_token', 'is_online',
         'email_code', 'email_code_verified',
         'payment_type', 'ccnum',
-        'referred_by','referral_bonus'
     ];
 
     /**
@@ -108,6 +108,27 @@ class User extends Authenticatable
         return self::setPhoneMask($this->phone);
     }
 
+    public function regDate()
+    {
+        return $this->created_at;
+    }
+
+    public function birthdayDate()
+    {
+        return $this->birthday;
+    }
+
+    public static function info()
+    {
+        $users = User::query()->where('is_admin', false)->get();
+        return collect([
+            'count' => $users->count(),
+            'active' => 0,
+            'banned' => $users->where('has_ban', true)->count(),
+            'online' => $users->where('is_online', '>=', now())->count()
+        ]);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -136,8 +157,8 @@ class User extends Authenticatable
      */
     public function referrals()
     {
-        return $this->belongsToMany(self::class,Referral::class, 'referred_by','referral_id')
-            ->withPivot('referral_bonus','created_at','updated_at');
+        return $this->belongsToMany(self::class, Referral::class, 'referred_by', 'referral_id')
+            ->withPivot('referral_bonus', 'created_at', 'updated_at');
     }
 
     /**
@@ -145,8 +166,8 @@ class User extends Authenticatable
      */
     public function referred()
     {
-        return $this->belongsToMany(self::class, Referral::class, 'referral_id','referred_by')
-            ->withPivot('referral_bonus','created_at','updated_at');
+        return $this->belongsToMany(self::class, Referral::class, 'referral_id', 'referred_by')
+            ->withPivot('referral_bonus', 'created_at', 'updated_at');
     }
 
     /**
@@ -169,5 +190,9 @@ class User extends Authenticatable
     public function couponOrder()
     {
         return $this->hasMany(CouponOrder::class);
+    }
+    public function paymentType()
+    {
+        return SettingApp::paymentType($this->payment_type);
     }
 }

@@ -25,7 +25,7 @@
             <button class="notify__modal__btn__close btn__close">X</button>
             <div class="notify__modal__body" style="text-align: center">
                 <p>Заполни персональные данные и получи на счет </p>
-                <h2>30 <sup>Бонусов</sup></h2>
+                <h2>{{\App\Models\Balance::bonusCount(\App\Models\Balance::REGISTRATION_BONUS_REASON)}} <sup>Бонусов</sup></h2>
             </div>
             <div class="notify__modal__footer">
                 <a href="{{route('profile.personal')}}" class="button__app">Получить</a>

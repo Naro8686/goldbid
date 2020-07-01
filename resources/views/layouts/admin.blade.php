@@ -40,10 +40,15 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Dashboard -->
-        <li class="nav-item active">
+        <li class="nav-item @if(request()->is('admin')) active @endif">
             <a class="nav-link" href="{{route('admin.dashboard')}}">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Dashboard</span></a>
+        </li>
+        <li class="nav-item @if(request()->is('admin/users')) active @endif">
+            <a class="nav-link" href="{{route('admin.users.index')}}">
+                <i class="fas fa-fw fa-user-alt"></i>
+                <span>Пользователи</span></a>
         </li>
 
         <!-- Divider -->
@@ -453,43 +458,6 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog"
-     aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="{{route('admin.pages.footer.crud')}}" method="post" id="footer-crud"
-                      enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="id" value="">
-                    <input type="hidden" name="type" value="">
-                    <input type="hidden" name="social" value="">
-                    <div class="render-html">
-                        <div class="form-group">
-                            <label for="recipient-name" class="col-form-label">Recipient:</label>
-                            <input type="text" class="form-control" id="recipient-name">
-                        </div>
-                        <div class="form-group">
-                            <label for="message-text" class="col-form-label">Message:</label>
-                            <textarea class="form-control" id="message-text"></textarea>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary submit">Submit</button>
             </div>
         </div>
     </div>

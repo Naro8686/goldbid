@@ -15,7 +15,7 @@ class CreateReferralsTable extends Migration
     {
         Schema::create('referrals', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('referred_by')->nullable();
+            $table->unsignedBigInteger('referred_by');
             $table->unsignedBigInteger('referral_id')->nullable();
             $table->integer('referral_bonus')->default(0);
             $table->foreign('referred_by')

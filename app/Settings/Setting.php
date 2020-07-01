@@ -90,7 +90,7 @@ class Setting
     public static function siteContacts()
     {
         $data = self::siteConfig()->first(['phone_number', 'email']);
-        $data->phone = User::setPhoneMask($data->phone_number);
+        $data->phone = $data->phone_number?User::setPhoneMask($data->phone_number):'';
         $data->name = config('app.name') ?? null;
         return $data;
     }

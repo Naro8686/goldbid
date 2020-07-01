@@ -4,7 +4,7 @@ $(document).ready(function () {
     $(document).on('change', '#upload', function () {
         readURL($(this)[0]);
     });
-    $('*[data-target="#resourceModal"]').on('click', function (e) {
+    $(document).on('click', '*[data-target="#resourceModal"]', function (e) {
         let _this = $(this);
         let action = _this.data('action');
         let form = $(_this.data('target')).find('form#resource-delete');
@@ -122,7 +122,9 @@ function oNoFF(action, data = {}, method = "GET") {
         type: method,
         url: action,
         data: data,
-        success: () => {
+        success: (data) => {
+            if (data)
+                $(`#${data.id_name}`).html(data.change_info);
         },
         error: (error) => {
             console.log(error)

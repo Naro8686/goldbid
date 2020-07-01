@@ -18,6 +18,7 @@ class Balance extends Model
     const EXCHANGE_BONUS_REASON = 'За обмен товара';
     const REGISTRATION_BONUS_REASON = 'За регистрацию';
     const REFERRAL_BONUS_REASON = 'За реферала';
+    const ADMIN = 'admin';
 
     public function user()
     {
