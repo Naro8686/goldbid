@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ResetController extends Controller
 {
@@ -46,10 +47,12 @@ class ResetController extends Controller
         try {
             $user->update(['sms_code' => Setting::randomNumber(6)]);
             $user->notify(new AccountApproved);
+            $request->session()->push('reset_id', $user->id);
         } catch (Exception $exception) {
-            dd($exception->getMessage());
+            Log::error($exception->getMessage());
+            return redirect()->back()->with('error','Что то пошло не так пожалуйста попробуйте чуть позже.');
         }
-        $request->session()->push('reset_id', $user->id);
+
         return redirect()->back();
     }
 

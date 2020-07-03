@@ -73,6 +73,9 @@
         <form method="POST" action="{{ route('reset.check.phone') }}">
             @csrf
             <h1 class='title'>Восстановление пароля</h1>
+            @if (session('error'))
+                <p class="warning">{{session('error')}}</p>
+            @endif
             @if (!session('reset_id'))
                 <label for="phone_number">Введите логин
                     <input type="text" id="phone_number" name="phone" value="{{old('phone')}}">
