@@ -20,7 +20,7 @@ class UserController extends Controller
         if ($request->ajax()) {
             try {
                 $users = new Collection;
-                foreach (User::all()->where('is_admin',false) as $user) {
+                foreach (User::all()->where('is_admin', false) as $user) {
                     $users->push([
                         'id' => $user->id,
                         'created_at' => $user->created_at->format('Y-m-d'),
@@ -86,36 +86,7 @@ class UserController extends Controller
     public function edit($id)
     {
         if ($user = User::query()->find($id)) {
-            $data = collect([
-                'id' => $user->id,
-                'created_at' => $user->created_at->format('Y-m-d'),
-                'nickname' => $user->nickname,
-                'lname' => $user->lname,
-                'fname' => $user->fname,
-                'mname' => $user->mname,
-                'gender' => $user->gender,
-                'city' => $user->city,
-                'postcode' => $user->postcode,
-                'region' => $user->region,
-                'street' => $user->street,
-                'birthday' => $user->birthday ? $user->birthday->format('Y-m-d') : '',
-                'phone' => $user->login(),
-                'email' => $user->email,
-                'win' => 0,
-                'participation' => 0,
-                'has_ban' => $user->has_ban ? 'да' : 'нет',
-                'bet' => $user->balance()->bet,
-                'bonus' => $user->balance()->bonus,
-                'payment' => $user->paymentType(),
-                'ccnum' => $user->ccnum,
-                'reason' => [
-                    Balance::PRIZE_REASON,
-                    Balance::RETURN_REASON,
-                ],
-                'referred' => $user->referred()->count() ? 'ID ' . $user->referred()->first()->id : '',
-                'referrals' => $user->referrals()->get()->implode('id', ','),
-                'mailing' => Mailing::ads(),
-            ]);
+            $data = $user->userCard();
             $html = view('admin.users.card', compact('data'))->render();
         } else {
             $html = "<div class='col-md-12'><h3 class='text-center text-danger'>Такого пользователя не существует</h3></div>";
@@ -159,7 +130,7 @@ class UserController extends Controller
             $user->balanceHistory()->create([
                 'type' => $type,
                 'bet' => $bet,
-                'reason'=>Balance::ADMIN,
+                'reason' => Balance::ADMIN,
             ]);
         }
         if ((int)$request['old_bonus'] !== $user->balance()->bonus) {
@@ -171,7 +142,7 @@ class UserController extends Controller
             $user->balanceHistory()->create([
                 'type' => $type,
                 'bonus' => $bonus,
-                'reason'=>Balance::ADMIN,
+                'reason' => Balance::ADMIN,
             ]);
         }
         return redirect()->back()->with('status', 'успешные дествия !');

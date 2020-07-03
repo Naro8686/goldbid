@@ -30,4 +30,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'smscru' => [
+        'login' => env('SMSCRU_LOGIN','GoldBid'),
+        'secret' => env('SMSCRU_SECRET','gSmn5Dnn2T'),
+        'sender' => 'GoldBid',
+        'extra' => [
+            // any other API parameters
+            // 'tinyurl' => 1
+        ],
+    ],
+
 ];

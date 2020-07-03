@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Balance;
 use App\Models\Mailing;
 use App\Models\User;
+use App\Notifications\AccountApproved;
+use App\Rules\OldPasswordRule;
 use App\Settings\Setting;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -25,6 +25,7 @@ class AdminController extends Controller
      */
     public function __construct()
     {
+        $this->middleware('admin');
     }
 
     /**
@@ -81,5 +82,31 @@ class AdminController extends Controller
     {
         $mailings = collect(['ads' => Mailing::ads(), 'no_ads' => Mailing::no_ads()]);
         return view(self::DIR . 'mailing', compact('mailings'));
+    }
+
+    public function adminProfileChange(Request $request)
+    {
+        if ($request->isMethod('POST')) {
+            $data = [];
+            $request['phone'] = User::unsetPhoneMask($request['phone']);
+            if ($request['phone'] !== Auth::user()->phone) {
+                $request->validate([
+                    'phone' => ['required', 'numeric', 'digits:11', 'unique:users,id,' . Auth::id()],
+                    'current_password' => ['required_with:phone', new OldPasswordRule],
+                ]);
+                $data['phone'] = $request['phone'];
+            }
+            if (!is_null($request['new_password'])) {
+                $request->validate([
+                    'current_password' => ['required_with:new_password', new OldPasswordRule],
+                    'new_password' => ['required', 'min:8'],
+                    'new_confirm_password' => ['required_with:new_password', 'same:new_password'],
+                ]);
+                $data['password'] = Hash::make($request['new_password']);
+            }
+            Auth::user()->update($data);
+            return redirect()->back()->with('status', 'Изменения успешно сохранились');
+        }
+        return view(self::DIR . 'profile');
     }
 }

@@ -25,7 +25,8 @@
             <button class="notify__modal__btn__close btn__close">X</button>
             <div class="notify__modal__body" style="text-align: center">
                 <p>Заполни персональные данные и получи на счет </p>
-                <h2>{{\App\Models\Balance::bonusCount(\App\Models\Balance::REGISTRATION_BONUS_REASON)}} <sup>Бонусов</sup></h2>
+                <h2>{{\App\Models\Balance::bonusCount(\App\Models\Balance::REGISTRATION_BONUS_REASON)}}
+                    <sup>Бонусов</sup></h2>
             </div>
             <div class="notify__modal__footer">
                 <a href="{{route('profile.personal')}}" class="button__app">Получить</a>
@@ -132,8 +133,8 @@
                                     </label>
                                 </p>
                                 <p class="recovery"><a style="color: #494949; font-size: 14px;"
-                                                       href="{{route('password.request')}}">Востановить
-                                        пароль</a></p>
+                                                       href="{{route('reset.password.sms')}}">Востановить
+                                        пароль по смс</a></p>
                                 <p class="recovery"><a style="color: #494949; font-size: 14px;"
                                                        href="{{route('register')}}">Регистрация</a>
                                 </p>
@@ -154,29 +155,41 @@
                             <div id="avatar" class="avatar"
                                  style="background-image: url({{asset(auth()->user()->avatar())}}); background-position: center; background-size: cover; border-radius: 50%;"></div>
                         </a>
-
-                        <ul class="drop-menu">
+                        <ul class="drop-menu @if(auth()->user()->is_admin) admin__profile @endif">
                             <img src="{{asset('site/img/drop-bg.png')}}" alt="drop">
-                            <li><img src="{{asset('site/img/1cat.png')}}" alt=""><a href="{{route('profile.index')}}">
-                                    <p>Мой
-                                        профиль</p></a></li>
-                            <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a
-                                    href="{{route('profile.personal')}}"><p>
-                                        Персональные данные</p>
-                                </a>
-                            </li>
-                            <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a href="{{route('profile.balance')}}">
-                                    <p>
-                                        Баланс</p></a></li>
-                            <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a
-                                    href="{{route('profile.auctions_history')}}"><p>История
-                                        аукционов</p></a>
-                            </li>
-                            <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a
-                                    href="{{route('profile.referral_program')}}"><p>
-                                        Реферальная программа</p>
-                                </a>
-                            </li>
+                            @if(auth()->user()->is_admin)
+                                <li>
+                                    <img src="{{asset('site/img/1cat.png')}}" alt="">
+                                    <a href="{{route('admin.dashboard')}}">
+                                        <p>Админ Панель</p>
+                                    </a>
+                                </li>
+                            @else
+                                <li>
+                                    <img src="{{asset('site/img/1cat.png')}}" alt=""><a
+                                        href="{{route('profile.index')}}">
+                                        <p>Мой
+                                            профиль</p></a>
+                                </li>
+                                <li><img src="{{asset('site/img/2cat.png')}}" alt=""><a
+                                        href="{{route('profile.personal')}}"><p>
+                                            Персональные данные</p>
+                                    </a>
+                                </li>
+                                <li><img src="{{asset('site/img/3cat.png')}}" alt=""><a
+                                        href="{{route('profile.balance')}}">
+                                        <p>
+                                            Баланс</p></a></li>
+                                <li><img src="{{asset('site/img/4cat.png')}}" alt=""><a
+                                        href="{{route('profile.auctions_history')}}"><p>История
+                                            аукционов</p></a>
+                                </li>
+                                <li><img src="{{asset('site/img/5cat.png')}}" alt=""><a
+                                        href="{{route('profile.referral_program')}}"><p>
+                                            Реферальная программа</p>
+                                    </a>
+                                </li>
+                            @endif
                             <li>
                                 <img src="{{asset('site/img/4cat.png')}}" alt=""><a href="{{ route('logout') }}"
                                                                                     onclick="event.preventDefault();

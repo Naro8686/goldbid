@@ -16,34 +16,35 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
+    Route::match(['GET', 'POST'], '/profile', 'AdminController@adminProfileChange')->name('profile');
     Route::resource('users', 'UserController')->only([
-        'index', 'edit', 'update','destroy'
+        'index', 'edit', 'update', 'destroy'
     ]);
     Route::resource('sliders', 'SliderController')->only([
-        'create', 'store', 'edit', 'update','destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
     Route::resource('howitworks', 'HowitworkController')->only([
-        'create', 'store', 'edit', 'update','destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
     Route::resource('questions', 'QuestionController')->only([
-        'create', 'store', 'edit', 'update','destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
     Route::resource('reviews', 'ReviewController')->only([
-        'create', 'store', 'edit', 'update','destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
     Route::resource('packages', 'PackageController')->only([
-        'create', 'store', 'edit', 'update','destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
-    Route::group(['as' => 'settings.','prefix' => 'settings'], function () {
-        Route::match(['GET','POST'],'/mail', 'AdminController@mailConfig')->name('mail');
-        Route::match(['GET','POST'],'/site', 'AdminController@siteConfig')->name('site');
+    Route::group(['as' => 'settings.', 'prefix' => 'settings'], function () {
+        Route::match(['GET', 'POST'], '/mail', 'AdminController@mailConfig')->name('mail');
+        Route::match(['GET', 'POST'], '/site', 'AdminController@siteConfig')->name('site');
         Route::get('/mailing', 'AdminController@mailing')->name('mailing');
     });
     Route::get('/mailings/{mailing}/send', 'MailingController@send')->name('mailings.send');
     Route::resource('mailings', 'MailingController')->only([
-        'create', 'store', 'edit', 'update','destroy','send'
+        'create', 'store', 'edit', 'update', 'destroy', 'send'
     ]);
-    Route::group(['as' => 'pages.', 'prefix' => 'pages','namespace'=>'Pages'], function () {
+    Route::group(['as' => 'pages.', 'prefix' => 'pages', 'namespace' => 'Pages'], function () {
         Route::post('/seo/{id}/update', 'PageController@seoUpdate')->name('seo.update');
         Route::get('/footer', 'PageController@footer')->name('footer');
         Route::post('/footer/linkOnOff', 'PageController@linkOnOff')->name('footer.linkOnOff');

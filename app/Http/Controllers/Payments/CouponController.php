@@ -12,7 +12,6 @@ use App\Settings\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use function GuzzleHttp\Promise\all;
 
 class CouponController extends Controller
 {

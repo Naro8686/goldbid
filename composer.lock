@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1084de79c6f8bfb4e8331380f73208fe",
+    "content-hash": "f5a78d93dc4b8bccd99de4056ee43a3a",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -808,6 +808,69 @@
                 "watermark"
             ],
             "time": "2019-11-02T09:15:47+00:00"
+        },
+        {
+            "name": "laravel-notification-channels/smsc-ru",
+            "version": "v3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-notification-channels/smsc-ru.git",
+                "reference": "0a4d9fa96e460785fc3289ec3203214f339a6e4d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel-notification-channels/smsc-ru/zipball/0a4d9fa96e460785fc3289ec3203214f339a6e4d",
+                "reference": "0a4d9fa96e460785fc3289ec3203214f339a6e4d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^6.2",
+                "illuminate/notifications": "5.1 - 5.8|^6.0|^7.0",
+                "illuminate/queue": "5.1 - 5.8|^6.0|^7.0",
+                "illuminate/support": "5.1 - 5.8|^6.0|^7.0",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.2",
+                "phpunit/phpunit": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "NotificationChannels\\SmscRu\\SmscRuServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NotificationChannels\\SmscRu\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "JhaoDa",
+                    "email": "jhaoda@gmail.com",
+                    "homepage": "https://github.com/jhaoda",
+                    "role": "Developer"
+                }
+            ],
+            "description": "SmscRu Notifications channel for Laravel 5.3.",
+            "homepage": "https://github.com/laravel-notification-channels/smsc-ru",
+            "keywords": [
+                "laravel",
+                "notifications",
+                "smsc",
+                "smscentre",
+                "СМС-Центр"
+            ],
+            "time": "2020-03-05T11:38:40+00:00"
         },
         {
             "name": "laravel/framework",
@@ -6500,7 +6563,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.2.5",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-sockets": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"

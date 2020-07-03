@@ -7,9 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use stdClass;
 
 class User extends Authenticatable
 {
@@ -65,6 +62,14 @@ class User extends Authenticatable
      * @var int
      */
     public $bonus;
+
+    /**
+     * @return mixed
+     */
+    public function routeNotificationForSmscru()
+    {
+        return $this->phone;
+    }
 
     /**
      * @return mixed|string
@@ -126,6 +131,47 @@ class User extends Authenticatable
             'active' => 0,
             'banned' => $users->where('has_ban', true)->count(),
             'online' => $users->where('is_online', '>=', now())->count()
+        ]);
+    }
+
+    public function userCard()
+    {
+        $subscribe = [];
+        foreach (Mailing::ads() as $ads) {
+            $subscribe[] = [
+                'title' => $ads->title,
+                'subscribe' => $this->subscribe->where('id', $ads->id)->first() ? 'Да' : 'Нет',
+            ];
+        }
+        return collect([
+            'id' => $this->id,
+            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d') : '',
+            'nickname' => $this->nickname,
+            'lname' => $this->lname,
+            'fname' => $this->fname,
+            'mname' => $this->mname,
+            'gender' => $this->gender === 'female' ? 'Ж' : 'М',
+            'city' => $this->city,
+            'postcode' => $this->postcode,
+            'region' => $this->region,
+            'street' => $this->street,
+            'birthday' => $this->birthday ? $this->birthday->format('Y-m-d') : '',
+            'phone' => $this->login(),
+            'email' => $this->email,
+            'win' => 0,
+            'participation' => 0,
+            'has_ban' => $this->has_ban ? 'да' : 'нет',
+            'bet' => $this->balance()->bet,
+            'bonus' => $this->balance()->bonus,
+            'payment' => $this->paymentType(),
+            'ccnum' => $this->ccnum,
+            'reason' => [
+                Balance::PRIZE_REASON,
+                Balance::RETURN_REASON,
+            ],
+            'referred' => $this->referred()->count() ? 'ID ' . $this->referred()->first()->id : '',
+            'referrals' => $this->referrals()->get()->implode('id', ','),
+            'mailing' => $subscribe,
         ]);
     }
 
@@ -191,8 +237,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CouponOrder::class);
     }
+
     public function paymentType()
     {
-        return SettingApp::paymentType($this->payment_type);
+        return $this->payment_type ? SettingApp::paymentType($this->payment_type) : null;
     }
 }

@@ -21,8 +21,8 @@
                 @enderror
             </label>
             <p class="recovery"><a style="color: #494949; font-size: 14px;"
-                                   href="{{route('password.request')}}">Востановить
-                    пароль</a></p>
+                                   href="{{route('reset.password.sms')}}">Востановить
+                    пароль по смс</a></p>
             <p class="recovery"><a style="color: #494949; font-size: 14px;"
                                    href="{{route('register')}}">Регистрация</a>
             </p>

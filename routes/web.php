@@ -37,6 +37,13 @@ Route::group(['prefix' => '/cabinet', 'middleware' => 'auth', 'as' => 'profile.'
 Route::group(['prefix' => '/payment', 'middleware' => 'auth', 'as' => 'payment.', 'namespace' => 'Payments'], function () {
     Route::post( '/buy-coupon', 'CouponController@buy')->name('coupon.buy');
 });
+
+Route::group(['prefix' => '/reset', 'as' => 'reset.', 'namespace' => 'PasswordReset'], function () {
+    Route::get( '/password', 'ResetController@reset')->name('password.sms');
+    Route::post( '/check-phone-number', 'ResetController@checkPhone')->name('check.phone');
+    Route::get( '/password-change', 'ResetController@passwordChange')->name('password.change');
+    Route::post( '/password-change', 'ResetController@passwordChangeSuccess')->name('password.change.success');
+});
+
 Auth::routes();
 Route::get('/{slug?}', 'HomeController@dynamicPage')->where(['slug' => '^(?!admin.*$).*']);
-

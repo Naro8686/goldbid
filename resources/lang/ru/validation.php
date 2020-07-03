@@ -161,6 +161,7 @@ return [
     */
 
     'attributes' => [
+        'sms_code'              => 'Код подверждения',
         'name'                  => 'Имя',
         'username'              => 'Никнейм',
         'email'                 => 'E-Mail адрес',

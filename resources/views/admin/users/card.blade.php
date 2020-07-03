@@ -181,21 +181,27 @@
                 <h4 class="col-md-12">На счете</h4>
                 <div class="form-group col-md-6">
                     <label for="exampleFormControlInput1">Ставки</label>
-                    <input type="number" name="old_bet" class="form-control" id="exampleFormControlInput1" value="{{$data['bet']}}" min="0">
+                    <input type="number" name="old_bet" class="form-control" id="exampleFormControlInput1"
+                           value="{{$data['bet']}}" min="0">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="exampleFormControlInput2">Бонусы</label>
-                    <input type="number" name="old_bonus" class="form-control" id="exampleFormControlInput2" value="{{$data['bonus']}}" min="0">
+                    <input type="number" name="old_bonus" class="form-control" id="exampleFormControlInput2"
+                           value="{{$data['bonus']}}" min="0">
                 </div>
-                <hr class="border-bottom-primary col-md-12">
+                <div class="col-md-12">
+                    <hr class="border-bottom-primary">
+                </div>
                 <h4 class="col-md-12">Количество</h4>
                 <div class="form-group col-md-6">
                     <label for="exampleFormControlInput3">Ставки</label>
-                    <input type="number" name="bet" class="form-control" id="exampleFormControlInput3" value="0" min="0">
+                    <input type="number" name="bet" class="form-control" id="exampleFormControlInput3" value="0"
+                           min="0">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="exampleFormControlInput4">Бонусы</label>
-                    <input type="number" name="bonus" class="form-control" id="exampleFormControlInput4" value="0" min="0">
+                    <input type="number" name="bonus" class="form-control" id="exampleFormControlInput4" value="0"
+                           min="0">
                 </div>
                 <div class="form-group col-md-12">
                     <label for="exampleFormControlSelect1">Основание</label>
@@ -209,6 +215,21 @@
                     <button type="submit" class="btn btn-success btn-block">Добавить</button>
                 </div>
             </form>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <hr class="border-bottom-primary">
+                </div>
+                <h4 class="col-md-12 text-center">Уведомления по e-mail</h4>
+                <div class="container">
+                    <div class="row">
+                        @foreach($data['mailing'] as $ads)
+                            <div class="col-md-8">{{$ads['title']}}</div>
+                            <div class="col-md-4">{{$ads['subscribe']}}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

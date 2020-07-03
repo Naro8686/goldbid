@@ -363,6 +363,10 @@
     border-color: red !important;
 }
 
+small.is-invalid {
+    color: red !important;
+}
+
 .notify__modal {
     display: flex !important;
     justify-content: center !important;
@@ -421,7 +425,8 @@
     box-sizing: border-box !important;
     margin-bottom: -30px;
 }
-.notify__modal .notify__modal__footer{
+
+.notify__modal .notify__modal__footer {
     /*position: absolute;*/
     /*bottom: 5px;*/
     /* left: 35%; */
@@ -429,4 +434,12 @@
     text-align: center;
     font-weight: bold;
     height: 50px;
+}
+
+.header .container .right .userin .accaunt .drop-menu.admin__profile > img[alt="drop"] {
+    height: 70px;
+}
+
+.header .container .right .userin .accaunt .drop-menu.admin__profile li {
+    top: -56px;
 }

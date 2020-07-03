@@ -84,6 +84,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: '{{ route('admin.users.index') }}',
+                    "language": {
+                        "url": "{{url('/datatables/lang/Russian.json')}}"
+                    },
                     columns: [
                         {data: 'id', name: 'id'},
                         {data: 'created_at', name: 'created_at'},

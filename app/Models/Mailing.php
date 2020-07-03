@@ -40,7 +40,7 @@ class Mailing extends Model
         $replacements = [];
         $patterns[0] = '/#nickname#/i';
         $patterns[1] = '/#login#/i';
-        $patterns[2] = '/#password#/i';
+        //$patterns[2] = '/#password#/i';
         $patterns[3] = '/#code#/i';
         $patterns[4] = '/#order#/i';
         $patterns[5] = '/#auction#/i';

@@ -180,7 +180,9 @@ return [
         //image library
         Intervention\Image\ImageServiceProvider::class,
         //Mail Config
-        MailConfigServiceProvider::class
+        MailConfigServiceProvider::class,
+        //SMS Config
+        NotificationChannels\SmscRu\SmscRuServiceProvider::class,
 
     ],
 

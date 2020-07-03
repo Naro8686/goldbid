@@ -9,7 +9,6 @@ use App\Models\Pages\Footer;
 use App\Models\User;
 use App\Models\Setting as Config;
 use App\Models\Pages\Page;
-use App\Settings\Api\SMSC_SMPP;
 use Exception;
 use Illuminate\Support\Str;
 
@@ -90,7 +89,7 @@ class Setting
     public static function siteContacts()
     {
         $data = self::siteConfig()->first(['phone_number', 'email']);
-        $data->phone = $data->phone_number?User::setPhoneMask($data->phone_number):'';
+        $data->phone = $data->phone_number ? User::setPhoneMask($data->phone_number) : '';
         $data->name = config('app.name') ?? null;
         return $data;
     }
@@ -174,18 +173,20 @@ class Setting
         return Config::query()->first() ?? Config::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
     }
 
-    public static function sms_init($port = 0)
-    {
-        try {
-            $sms_init = new SMSC_SMPP($port);
-        } catch (Exception $e) {
-            $sms_init = false;
-        }
-        return $sms_init;
-    }
-
     public static function emailRandomCode()
     {
         return mt_rand(100000, 999999);
+    }
+
+    /**
+     * @param $length
+     * @return string
+     */
+    public static function randomNumber($length)
+    {
+        $result = '';
+        for ($i = 0; $i < $length; $i++)
+            $result .= mt_rand(0, 9);
+        return $result;
     }
 }

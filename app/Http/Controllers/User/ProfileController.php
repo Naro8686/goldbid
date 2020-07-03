@@ -37,6 +37,8 @@ class ProfileController extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->user = Auth::user();
+            if ($this->user->is_admin)
+                return redirect()->route('admin.dashboard');
             if ($this->user->fullProfile()) {
                 $this->user->balanceHistory()
                     ->where('reason', Balance::REGISTRATION_BONUS_REASON)
@@ -82,17 +84,17 @@ class ProfileController extends Controller
         if ($request->isMethod('POST')) {
             $request['email'] = empty($this->user->email) ? $request['email'] : $this->user->email;
             $request->validate([
-                'fname' => ['required', 'string', 'max:50'],
-                'lname' => ['required', 'string', 'max:50'],
-                'mname' => ['required', 'string', 'max:50'],
-                'gender' => ['required', 'string', 'regex:/^(male|female)/'],
-                'birthday' => ['required', 'date', 'date_format:Y-m-d', 'before:16 years ago'],
-                'postcode' => ['required', 'digits_between:4,10'],
-                'region' => ['required', 'string', 'max:50'],
-                'city' => ['required', 'string', 'max:50'],
-                'street' => ['required', 'string', 'max:50'],
-                'email' => ['required', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
-                'payment_type' => ['required', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
+                'fname' => ['nullable','sometimes', 'string','min:5', 'max:50'],
+                'lname' => ['nullable', 'string','min:5', 'max:50'],
+                'mname' => ['nullable', 'string','min:5', 'max:50'],
+                'gender' => ['nullable', 'string', 'regex:/^(male|female)/'],
+                'birthday' => ['nullable', 'date', 'date_format:Y-m-d', 'before:16 years ago'],
+                'postcode' => ['nullable', 'digits_between:4,10'],
+                'region' => ['nullable', 'string','min:5', 'max:50'],
+                'city' => ['nullable', 'string','min:5', 'max:50'],
+                'street' => ['nullable', 'string','min:5', 'max:50'],
+                'email' => ['nullable', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
+                'payment_type' => ['nullable', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
                 'ccnum' => ['nullable', 'digits_between:8,16'],
             ]);
             $this->user->update($request->only([
