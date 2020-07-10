@@ -42,39 +42,21 @@
         <li class="nav-item @if(request()->is('admin')) active @endif">
             <a class="nav-link" href="{{route('admin.dashboard')}}">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>Dashboard</span></a>
+                <span>Аукционы</span></a>
         </li>
         <li class="nav-item @if(request()->is('admin/users')) active @endif">
             <a class="nav-link" href="{{route('admin.users.index')}}">
                 <i class="fas fa-fw fa-user-alt"></i>
                 <span>Пользователи</span></a>
         </li>
+        <li class="nav-item @if(request()->is('admin/products') || request()->is('admin/products/*')) active @endif">
+            <a class="nav-link" href="{{route('admin.products.index')}}">
+                <i class="fas fa-fw fa-cog"></i>
+                <span>Каталог</span>
+            </a>
+        </li>
 
-        <!-- Divider -->
-    {{--        <hr class="sidebar-divider">--}}
-
-    {{--        <!-- Heading -->--}}
-    {{--        <div class="sidebar-heading">--}}
-    {{--            Interface--}}
-    {{--        </div>--}}
-
-    {{--        <!-- Nav Item - Pages Collapse Menu -->--}}
-    {{--            <li class="nav-item">--}}
-    {{--                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"--}}
-    {{--                   aria-expanded="true" aria-controls="collapseTwo">--}}
-    {{--                    <i class="fas fa-fw fa-cog"></i>--}}
-    {{--                    <span>Components</span>--}}
-    {{--                </a>--}}
-    {{--                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">--}}
-    {{--                    <div class="bg-white py-2 collapse-inner rounded">--}}
-    {{--                        <h6 class="collapse-header">Custom Components:</h6>--}}
-    {{--                        <a class="collapse-item" href="buttons.html">Buttons</a>--}}
-    {{--                        <a class="collapse-item" href="cards.html">Cards</a>--}}
-    {{--                    </div>--}}
-    {{--                </div>--}}
-    {{--            </li>--}}
-
-    <!-- Nav Item - Utilities Collapse Menu -->
+        <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
             <a class="nav-link @if(request()->route()->getPrefix()!=='admin/settings') collapsed @endif" href="#"
                data-toggle="collapse" data-target="#collapseUtilities"
@@ -348,14 +330,14 @@
                                 <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                 Профиль
                             </a>
-{{--                            <a class="dropdown-item" href="#">--}}
-{{--                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>--}}
-{{--                                Settings--}}
-{{--                            </a>--}}
-{{--                            <a class="dropdown-item" href="#">--}}
-{{--                                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>--}}
-{{--                                Activity Log--}}
-{{--                            </a>--}}
+                            {{--                            <a class="dropdown-item" href="#">--}}
+                            {{--                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>--}}
+                            {{--                                Settings--}}
+                            {{--                            </a>--}}
+                            {{--                            <a class="dropdown-item" href="#">--}}
+                            {{--                                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>--}}
+                            {{--                                Activity Log--}}
+                            {{--                            </a>--}}
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>

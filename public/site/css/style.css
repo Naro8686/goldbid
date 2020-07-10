@@ -229,19 +229,24 @@ button {
     outline: none;
     padding: 10px;
 }
-form#register a{
+
+form#register a {
     color: blue !important;
 }
-form#register p{
-    font-weight:bolder !important;
+
+form#register p {
+    font-weight: bolder !important;
 }
-input[type="checkbox"].fail{
-    box-shadow:inset 0px 0px 5px 0px red;
+
+input[type="checkbox"].fail {
+    box-shadow: inset 0px 0px 5px 0px red;
 }
-.alert.alert-danger{
+
+.alert.alert-danger {
     display: block;
     color: red;
 }
+
 .overlay .modal.open form input.sub {
     border: none;
     margin-top: 20px;
@@ -453,43 +458,37 @@ input[type="checkbox"].fail{
 
 .auction .card .timer {
     margin-bottom: 17px;
-}
-
-.auction .card .btn {
-    display: flex;
-    justify-content: center;
-    width: 168px;
-    margin: 0 auto;
-    margin-bottom: 15px;
-}
-
-.auction .card .btn .price {
-    border: 1px solid #1B8BCB;
-    box-sizing: border-box;
-    border-radius: 50px 0px 0px 50px;
-    background: none;
-    width: 60%;
-}
-
-.auction .card .btn .price span {
-    font-size: 14px;
-}
-
-.auction .card .btn .bid {
-    background: #1B8BCB;
-    border-radius: 0px 50px 50px 0px;
-    border: 1px solid #1B8BCB;
-    color: #ffffff;
-    width: auto;
-    padding: 5px 10px;
-    cursor: pointer;
+    min-height: 20px;
 }
 
 
-.auction .card.wait {
-    overflow: hidden;
-    position: relative;
-}
+/*.auction .card .btn .price {*/
+/*    border: 1px solid #1B8BCB;*/
+/*    box-sizing: border-box;*/
+/*    border-radius: 50px 0px 0px 50px;*/
+/*    background: none;*/
+/*    width: 60%;*/
+/*}*/
+
+/*.auction .card .btn .price span {*/
+/*    font-size: 14px;*/
+/*}*/
+
+/*.auction .card .btn .bid {*/
+/*    background: #1B8BCB;*/
+/*    border-radius: 0px 50px 50px 0px;*/
+/*    border: 1px solid #1B8BCB;*/
+/*    color: #ffffff;*/
+/*    width: auto;*/
+/*    padding: 5px 10px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+
+/*.auction .card.wait {*/
+/*    overflow: hidden;*/
+/*    position: relative;*/
+/*}*/
 
 .auction .card.wait .lenta {
     display: flex;
@@ -510,23 +509,23 @@ input[type="checkbox"].fail{
     height: 44.13px;
 }
 
-.auction .card.wait .bid {
-    background: #F7CA17;
-    border-color: #F7CA17;
-    box-sizing: border-box;
-    width: 159px;
-    border-radius: 50px;
-}
+/*.auction .card.wait .bid {*/
+/*    background: #F7CA17;*/
+/*    border-color: #F7CA17;*/
+/*    box-sizing: border-box;*/
+/*    width: 159px;*/
+/*    border-radius: 50px;*/
+/*}*/
 
 
 .auction .card.wait .timer {
     margin: 25px 0;
 }
 
-.auction .card.close {
-    overflow: hidden;
-    position: relative;
-}
+/*.auction .card.close {*/
+/*    overflow: hidden;*/
+/*    position: relative;*/
+/*}*/
 
 .auction .card.close .lenta {
     display: flex;
@@ -547,14 +546,14 @@ input[type="checkbox"].fail{
     height: 44.13px;
 }
 
-.auction .card.close .bid {
-    background: #FF3249;
-    border-color: #FF3249;
-    box-sizing: border-box;
-    width: 159px;
-    border-radius: 50px;
-    cursor: default;
-}
+/*.auction .card.close .bid {*/
+/*    background: #FF3249;*/
+/*    border-color: #FF3249;*/
+/*    box-sizing: border-box;*/
+/*    width: 159px;*/
+/*    border-radius: 50px;*/
+/*    cursor: default;*/
+/*}*/
 
 .auction .card.close .bid:hover {
     background: #FF3249;
@@ -815,9 +814,62 @@ input[type="checkbox"].fail{
 .footer li {
     margin: 2px 0;
 }
+
 .userin .balance span {
     color: #1B8BCB;
     font-weight: bold;
 }
 
+.short__desc {
+    text-align: center;
+    height: auto;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: -5px;
+}
 
+
+
+.auction .card .btn {
+    width: 85%;
+    border-radius: 50px;
+    background-color: white;
+    border: 1px solid #F7CA17;
+    display: flex;
+    margin: 0 auto 15px;
+    box-sizing: border-box;
+}
+.auction .card .btn.active {
+    border-color: #1B8BCB;
+}
+.auction .card .btn.close{
+    border-color: #FF3249;
+
+}
+.auction .card .btn button {
+    color: white;
+    width: 120px;
+    border-radius: 0px 10px 10px 0px;
+    background-color: #F7CA17;
+    border: none;
+    cursor: pointer;
+    padding: 3px;
+}
+.auction .card .btn.active button {
+    background-color: #1B8BCB;
+}
+.auction .card .btn.close button {
+    width: 100%;
+    background-color: #FF3249;
+    border-radius: 50px;
+}
+
+.auction .card .btn span.price {
+    width: 100%;
+    text-align: center;
+    padding: 3px;
+    font-size:14px ;
+}
+.auction .card .btn.close span.price{
+    display: none;
+}

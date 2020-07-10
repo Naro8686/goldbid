@@ -36,10 +36,10 @@ class MailingJob implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->users as $user) {
+        foreach ($this->users as $key => $user) {
             if ($user->email)
                 Mail::to($user->email)
-                    ->send(new SubscribeSendMail($this->mailing));
+                    ->later($key * 5, new SubscribeSendMail($this->mailing));
         }
 
     }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TestEvent;
 use App\Mail\FeedbackSendMail;
+use App\Models\Auction\Auction;
 use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
 use App\Models\Pages\Package;
@@ -12,8 +14,6 @@ use App\Models\Pages\Review;
 use App\Settings\Setting;
 use App\Models\Pages\Slider;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -37,10 +37,17 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        $sliders = Slider::all();
-        return view(self::DIR . 'index', compact('sliders'));
-    }
 
+        $sliders = Slider::all();
+        $auctions = Auction::auctionsForHomePage();
+       // dd(Auction::auctionsForHomePage()->first());
+        //TestEvent::dispatch($auctions->first());
+        return view(self::DIR . 'index', compact('sliders', 'auctions'));
+    }
+    public function test(){
+        event(new TestEvent(['title'=>'Testinyo']));
+        return response()->json();
+    }
     public function howItWorks()
     {
         $steps = Howitwork::all();
@@ -61,7 +68,7 @@ class HomeController extends Controller
             ]);
             try {
                 $request['theme'] = Setting::feedbackTheme($request['theme']);
-                Mail::to(config('mail.from.address'))->send(new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
+                Mail::to(config('mail.from.address'))->later(5,new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }
@@ -83,7 +90,7 @@ class HomeController extends Controller
                 'g-recaptcha-response' => ['required', 'recaptcha']
             ]);
             try {
-                Mail::to(config('mail.from.address'))->send(new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+                Mail::to(config('mail.from.address'))->later(5,new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }
@@ -96,7 +103,7 @@ class HomeController extends Controller
     {
         $payments = Setting::paymentCoupon(null);
         $packages = Package::where('visibly', true)->get();
-        return view(self::DIR . 'coupon', compact('packages','payments'));
+        return view(self::DIR . 'coupon', compact('packages', 'payments'));
     }
 
 

@@ -16,9 +16,9 @@
     <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
     <script src='https://www.google.com/recaptcha/api.js'></script>
+{{--    <script src="{{asset('js/app.js')}}"></script>--}}
 </head>
 <body>
-
 @if (session('bonus_modal'))
     <div class="notify__modal">
         <div class="notify__item">
@@ -327,6 +327,7 @@
     </div>
 @endif
 <script src="{{asset('site/js/jquery.js')}}"></script>
+<script src="{{asset('site/js/slick.js')}}"></script>
 <script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>
 <script src="{{asset('site/js/prefixfree.min.js')}}"></script>
 <script src="{{asset('site/js/jquery.cookie.js')}}"></script>
@@ -334,7 +335,6 @@
 <script src="{{asset('site/js/main.js')}}"></script>
 <script src="{{asset('site/js/humburger.js')}}"></script>
 <script src="{{asset('site/js/modal.js')}}"></script>
-<script src="{{asset('site/js/slick.js')}}"></script>
 <script src="{{asset('site/js/custom.js')}}"></script>
 @stack('js')
 </body>

@@ -60,7 +60,7 @@ class CouponController extends Controller
             $referred->balanceHistory()->create(['bonus' => $referred->pivot->referral_bonus,'reason'=>Balance::REFERRAL_BONUS_REASON]);
         }
         /** @var CouponOrder $coupon_order */
-        Mail::to(config('mail.from.address'))->send(new CouponOrderSendMail($coupon_order));
+        Mail::to(config('mail.from.address'))->later(5,new CouponOrderSendMail($coupon_order));
         return redirect()->back();
     }
 }

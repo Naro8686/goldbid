@@ -16,7 +16,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
+    Route::resource('auctions', 'AuctionController')->only([
+        'index', 'destroy'
+    ]);
     Route::match(['GET', 'POST'], '/profile', 'AdminController@adminProfileChange')->name('profile');
+    Route::post('products/add-group', 'ProductController@addGroup')->name('products.add_group');
+    Route::resource('products', 'ProductController')->only([
+        'index', 'edit', 'update', 'create', 'store', 'destroy'
+    ]);
+
     Route::resource('users', 'UserController')->only([
         'index', 'edit', 'update', 'destroy'
     ]);

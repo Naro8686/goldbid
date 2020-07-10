@@ -21,10 +21,12 @@ $(document).ready(function () {
         })
     };
     if ($('textarea').hasClass('ck__textarea')) {
-        window.editor = CKEDITOR
-            .replace($('textarea.ck__textarea')[0], {
-                customConfig: "/ckeditor/config.js",
-            });
+        $('textarea.ck__textarea').each(function (key, el) {
+            window.editor = CKEDITOR
+                .replace(el, {
+                    customConfig: "/ckeditor/config.js",
+                });
+        });
     }
     $('.sidebar-brand').click(function (e) {
         e.preventDefault();
@@ -142,3 +144,19 @@ function phoneMask() {
 }
 
 
+function imagesURL(input) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        let imagePreview = $(input).closest('.image-upload').find('.imagePreview');
+        reader.onload = function (e) {
+            imagePreview.css('background-image', 'url(' + e.target.result + ')');
+            imagePreview.hide();
+            imagePreview.fadeIn(650);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("input.imageUpload").change(function () {
+    imagesURL(this);
+});

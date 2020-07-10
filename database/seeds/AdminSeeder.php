@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Referral;
 use App\Models\Setting;
 use App\Models\User;
 use App\Settings\Setting as Config;
@@ -30,6 +29,5 @@ class AdminSeeder extends Seeder
             'remember_token' => Str::random(10),
         ]);
         Setting::query()->firstOrCreate(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
-        factory(User::class, 100)->create();
     }
 }

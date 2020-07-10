@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::get('test','HomeController@test');
 Route::group(['as' => 'site.'], function () {
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/how-it-works', 'HomeController@howItWorks')->name('how_it_works');
@@ -32,6 +32,12 @@ Route::group(['prefix' => '/cabinet', 'middleware' => 'auth', 'as' => 'profile.'
     Route::get('/referral-program', 'ProfileController@referralProgram')->name('referral_program');
     Route::match(['GET', 'POST'], '/code-email-confirm', 'ProfileController@codeEmailConfirm')->name('email_code_confirm');
     Route::post('/{id}/subscribe', 'ProfileController@subscribe')->name('subscribe');
+});
+
+Route::group(['as' => 'auction.',], function () {
+    Route::get('/{id}/auction', 'AuctionController@auction')->name('index');
+    Route::post('/{auction_id}/add-favorite', 'AuctionController@addFavorite')->name('add_favorite')->middleware('auth');
+    Route::post('/{auction_id}/change-status', 'AuctionController@changeStatus')->name('change_status');
 });
 
 Route::group(['prefix' => '/payment', 'middleware' => 'auth', 'as' => 'payment.', 'namespace' => 'Payments'], function () {

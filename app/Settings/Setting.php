@@ -189,4 +189,16 @@ class Setting
             $result .= mt_rand(0, 9);
         return $result;
     }
+    public static function timezone()
+    {
+        try {
+            $ip = "141.136.91.30";  //request()->ip();
+            $ipInfo = file_get_contents('http://ip-api.com/json/' . $ip);
+            $ipInfo = json_decode($ipInfo);
+            return $ipInfo->timezone;
+        }catch (Exception $exception){
+            return config('app.timezone');
+        }
+
+    }
 }

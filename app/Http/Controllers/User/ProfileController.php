@@ -138,6 +138,18 @@ class ProfileController extends Controller
             $subscribe->attach($id);
     }
 
+    public function favorite(Request $request, int $id)
+    {
+        $request->validate([
+            'auction_id' => ['required', 'boolean']
+        ]);
+        $subscribe = $this->user->subscribe();
+        if ($subscribe->where('id', $id)->exists())
+            $subscribe->detach($id);
+        else
+            $subscribe->attach($id);
+    }
+
     public function codeEmailConfirm(Request $request)
     {
         $text = 'Код отправлен на Ваш е-майл !';
@@ -155,7 +167,7 @@ class ProfileController extends Controller
             if (!empty($this->user->email)) {
                 try {
                     $request['theme'] = Setting::feedbackTheme($request['theme']);
-                    Mail::to($this->user->email)->send(new MailingSendMail($this->user,Mailing::MAIL_CONFIRM));
+                    Mail::to($this->user->email)->later(5,new MailingSendMail($this->user,Mailing::MAIL_CONFIRM));
                 } catch (Exception $exception) {
                     $text = 'что то пошло не так !';
                     $status = 'error';

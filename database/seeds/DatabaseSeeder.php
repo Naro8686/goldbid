@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
              ReviewsSeed::class,
              PackagesSeed::class,
              MailingSeeder::class,
+             TestSeeder::class,
          ]);
     }
 }

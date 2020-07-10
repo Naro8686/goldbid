@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Auction\Auction;
 use App\Settings\Setting as SettingApp;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -196,6 +197,11 @@ class User extends Authenticatable
     public function subscribe()
     {
         return $this->belongsToMany(Mailing::class, 'subscriptions', 'user_id', 'mailing_id');
+    }
+
+    public function favorite()
+    {
+        return $this->belongsToMany(Auction::class, 'favorites', 'user_id', 'auction_id');
     }
 
     /**

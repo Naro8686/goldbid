@@ -25,13 +25,5 @@ class MailingSeeder extends Seeder
         ];
         foreach ($mailings as $mailing)
             Mailing::create($mailing);
-///// attach
-        $users = User::query()->where("is_admin", false)->get();
-        foreach ($users as $user) {
-            $mailing = Mailing::all()->where("type", Mailing::ADS)->random(1)->first();
-            $user->subscribe()->attach($mailing->id);
-        }
-////// end
-
     }
 }

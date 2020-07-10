@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Auction\Auction;
 use App\Models\Mailing;
 use App\Models\User;
 use App\Notifications\AccountApproved;
@@ -31,12 +32,35 @@ class AdminController extends Controller
     /**
      * Show the application dashboard.
      *
+     * @param Request $request
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        return view(self::DIR . 'dashboard');
+        if ($request->ajax()) {
+            try {
+                $auctions = Auction::data();
+                return datatables()->of($auctions)->editColumn('img_1', function ($auction) {
+                    $img = asset($auction['img_1']);
+                    return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";
+                })->addColumn('action', function ($auction) {
+                    $linkDelete = route('admin.auctions.destroy', $auction['id']);
+                    return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
+                                        <button type='button' class='btn btn-danger'
+                                                data-toggle='modal'
+                                                data-target='#resourceModal'
+                                                data-action='{$linkDelete}'>
+                                                    удалить
+                                        </button>
+                                    </div>";
+                })->rawColumns(['img_1','action'])->make(true);
+            } catch (Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+        $auctionsInfo = Auction::info();
+        return view(self::DIR . 'dashboard', compact('auctionsInfo'));
     }
 
     public function mailConfig(Request $request)
