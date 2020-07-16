@@ -443,3 +443,7 @@ small.is-invalid {
 .header .container .right .userin .accaunt .drop-menu.admin__profile li {
     top: -56px;
 }
+.phpbalance,.phpbonus{
+    color: #1B8BCB;
+    font-weight: bold;
+}

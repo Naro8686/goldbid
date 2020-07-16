@@ -351,13 +351,40 @@ input[type="checkbox"].fail {
     text-align: center;
     background: #FCFCFC;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    margin: 6.5px 6.5px;
+    margin: 6px;
     overflow: hidden;
+    position: relative;
 }
 
 .auction .card .favorites {
     text-align: right;
     margin: 5px 5px 6px auto;
+}
+
+.auction .card .lenta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    position: absolute;
+    top: 100px;
+    left: -28px;
+    border: 3px solid #FFFFFF;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    transform: rotate(-30deg);
+    width: 244px;
+    height: 45px;
+}
+
+.auction .card .lenta.close {
+    background-color: rgb(255, 50, 73);
+}
+
+.auction .card .lenta.not__win {
+    background-color: rgb(158, 158, 158);
 }
 
 .auction .card .favorites span {
@@ -457,7 +484,7 @@ input[type="checkbox"].fail {
 }
 
 .auction .card .timer {
-    margin-bottom: 17px;
+    /*margin-bottom: 17px;*/
     min-height: 20px;
 }
 
@@ -526,25 +553,6 @@ input[type="checkbox"].fail {
 /*    overflow: hidden;*/
 /*    position: relative;*/
 /*}*/
-
-.auction .card.close .lenta {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: #FFFFFF;
-    text-transform: uppercase;
-    position: absolute;
-    top: 100px;
-    left: -28px;
-    background: #FF3249;
-    border: 3px solid #FFFFFF;
-    box-sizing: border-box;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-    transform: rotate(-30deg);
-    width: 244px;
-    height: 44.13px;
-}
 
 /*.auction .card.close .bid {*/
 /*    background: #FF3249;*/
@@ -829,7 +837,6 @@ input[type="checkbox"].fail {
 }
 
 
-
 .auction .card .btn {
     width: 85%;
     border-radius: 50px;
@@ -839,13 +846,23 @@ input[type="checkbox"].fail {
     margin: 0 auto 15px;
     box-sizing: border-box;
 }
+
 .auction .card .btn.active {
     border-color: #1B8BCB;
 }
-.auction .card .btn.close{
-    border-color: #FF3249;
 
+.auction .card .btn.close {
+    border-color: #FF3249;
 }
+
+.auction .card .btn.not__win {
+    border-color: #9e9e9e;
+}
+
+.auction .card .btn.win {
+    border-color: #06f61d;
+}
+
 .auction .card .btn button {
     color: white;
     width: 120px;
@@ -853,14 +870,29 @@ input[type="checkbox"].fail {
     background-color: #F7CA17;
     border: none;
     cursor: pointer;
-    padding: 3px;
+    padding: 5px;
+    font-weight: bold;
 }
+
 .auction .card .btn.active button {
     background-color: #1B8BCB;
 }
+
 .auction .card .btn.close button {
     width: 100%;
     background-color: #FF3249;
+    border-radius: 50px;
+}
+
+.auction .card .btn.win button {
+    width: 100%;
+    background-color: #06f61d;
+    border-radius: 50px;
+}
+
+.auction .card .btn.not__win button {
+    width: 100%;
+    background-color: #9e9e9e;
     border-radius: 50px;
 }
 
@@ -868,8 +900,22 @@ input[type="checkbox"].fail {
     width: 100%;
     text-align: center;
     padding: 3px;
-    font-size:14px ;
+    font-size: 14px;
 }
-.auction .card .btn.close span.price{
+
+.auction .card .btn.close span.price {
     display: none;
+}
+
+.auction .card .btn.win span.price {
+    display: none;
+}
+
+.auction .card .btn.not__win span.price {
+    display: none;
+}
+
+.auction .card .inf {
+    min-height: 40px;
+    padding: 5px 0;
 }

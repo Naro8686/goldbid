@@ -3,6 +3,7 @@
 
 namespace App\Settings;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 
@@ -42,7 +43,7 @@ trait ImageTrait
         $image_name = time() . '.' . $image->getClientOriginalExtension();
         $urlPath = asset($path);
         $path = public_path($path);
-        if (!is_dir($path)) mkdir($path,755,true);
+        if (!is_dir($path)) mkdir($path, 755, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
@@ -56,8 +57,8 @@ trait ImageTrait
 
     public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0)
     {
-        $image_name = md5(rand(time(),microtime())) . '.' . $image->getClientOriginalExtension();
-        if (!is_dir(public_path($path))) mkdir(public_path($path),755,true);
+        $image_name = md5(rand(1, time())) . '.' . $image->getClientOriginalExtension();
+        if (!is_dir(public_path($path))) mkdir(public_path($path), 755, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
@@ -68,5 +69,16 @@ trait ImageTrait
         }
 
         return "{$path}/{$image_name}";
+    }
+
+    public function imageCopy($image, $old_path = 'site/img/product', $new_path = 'site/img/product')
+    {
+        $img = null;
+        if (is_file(public_path($image))) {
+            $name = md5($image . microtime());
+            $img = preg_replace("~^{$old_path}/(.*?)\.([a-z]{1,6})$~i", "{$new_path}/{$name}.$2", $image);
+            Storage::disk('local_public')->copy($image, $img);
+        }
+        return $img;
     }
 }

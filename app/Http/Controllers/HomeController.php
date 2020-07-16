@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\TestEvent;
 use App\Mail\FeedbackSendMail;
 use App\Models\Auction\Auction;
 use App\Models\Pages\Howitwork;
@@ -35,19 +34,21 @@ class HomeController extends Controller
         view()->share('page', $this->page);
     }
 
-    public function index(Request $request)
+    public function index()
     {
+//        $auc = Auction::all()->where('active', true);
+//        foreach ($auc as $a) {
+//            $pending = $a->status === Auction::STATUS_PENDING && !$a->start->diff(now())->invert;
+//            $active = $a->status === Auction::STATUS_ACTIVE && !$a->step_time->diff(now())->invert;
+//            $finished = $a->status === Auction::STATUS_FINISHED && is_null($a->end);
+//            dd($pending,$active,$finished);
+//        }
 
         $sliders = Slider::all();
         $auctions = Auction::auctionsForHomePage();
-       // dd(Auction::auctionsForHomePage()->first());
-        //TestEvent::dispatch($auctions->first());
         return view(self::DIR . 'index', compact('sliders', 'auctions'));
     }
-    public function test(){
-        event(new TestEvent(['title'=>'Testinyo']));
-        return response()->json();
-    }
+
     public function howItWorks()
     {
         $steps = Howitwork::all();
@@ -68,7 +69,7 @@ class HomeController extends Controller
             ]);
             try {
                 $request['theme'] = Setting::feedbackTheme($request['theme']);
-                Mail::to(config('mail.from.address'))->later(5,new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
+                Mail::to(config('mail.from.address'))->later(5, new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }
@@ -90,7 +91,7 @@ class HomeController extends Controller
                 'g-recaptcha-response' => ['required', 'recaptcha']
             ]);
             try {
-                Mail::to(config('mail.from.address'))->later(5,new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+                Mail::to(config('mail.from.address'))->later(5, new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     use ImageTrait;
+
     private const DIR = 'admin.products.';
     public $width = 500;
     public $height = 500;
@@ -75,7 +76,9 @@ class ProductController extends Controller
                 })->addColumn('action', function ($product) {
                     $linkDelete = route('admin.products.destroy', $product['id']);
                     $linkEdit = route('admin.products.edit', $product['id']);
+                    $linkDuplicate = route('admin.products.duplicate', $product['id']);
                     return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
+                                        <a href='{$linkDuplicate}' class='btn btn-secondary'>Дубликат</a>
                                         <a href='{$linkEdit}' class='btn btn-info'>изменить</a>
                                         <button type='button' class='btn btn-danger'
                                                 data-toggle='modal'
@@ -263,27 +266,10 @@ class ProductController extends Controller
 
         $path = 'site/img/auction';
         if (!is_dir($path)) mkdir($path, 0777, true);
-        $img_1 = $img_2 = $img_3 = $img_4 = null;
-        if (is_file(public_path($product->img_1))) {
-            $name = md5($product->img_1.microtime());
-            $img_1 = preg_replace('~^site/img/product/(.*?)\.([a-z]{1,6})$~i',"site/img/auction/{$name}.$2",$product->img_1);
-            Storage::disk('local_public')->copy($product->img_1, $img_1);
-        }
-        if (is_file(public_path($product->img_2))) {
-            $name = md5($product->img_2.microtime());
-            $img_2 = preg_replace('~^site/img/product/(.*?)\.([a-z]{1,6})$~i',"site/img/auction/{$name}.$2",$product->img_2);
-            Storage::disk('local_public')->copy($product->img_2, $img_2);
-        }
-        if (is_file(public_path($product->img_3))) {
-            $name = md5($product->img_3.microtime());
-            $img_3 = preg_replace('~^site/img/product/(.*?)\.([a-z]{1,6})$~i',"site/img/auction/{$name}.$2",$product->img_3);
-            Storage::disk('local_public')->copy($product->img_3, $img_3);
-        }
-        if (is_file(public_path($product->img_4))) {
-            $name = md5($product->img_4.microtime());
-            $img_4 = preg_replace('~^site/img/product/(.*?)\.([a-z]{1,6})$~i',"site/img/auction/{$name}.$2",$product->img_4);
-            Storage::disk('local_public')->copy($product->img_4, $img_4);
-        }
+        $img_1 = $this->imageCopy($product->img_1, 'site/img/product', $path);
+        $img_2 = $this->imageCopy($product->img_2, 'site/img/product', $path);
+        $img_3 = $this->imageCopy($product->img_3, 'site/img/product', $path);
+        $img_4 = $this->imageCopy($product->img_4, 'site/img/product', $path);
         $data = [
             'title' => $product->title,
             'short_desc' => $product->short_desc,
@@ -307,11 +293,33 @@ class ProductController extends Controller
             'exchange' => (bool)$product->exchange,
             'status' => ((int)$product->to_start === 0) ? Auction::STATUS_ACTIVE : Auction::STATUS_PENDING,
         ];
-        $auction->create($data);
-        Page::query()->where('slug', $auction->first()->id)->firstOrCreate([
-            'slug' => $auction->first()->id,
-            'title' => $auction->first()->title,
+        $new = $auction->create($data);
+        Page::query()->where('slug', $new->id)->firstOrCreate([
+            'slug' => $new->id,
+            'title' => $new->title,
         ]);
-        return $auction;
+        return $new;
+    }
+
+    public function duplicate($id)
+    {
+        $old = Product::query()->findOrFail($id);
+        $new = $old->replicate();
+        $img_1 = $this->imageCopy($old->img_1);
+        $img_2 = $this->imageCopy($old->img_2);
+        $img_3 = $this->imageCopy($old->img_3);
+        $img_4 = $this->imageCopy($old->img_4);
+        $new->img_1 = $img_1;
+        $new->img_2 = $img_2;
+        $new->img_3 = $img_3;
+        $new->img_4 = $img_4;
+        $new->created_at = now();
+        $new->updated_at = now();
+        $new->save();
+        if ($new->visibly === true) {
+            /** @var Product $new */
+            $this->createAuction($new);
+        }
+        return redirect()->route('admin.products.index')->with('status', 'успешные дествия !');
     }
 }

@@ -17,10 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
     Route::resource('auctions', 'AuctionController')->only([
-        'index', 'destroy'
+        'index', 'destroy','edit'
     ]);
     Route::match(['GET', 'POST'], '/profile', 'AdminController@adminProfileChange')->name('profile');
     Route::post('products/add-group', 'ProductController@addGroup')->name('products.add_group');
+    Route::get('products/{id}/duplicate', 'ProductController@duplicate')->name('products.duplicate');
     Route::resource('products', 'ProductController')->only([
         'index', 'edit', 'update', 'create', 'store', 'destroy'
     ]);

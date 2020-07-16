@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BetEvent;
+use App\Jobs\CreateAuctionJob;
 use App\Models\Auction\Auction;
 use App\Settings\Setting;
 use Carbon\Carbon;
@@ -36,17 +38,9 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
-        $data = Auction::query()->where('active', true)
-            ->findOrFail($id);
-        $auction = collect([
-            'images' => [
-                $data->img_1 ? ['img' => $data->img_1, 'alt' => $data->alt_1] : null,
-                $data->img_2 ? ['img' => $data->img_2, 'alt' => $data->alt_2] : null,
-                $data->img_3 ? ['img' => $data->img_3, 'alt' => $data->alt_3] : null,
-                $data->img_4 ? ['img' => $data->img_4, 'alt' => $data->alt_4] : null,
-            ],
-            'title' => $data->title,
-        ]);
+//        $auction = Auction::auctionPage($id);
+        $auction = Auction::auctionsForHomePage()->firstWhere('id','=',$id);
+        dd($auction);
         return view('site.auction', compact('auction'));
     }
 
@@ -61,25 +55,21 @@ class AuctionController extends Controller
             $favorite->attach($user_id);
         try {
             $auctions = Auction::auctionsForHomePage();
-            return view('site.auctions', compact('auctions'))->render();
+            return view('site.include.auctions', compact('auctions'))->render();
         } catch (\Throwable $e) {
             Log::info($e->getMessage());
         }
     }
 
-    public function changeStatus($id)
+    public function changeStatus()
     {
-        $auction = Auction::query()->where('start', '<=', now())->findOrFail($id);
-        $auction->update([
-            'status' => Auction::STATUS_ACTIVE,
-            'step_time' => Carbon::now()->addSeconds($auction->bid_seconds)
-        ]);
         try {
             $auctions = Auction::auctionsForHomePage();
-            return view('site.auctions', compact('auctions'))->render();
+            return view('site.include.auctions', compact('auctions'))->render();
         } catch (\Throwable $e) {
             Log::info($e->getMessage());
         }
     }
+
 
 }

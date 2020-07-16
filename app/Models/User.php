@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Auction\Auction;
+use App\Models\Auction\Bid;
 use App\Settings\Setting as SettingApp;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -204,6 +205,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Auction::class, 'favorites', 'user_id', 'auction_id');
     }
 
+    public function bid()
+    {
+        return $this->hasMany(Bid::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

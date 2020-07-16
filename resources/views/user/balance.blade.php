@@ -40,34 +40,5 @@
             {!! $balance->links() !!}
         </div>
     </div>
-    @push('js')
-{{--        <script>--}}
-{{--            window.Echo.channel('listing.{{$listing->id}}')--}}
-{{--                .listen('ListingViewed', function (e) {--}}
-
-{{--                    if (e.data.current_user !== parseInt('{{ \Auth::user()->id }}')) {--}}
-{{--                        showNotification("Another user looking at this listing right now");--}}
-{{--                    }--}}
-
-{{--                });--}}
-
-{{--            function showNotification(msg) {--}}
-
-{{--                if (!("Notification" in window)) {--}}
-{{--                    alert("This browser does not support desktop notification");--}}
-{{--                } else if (Notification.permission === "granted") {--}}
-{{--                    // If it's okay let's create a notification--}}
-{{--                    var notification = new Notification(msg);--}}
-{{--                } else if (Notification.permission !== "denied") {--}}
-{{--                    Notification.requestPermission().then(function (permission) {--}}
-{{--                        // If the user accepts, let's create a notification--}}
-{{--                        if (permission === "granted") {--}}
-{{--                            var notification = new Notification(msg);--}}
-{{--                        }--}}
-{{--                    });--}}
-{{--                }--}}
-{{--            }--}}
-{{--        </script>--}}
-    @endpush
 @endsection
 

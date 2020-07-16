@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\TestEvent;
+use App\Events\StatusChangeEvent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -16,8 +16,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        TestEvent::class => [
-            'App\Listeners\TestListener',
+        StatusChangeEvent::class => [
+            'App\Listeners\StatusChangeListener',
         ],
     ];
 

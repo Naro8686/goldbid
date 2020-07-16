@@ -14,3 +14,5 @@ yarn-error.log
 tests
 public/site/img/upload/*
 public/site/img/users/avatar/*
+public/site/img/product/*
+public/site/img/auction/*

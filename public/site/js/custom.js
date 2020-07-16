@@ -1,31 +1,38 @@
 const URL = `${window.location.protocol}//${window.location.hostname}`;
-
 $(document).ready(function () {
+    countdown();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
         }
     });
-    countdown();
     $('.slaider').slick({
         autoplay: true,
         autoplaySpeed: 3000
     });
+    $('.auction__slider').slick({
+        dots: true,
+        autoplay: true,
+        autoplaySpeed: 5000
+    });
     $('.cookie__btn').on('click', function () {
         let btn = $(this);
         let agree = btn.data('agree');
-        $.ajax({
-            url: "/cookie-agree",
-            type: "get",
-            data: {
-                agree: agree
-            },
-            success: function (result) {
-                btn.closest('.agree_cookie').slideUp("slow");
-            }
+        $.get(`${URL}/cookie-agree`, {agree: agree}, function (result) {
+            btn.closest('.agree_cookie').slideUp("slow");
         });
     });
 });
+$(document).on('click', '.btn.active button', function (e) {
+    let auction_id = $(this).closest('div[data-auction-id]').attr('data-auction-id');
+    if (auction_id)
+        $.get(`${URL}/bet/${auction_id}`, (data) => {
+            if (data){
+                $('.balance span.phpbalance').html(data.bet);
+                $('.balance span.phpbonus').html(data.bonus);
+            }
+        });
+})
 $(document).on('click', '.notify__modal__btn__close', function () {
     let btn = $(this);
     let modal = btn.closest('.notify__modal');
@@ -109,34 +116,25 @@ function countdown() {
     $('[data-countdown]').each(function () {
         let $this = $(this), seconds = $(this).data('countdown');
         let time = new Date();
-        time.setSeconds( time.getSeconds() + seconds );
+        time.setSeconds(time.getSeconds() + seconds);
         $this.countdown(time)
             .on('update.countdown', (event) => {
-               if ($this.hasClass('to__start'))
-                $this.html(event.strftime('%H:%M:%S'));
-               else
-                   $this.html(event.strftime('%M:%S'));
+                let H = event.offset.totalDays * 24 + event.offset.hours;
+                if (H < 10) H = `0${H}`;
+                if ($this.hasClass('to__start'))
+                    $this.html(event.strftime(`${H}:%M:%S`));
+                else
+                    $this.html(event.strftime('%M:%S'));
             })
             .on('finish.countdown', (event) => {
-                let auction_id = $this.closest('.card').attr('data-auction-id');
-                if ($this.hasClass('to__start'))
-                    ChangeStatus(auction_id);
-                else
-                    FinishAuction(auction_id);
-
+                $this.html('...');
             });
     });
 }
-function ChangeStatus(auction_id) {
+
+function ChangeStatus() {
     let container = $('.delete-margin');
-    $.post(`${URL}/${auction_id}/change-status`, function (data) {
-        container.html(data);
-        countdown();
-    });
-}
-function FinishAuction(auction_id) {
-    let container = $('.delete-margin');
-    $.post(`${URL}/${auction_id}/change-status`, function (data) {
+    $.post(`${URL}/change-status`, function (data) {
         container.html(data);
         countdown();
     });

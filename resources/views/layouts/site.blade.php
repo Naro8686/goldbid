@@ -16,7 +16,7 @@
     <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
     <script src='https://www.google.com/recaptcha/api.js'></script>
-{{--    <script src="{{asset('js/app.js')}}"></script>--}}
+    <script src="{{asset('js/app.js')}}"></script>
 </head>
 <body>
 @if (session('bonus_modal'))
@@ -336,6 +336,7 @@
 <script src="{{asset('site/js/humburger.js')}}"></script>
 <script src="{{asset('site/js/modal.js')}}"></script>
 <script src="{{asset('site/js/custom.js')}}"></script>
+<script src="{{asset('site/js/events.js')}}"></script>
 @stack('js')
 </body>
 </html>

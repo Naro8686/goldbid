@@ -8,6 +8,7 @@ use App\Models\Auction\Product;
 use App\Models\Balance;
 use App\Models\Pages\Page;
 use App\Models\User;
+use App\Settings\Setting;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -42,6 +43,12 @@ class AuctionController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
         return redirect()->back()->with('status', 'успешные дествия !');
+    }
+    public function edit($id)
+    {
+        $slug = Auction::query()->findOrFail($id);
+        $meta = (new Setting($slug->id))->mete();
+        return view(self::DIR.'edit', compact('meta'));
     }
 
 }

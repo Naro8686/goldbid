@@ -46,7 +46,9 @@ class AdminController extends Controller
                     return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";
                 })->addColumn('action', function ($auction) {
                     $linkDelete = route('admin.auctions.destroy', $auction['id']);
+                    $linkEditSeo = route('admin.auctions.edit', $auction['id']);
                     return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
+                                        <a href='{$linkEditSeo}' class='btn btn-info'>seo</a>
                                         <button type='button' class='btn btn-danger'
                                                 data-toggle='modal'
                                                 data-target='#resourceModal'
