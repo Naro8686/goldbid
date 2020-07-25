@@ -42,6 +42,20 @@ class ProductController extends Controller
                                 onclick='oNoFF(`{$link}`,{exchange:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
+                })->editColumn('buy_now', function ($product) {
+                    $class = '';
+                    $active = 'false';
+                    $link = route('admin.products.update', $product['id']);
+                    if ($product['buy_now']) {
+                        $class = 'active';
+                        $active = 'true';
+                    }
+                    return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                                data-toggle='button'
+                                aria-pressed='{$active}'
+                                onclick='oNoFF(`{$link}`,{buy_now:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
+                                    <span class='handle'></span>
+                                </button>";
                 })->editColumn('img_1', function ($product) {
                     $img = asset($product['img_1']);
                     return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$product['alt_1']}'>";
@@ -87,7 +101,7 @@ class ProductController extends Controller
                                                     удалить
                                         </button>
                                     </div>";
-                })->rawColumns(['img_1', 'exchange', 'top', 'visibly', 'action'])->make(true);
+                })->rawColumns(['img_1', 'exchange','buy_now', 'top', 'visibly', 'action'])->make(true);
             } catch (Exception $e) {
                 dd($e->getMessage());
             }
@@ -124,10 +138,11 @@ class ProductController extends Controller
         if ($request->ajax()) {
             $request->validate([
                 'exchange' => ['sometimes', 'required', 'boolean'],
+                'buy_now' => ['sometimes', 'required', 'boolean'],
                 'top' => ['sometimes', 'required', 'boolean'],
                 'visibly' => ['sometimes', 'required', 'boolean'],
             ]);
-            $product->update($request->only(['exchange', 'top', 'visibly']));
+            $product->update($request->only(['exchange','buy_now', 'top', 'visibly']));
         } else {
             $request->validate([
                 'title' => ['required', 'string', 'max:30'],
@@ -136,7 +151,7 @@ class ProductController extends Controller
                 'specify' => ['string', 'nullable'],
                 'terms' => ['string', 'nullable'],
                 'start_price' => ['required', 'numeric', 'min:1'],
-                'full_price' => ['required', 'numeric', 'min:0'],
+                'full_price' => ['required', 'numeric', 'min:1'],
                 'bot_shutdown_price' => ['required', 'numeric', 'min:1'],
                 'step_time' => ['required', 'integer', 'min:1'],
                 'step_price' => ['required', 'integer', 'min:1'],
@@ -153,29 +168,30 @@ class ProductController extends Controller
             $request->merge([
                 'visibly' => $request['visibly'] === 'on',
                 'exchange' => $request['exchange'] === 'on',
+                'buy_now' => $request['buy_now'] === 'on',
             ]);
             if ($request->file('file_1')) {
                 $request['img_1'] = $this->uploadImage($request->file('file_1'), 'site/img/product', $this->width, $this->height);
-                if ($request['img_1'] && is_file(public_path($product->img_1))) unlink(public_path($product->image));
+                if ($request['img_1'] && is_file(public_path($product->img_1))) unlink(public_path($product->img_1));
             }
             if ($request->file('file_2')) {
                 $request['img_2'] = $this->uploadImage($request->file('file_2'), 'site/img/product', $this->width, $this->height);
-                if ($request['img_2'] && is_file(public_path($product->img_2))) unlink(public_path($product->image));
+                if ($request['img_2'] && is_file(public_path($product->img_2))) unlink(public_path($product->img_2));
             }
             if ($request->file('file_3')) {
                 $request['img_3'] = $this->uploadImage($request->file('file_3'), 'site/img/product', $this->width, $this->height);
-                if ($request['img_3'] && is_file(public_path($product->img_3))) unlink(public_path($product->image));
+                if ($request['img_3'] && is_file(public_path($product->img_3))) unlink(public_path($product->img_3));
             }
             if ($request->file('file_4')) {
                 $request['img_4'] = $this->uploadImage($request->file('file_4'), 'site/img/product', $this->width, $this->height);
-                if ($request['img_4'] && is_file(public_path($product->img_4))) unlink(public_path($product->image));
+                if ($request['img_4'] && is_file(public_path($product->img_4))) unlink(public_path($product->img_4));
             }
             $product->update($request->only([
                 "title", "short_desc", "company_id",
                 "category_id", "start_price", "full_price",
                 "bot_shutdown_price", "step_time", "step_price",
-                "to_start", "exchange", "visibly", "desc",
-                "specify", "terms",
+                "to_start", "exchange", "visibly","buy_now",
+                "desc", "specify", "terms",
                 "img_1", "img_2", "img_3", "img_4",
                 "alt_1", "alt_2", "alt_3", "alt_4",
             ]));
@@ -223,6 +239,7 @@ class ProductController extends Controller
         $request->merge([
             'visibly' => $request['visibly'] === 'on',
             'exchange' => $request['exchange'] === 'on',
+            'buy_now' => $request['buy_now'] === 'on',
         ]);
 
         if ($request->file('file_1')) $request['img_1'] = $this->uploadImage($request->file('file_1'), 'site/img/product', $this->width, $this->height);
@@ -234,8 +251,8 @@ class ProductController extends Controller
             "title", "short_desc", "company_id",
             "category_id", "start_price", "full_price",
             "bot_shutdown_price", "step_time", "step_price",
-            "to_start", "exchange", "visibly", "desc",
-            "specify", "terms",
+            "to_start", "exchange", "visibly","buy_now",
+            "desc", "specify", "terms",
             "img_1", "img_2", "img_3", "img_4",
             "alt_1", "alt_2", "alt_3", "alt_4",
         ]));
@@ -265,7 +282,7 @@ class ProductController extends Controller
             return null;
 
         $path = 'site/img/auction';
-        if (!is_dir($path)) mkdir($path, 0777, true);
+        if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);
         $img_1 = $this->imageCopy($product->img_1, 'site/img/product', $path);
         $img_2 = $this->imageCopy($product->img_2, 'site/img/product', $path);
         $img_3 = $this->imageCopy($product->img_3, 'site/img/product', $path);
@@ -289,8 +306,10 @@ class ProductController extends Controller
             'bot_shutdown_price' => $product->bot_shutdown_price,
             'bid_seconds' => $product->step_time,
             'step_price' => $product->step_price,
+            'top' => $product->top,
             'start' => Carbon::now()->addMinutes((int)$product->to_start),
             'exchange' => (bool)$product->exchange,
+            'buy_now' => (bool)$product->buy_now,
             'status' => ((int)$product->to_start === 0) ? Auction::STATUS_ACTIVE : Auction::STATUS_PENDING,
         ];
         $new = $auction->create($data);

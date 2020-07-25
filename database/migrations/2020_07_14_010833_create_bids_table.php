@@ -24,15 +24,6 @@ class CreateBidsTable extends Migration
             $table->string('nickname')->nullable();
             $table->boolean('is_bot')->default(false);
             $table->boolean('win')->default(false);
-
-            $table->foreign('auction_id')
-                ->references('id')
-                ->on('auctions')
-                ->onDelete('set null');
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('set null');
             $table->timestamps();
         });
     }

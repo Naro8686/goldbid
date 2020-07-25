@@ -1,13 +1,14 @@
 @foreach($auctions as $auction)
-    <div class="card @if($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE) active @endif" data-auction-id="{{$auction['id']}}">
-        <div class="favorites">
-            <span @if($auction['favorite']) class="active" @endif></span>
+    <div class="card @if($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE) active @endif"
+         data-auction-id="{{$auction['id']}}">
+        <div class="favorites @if($auction['top']) top @endif">
+            <span @if($auction['favorite'] || $auction['top']) class="active" @endif></span>
         </div>
 
         <a href="{{route('auction.index',$auction['id'])}}">
             <img class="product-img"
-                 src="{{$auction['img']}}"
-                 alt="{{$auction['alt']}}">
+                 src="{{$auction['images'][0]['img']}}"
+                 alt="{{$auction['images'][0]['alt']}}">
         </a>
         <div class="name">
             <a title="Подсказка" href="{{route('auction.index',$auction['id'])}}">{{$auction['title']}}</a>
@@ -49,24 +50,28 @@
 
             @if($auction['buy_now'])
                 <div class="con-tooltip top">
-                    <a href="order.php?id=269&amp;step=1">
+                    <a @if($auction['my_win'] && $auction['exchange']) class="my___win"
+                       @endif data-id="{{$auction['id']}}"
+                       href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">
                         <div class="circl">
                             <img title="Купить сейчас за {{$auction['full_price']}} руб"
                                  src="{{asset('site/img/if_business_finance_money-05_2784238.png')}}"
                                  alt="">
                         </div>
                     </a>
-                    <a href="order.php?id=269">
-                        <div class="tooltip four">
-                            <p>Купить товар</p>
-                        </div>
-                    </a>
+                    {{--                    <a href="order.php?id=269">--}}
+                    {{--                        <div class="tooltip four">--}}
+                    {{--                            <p>Купить товар</p>--}}
+                    {{--                        </div>--}}
+                    {{--                    </a>--}}
                 </div>
             @endif
         </div>
         @if($auction['status'] === \App\Models\Auction\Auction::STATUS_PENDING)
             <div class="inf">
-                <p class="timer">До начала <span class="to__start" data-countdown="{{$auction['start']}}"></span></p>
+                <p class="timer">До начала <span class="to__start"
+                                                 data-countdown="{{$auction['start']}}"></span>
+                </p>
             </div>
             <div class="btn">
                 <span class="price">{{$auction['start_price']}} руб</span>
@@ -107,7 +112,9 @@
                 @else
                     <div class="btn win">
                         <span class="price">{{$auction['price']}} руб</span>
-                        <button>Оформит заказ</button>
+                        <a data-id="{{$auction['id']}}"
+                           href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}"
+                           @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif>Оформит заказ</a>
                     </div>
                 @endif
             @endif

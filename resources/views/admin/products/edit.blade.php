@@ -117,6 +117,16 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="buy_now" class="col-sm-2 col-form-label">Купить сейчас</label>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input type="checkbox" @if(old('buy_now')==='on' || (bool)$product->buy_now) checked
+                                       @endif class="form-check-input" name="buy_now" id="buy_now">
+                            </div>
+                            @error('buy_now') <small class="text-danger">{{$message}}</small> @enderror
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="visibly" class="col-sm-2 col-form-label">Выводит на сайт</label>
                         <div class="col-sm-10">
                             <div class="form-check">

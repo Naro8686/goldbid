@@ -29,12 +29,13 @@ class CreateProductsTable extends Migration
             $table->string('alt_3')->nullable()->default('image');
             $table->string('alt_4')->nullable()->default('image');
             $table->string('start_price')->default(1)->comment('начальная цена (руб)');
-            $table->string('full_price')->default(0)->comment('полная стоимость (руб)');
+            $table->string('full_price')->default(1)->comment('полная стоимость (руб)');
             $table->string('bot_shutdown_price')->default(1)->comment('цена выключения бота (руб)');
             $table->integer('step_time')->default(10)->comment('сек.');
             $table->integer('step_price')->default(10);
             $table->integer('to_start')->default(0)->comment('мин.');
             $table->boolean('exchange')->default(true);
+            $table->boolean('buy_now')->default(true);
             $table->boolean('top')->default(false);
             $table->boolean('visibly')->default(true);
             $table->unsignedBigInteger('company_id')->nullable();

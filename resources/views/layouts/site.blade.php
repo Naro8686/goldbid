@@ -18,7 +18,7 @@
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="{{asset('js/app.js')}}"></script>
 </head>
-<body>
+<body >
 @if (session('bonus_modal'))
     <div class="notify__modal">
         <div class="notify__item">
@@ -34,7 +34,11 @@
         </div>
     </div>
 @endif
-<div class="resss"></div>
+<div class="response">
+    @if($message = session('message'))
+        @include('site.include.info_modal')
+    @endif
+</div>
 <div class="header">
     <div class="container">
         <div style="flex-direction: column; position: relative;" class="left">
@@ -144,7 +148,7 @@
                     </div>
                 </div>
             @else
-                <div class="userin">
+                <div class="userin" id="user_{{auth()->id()}}">
                     <div class="balance">
                         <p>Ставки:&nbsp<span class="phpbalance">{{auth()->user()->balance()->bet}}</span>&nbspшт</p>
                         <p>Бонусы:&nbsp<span class="phpbonus">{{auth()->user()->balance()->bonus}}</span>&nbspшт</p>
@@ -238,11 +242,6 @@
         </ul>
     </nav>
 </div>
-{{--@if (session('status'))--}}
-{{--    <div class="alert alert-success" role="alert">--}}
-{{--        {{ session('status') }}--}}
-{{--    </div>--}}
-{{--@endif--}}
 @yield('content')
 <div class="footer">
     <div class="payment-methods">

@@ -34,28 +34,25 @@ class Mailing extends Model
         return $this->belongsToMany(User::class, 'subscriptions', 'mailing_id', 'user_id');
     }
 
-    public function textReplace(object $data)
+    public function textReplace(array $data = [])
     {
         $patterns = [];
         $replacements = [];
         $patterns[0] = '/#nickname#/i';
-        $patterns[1] = '/#login#/i';
-        //$patterns[2] = '/#password#/i';
-        $patterns[3] = '/#code#/i';
-        $patterns[4] = '/#order#/i';
-        $patterns[5] = '/#auction#/i';
+        $patterns[1] = '/#code#/i';
+        $patterns[2] = '/#order#/i';
+        $patterns[3] = '/#auction#/i';
 
-        $replacements[0] = $data->nickname;
-        $replacements[1] = $data->login();
-        //$replacements[2] = $data->password;
-        $replacements[3] = $data->email_code;
-        $replacements[4] = 'order';
-        $replacements[5] = 'auction';
+        $replacements[0] = $data['nickname'] ?? '';
+        $replacements[1] = $data['email_code'] ?? '';
+        $replacements[2] = $data['order_num'] ?? '';
+        $replacements[3] = $data['auction'] ?? '';
+
         $replacements = array_map(function ($array) {
             return "<b>{$array}</b>";
         }, $replacements);
         ksort($patterns);
         ksort($replacements);
-        return preg_replace($patterns, $replacements, $this->text);
+        return preg_replace($patterns, $replacements, $this->attributes['text']);
     }
 }

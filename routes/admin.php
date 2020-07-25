@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
     Route::resource('auctions', 'AuctionController')->only([
-        'index', 'destroy','edit'
+        'index', 'destroy', 'edit','show'
     ]);
     Route::match(['GET', 'POST'], '/profile', 'AdminController@adminProfileChange')->name('profile');
     Route::post('products/add-group', 'ProductController@addGroup')->name('products.add_group');
@@ -44,6 +44,9 @@ Route::group(['as' => 'admin.'], function () {
     Route::resource('packages', 'PackageController')->only([
         'create', 'store', 'edit', 'update', 'destroy'
     ]);
+    Route::resource('orders', 'OrderController')->only([
+        'edit', 'update',
+    ]);
     Route::group(['as' => 'settings.', 'prefix' => 'settings'], function () {
         Route::match(['GET', 'POST'], '/mail', 'AdminController@mailConfig')->name('mail');
         Route::match(['GET', 'POST'], '/site', 'AdminController@siteConfig')->name('site');
@@ -67,6 +70,7 @@ Route::group(['as' => 'admin.'], function () {
         Route::get('/reviews', 'PageController@reviewsPage')->name('reviews');
         Route::get('/feedback', 'PageController@feedbackPage')->name('feedback');
         Route::get('/coupon', 'PageController@couponPage')->name('coupon');
+        Route::get('/order', 'PageController@orderPage')->name('order');
     });
 });
 

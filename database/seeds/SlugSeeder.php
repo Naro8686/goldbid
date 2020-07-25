@@ -22,6 +22,7 @@ class SlugSeeder extends Seeder
             ['slug' => '/login', 'title' => 'Вход'],
             ['slug' => '/register', 'title' => 'Регистрация'],
             ['slug' => '/cabinet', 'title' => 'Личный кабинет'],
+            ['slug' => '/order', 'title' => 'Оформление заказа'],
 
             ['slug' => '/regulations', 'title' => 'Правила участия в аукционе', 'content' => config('footer.regulation')],
             ['slug' => '/terms-of-use', 'title' => 'Пользовательское соглашение', 'content' => config('footer.regulation')],

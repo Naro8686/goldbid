@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\AutoBidCommand;
 use App\Console\Commands\CheckAuctionsStatus;
 use App\Console\Commands\StatusChangeCommand;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,7 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         StatusChangeCommand::class,
-        CheckAuctionsStatus::class
+        CheckAuctionsStatus::class,
+        AutoBidCommand::class
     ];
 
     /**
@@ -27,9 +29,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-//        $schedule->command('status:change')
-//            ->evenInMaintenanceMode()
-//            ->withoutOverlapping();
         $schedule->command('check:auctions')->everyFiveMinutes();
     }
 

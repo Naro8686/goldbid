@@ -36,14 +36,6 @@ class HomeController extends Controller
 
     public function index()
     {
-//        $auc = Auction::all()->where('active', true);
-//        foreach ($auc as $a) {
-//            $pending = $a->status === Auction::STATUS_PENDING && !$a->start->diff(now())->invert;
-//            $active = $a->status === Auction::STATUS_ACTIVE && !$a->step_time->diff(now())->invert;
-//            $finished = $a->status === Auction::STATUS_FINISHED && is_null($a->end);
-//            dd($pending,$active,$finished);
-//        }
-
         $sliders = Slider::all();
         $auctions = Auction::auctionsForHomePage();
         return view(self::DIR . 'index', compact('sliders', 'auctions'));

@@ -12,6 +12,6 @@ class Bid extends Model
         'bet' => 'integer',
         'bonus' => 'integer',
         'is_bot' => 'boolean',
-        'win' => 'boolean',
+        'win' => 'boolean'
     ];
 }

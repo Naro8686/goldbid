@@ -38,6 +38,7 @@ class CreateAuctionsTable extends Migration
             $table->timestamp('start')->useCurrent();
             $table->timestamp('end')->nullable();
             $table->boolean('exchange');
+            $table->boolean('buy_now');
             $table->boolean('top')->default(false);
             $table->boolean('active')->default(true);
             $table->integer('status')->default(Auction::STATUS_PENDING);

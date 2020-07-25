@@ -15,15 +15,18 @@
                 <th>Бонусов</th>
                 <th>Статус лота</th>
             </tr>
-
-{{--            <tr>--}}
-{{--                <td style="white-space: nowrap;">timebid</td>--}}
-{{--                <td><a style="color: #1B8BCB;"--}}
-{{--                       href="auction.php?id=">name</a></td>--}}
-{{--                <td>bet</td>--}}
-{{--                <td>bonus</td>--}}
-{{--                <td>win</td>--}}
-{{--            </tr>--}}
+            @foreach($bids as $auction_id => $bid)
+                <tr>
+                    <td style="white-space: nowrap;">{{$bid['end']}}</td>
+                    <td>
+                        <a style="color: #1B8BCB;"
+                           href="{{route('auction.index',$auction_id)}}">{{$bid['title']}}</a>
+                    </td>
+                    <td>{{$bid['bet']}}</td>
+                    <td>{{$bid['bonus']}}</td>
+                    <td>{{$bid['win']?'Победа':'Участие '}}</td>
+                </tr>
+            @endforeach
         </table>
     </div>
 @endsection

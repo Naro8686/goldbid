@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Auction\Auction;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -25,6 +26,11 @@ class BetEvent implements ShouldBroadcast
     public function __construct(Auction $auction)
     {
         $this->auction = $auction;
+    }
+
+    public function broadcastWith()
+    {
+        return $this->auction->bidDataForUser();
     }
 
     /**

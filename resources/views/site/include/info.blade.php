@@ -19,7 +19,7 @@
     @endif
     @if($auction['buy_now'])
         <div class="circl">
-            <a href="order.php?id={{$auction['id']}}&step=1">
+            <a @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif data-id="{{$auction['id']}}" href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">
                 <img title="Купить сейчас за {{$auction['full_price']}} руб"
                      src="{{asset('site/img/korzina-white.png')}}"
                      alt="">
@@ -27,92 +27,84 @@
         </div>
     @endif
 </div>
-@if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
-    <div style="margin-bottom: 10px;"
-         class="name">
-        {{--        <? if ($tovar['winer'] == ''): ?>--}}
-        {{--        Не состоялся--}}
-        {{--        <? else: ?>--}}
-        {{--        Победил: <?= $tovar['winer'] ?>--}}
-        {{--        <? endif ?>--}}
+@if($auction['status'] === \App\Models\Auction\Auction::STATUS_PENDING)
+    <div class="inf__pending">
+        <p> Аукцион начнется через</p>
+        <span class="to__start countdown"
+              data-countdown="{{$auction['start']}}"></span>
     </div>
 @endif
 @if($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE)
-    <div class="timer">
-        <p>Таймер</p>
-        <div class="time" data-countdown="{{$auction['step_time']}}"></div>
-    </div>
-@endif
-
-
-<div class="hr"></div>
-<!-- Активный аукцион -->
-@if($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE)
-    <div class="bid" data-auction-id="{{$auction['id']}}">
-        <div class="price">
-            {{$auction['start_price']}}<span> руб</span>
-        </div>
-        <div class="btn active">
-            <button class="bid-btn">Ставка</button>
-        </div>
+    <p class="winner">{{$auction['winner']}}</p>
+    <div class="inf__active">
+        <span class="price">{{$auction['price']}} руб.</span>
+        <span class="countdown" data-countdown="{{$auction['step_time']}}"></span>
+        <button>Ставка</button>
     </div>
     <!-- Сюда вставляется автоставки -->
-    <div class="autobid">
-        <p>Введите кол-во<br> ставок</p>
-        <form method="POST" action="auction.php?id=">
-            <input type="hidden" name="id_tovar" value="">
-            <input class="value" name="sum" type="text">
-            <input type="submit" class="btn" name="autobid" value="Автоставка">
-        </form>
-    </div>
-    <!-- Закрытый аукцион -->
+    <form class="auto__bid" method="POST" action="{{route('auction.auto_bid',$auction['id'])}}">
+        @csrf
 
-@elseif($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
-    <div class="bid">
-        <div style="border-radius: 30px;" class="price">
-            {{$auction['start_price']}}<span> руб</span>
-        </div>
-    </div>
-    <!-- Аукцион ожидает -->
-@elseif($auction['status'] === \App\Models\Auction\Auction::STATUS_PENDING)
-    <div class="bid">
-        <div class="btn">
-            <p class="bid-btn" style="border-radius: 30px; padding: 10px; min-width: 200px;box-sizing: border-box ;font-size:14px;">
-                До начала: <span class="to__start" data-countdown="{{$auction['start']}}"></span>
-            </p>
-        </div>
-    </div>
+        <input class="auto__bid_inp" min="0" type="number" name="count" value="{{$auction['autoBid']}}" placeholder="введите ставку">
+        <button type="submit" class="auto__bid_btn">
+            автоставка
+        </button>
+    </form>
 @endif
-<div style="margin-top:40px;"></div>
-<div class="hr"></div>
-@if($auction['buy_now'])
-<div class="roz-price">
-    <div style="margin: 0 0 15px 0;">
-        <div class="price">
-            {{$auction['full_price']}} <span>руб</span>
+@if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
+    @if(is_null($auction['winner']))
+        <p class="winner">Не состоялся</p>
+    @else
+        <div class="inf__finish">
+            <p class="winner">Победитель: {{$auction['winner']}}</p>
+            <p class="price__for_winner">Цена для победителя аукциона</p>
+            <p class="price">{{$auction['price']}} руб</p>
         </div>
-        <a href="order.php?id=197&amp;step=1" class="bid-btn">
-            <div class="btn" style="border: none">
-                Купить сейчас
+        @if($auction['my_win'])
+            <div class="btn win">
+                <a @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif data-id="{{$auction['id']}}" href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">Оформит заказ</a>
             </div>
+        @endif
+    @endif
+@endif
+
+@if($auction['buy_now'] && !$auction['my_win'])
+    <div class="buy__now @if(!($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE)) mt-80 @endif">
+        <span class="buy__now_price">{{$auction['full_price']}} руб</span>
+        <a href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}" class="buy__now_btn">
+            купить сейчас
         </a>
     </div>
-</div>
+    <p style="margin-top: 7px;text-align:center;font-weight: bold;font-size: 15.4px">Цена с учетом сделанных Вами
+        ставок</p>
 @endif
+<div class="info__my__bid">
+    <div class="item">
+        <span>Поставлено Ставок</span><span class="bet">{{$auction['bet']}}</span>
+    </div>
+    <div class="item">
+        <span> Поставлено Бонусов</span><span
+            class="bonus">{{$auction['bonus']}}</span>
+    </div>
+</div>
 <div class="log-bid">
-    <table style="height: 130px; color:#fff;">
-
-        <tbody>
+    <table class="scrolldown">
+        <thead>
         <tr>
-            <td>Цена</td>
-            <td>Участник</td>
-            <td>Время</td>
+            <th>Цена</th>
+            <th>Участники</th>
+            <th>Время</th>
         </tr>
-        <tr style="height: 150px;">
-            <td></td>
-            <td>Ставок нет</td>
-            <td></td>
-        </tr>
+        </thead>
+        <tbody>
+        @foreach($auction['bids'] as $bid)
+            <tr>
+                <td>{{$bid['price']}} руб.</td>
+                <td>{{$bid['nickname']}}</td>
+                <td>{{$bid['created_at']->format('H:i:s')}}</td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
+
 </div>

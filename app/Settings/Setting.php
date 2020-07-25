@@ -159,8 +159,14 @@ class Setting
 
     public static function orderNumCoupon(int $num)
     {
-        $data_format = now()->format('ymd-Hi');
+        $data_format = now()->format('ymd-His');
         return "{$data_format}-{$num}";
+    }
+
+    public static function orderNumAuction(int $user_id)
+    {
+        $data_format = now()->format('ymd-His');
+        return "{$data_format}-{$user_id}";
     }
 
     public static function mailConfig()
@@ -189,14 +195,15 @@ class Setting
             $result .= mt_rand(0, 9);
         return $result;
     }
+
     public static function timezone()
     {
         try {
-            $ip = "141.136.91.30";  //request()->ip();
+            $ip = request()->ip();
             $ipInfo = file_get_contents('http://ip-api.com/json/' . $ip);
             $ipInfo = json_decode($ipInfo);
             return $ipInfo->timezone;
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return config('app.timezone');
         }
 

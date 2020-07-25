@@ -51,8 +51,6 @@
                                 <li class="list-group-item">
                                     <ul class="">
                                         <li>#nickname#</li>
-                                        <li>#login#</li>
-                                        <li>#password#</li>
                                         <li>#code#</li>
                                         <li>#order#</li>
                                         <li>#auction#</li>

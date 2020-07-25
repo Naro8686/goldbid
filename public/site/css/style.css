@@ -40,7 +40,13 @@ button {
     justify-content: space-between;
     height: 129px;
 }
-
+.header .container .left .text {
+    color: #1B8BCB;
+    position: absolute;
+    bottom: 30px;
+    left: 12px;
+    white-space: nowrap;
+}
 .header .container .left {
     position: relative;
     display: flex;
@@ -862,7 +868,16 @@ input[type="checkbox"].fail {
 .auction .card .btn.win {
     border-color: #06f61d;
 }
-
+.auction .card .btn.win a {
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-weight: bold;
+    width: 100%;
+    background-color: #06f61d;
+    border-radius: 50px;
+}
 .auction .card .btn button {
     color: white;
     width: 120px;
@@ -883,7 +898,9 @@ input[type="checkbox"].fail {
     background-color: #FF3249;
     border-radius: 50px;
 }
-
+.auction .card .btn.win form {
+    width: 100%;
+}
 .auction .card .btn.win button {
     width: 100%;
     background-color: #06f61d;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Balance;
 use App\Models\Setting;
 use App\Models\User;
 use App\Settings\Setting as Config;
@@ -18,7 +19,7 @@ class AdminSeeder extends Seeder
     public function run()
     {
 
-        User::create([
+        $admin = User::create([
             'is_admin' => true,
             'nickname' => 'SuperAdmin',
             'phone' => '70000000000',
@@ -28,6 +29,7 @@ class AdminSeeder extends Seeder
             'email_code_verified' => now(),
             'remember_token' => Str::random(10),
         ]);
+        $admin->balanceHistory()->create(['type' => Balance::PLUS, 'bet' => 100, 'bonus' => 100]);
         Setting::query()->firstOrCreate(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
     }
 }

@@ -1,6 +1,5 @@
 const URL = `${window.location.protocol}//${window.location.hostname}`;
 $(document).ready(function () {
-    countdown();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
@@ -23,13 +22,18 @@ $(document).ready(function () {
         });
     });
 });
-$(document).on('click', '.btn.active button', function (e) {
+$(document).on('click', '.btn.active,.inf__active button', function (e) {
     let auction_id = $(this).closest('div[data-auction-id]').attr('data-auction-id');
     if (auction_id)
         $.get(`${URL}/bet/${auction_id}`, (data) => {
-            if (data){
-                $('.balance span.phpbalance').html(data.bet);
-                $('.balance span.phpbonus').html(data.bonus);
+            if (data) {
+                if (data.error)
+                    $('.response').html(data.error)
+                else {
+                    $('.balance span.phpbalance').html(data.bet);
+                    $('.balance span.phpbonus').html(data.bonus);
+                }
+
             }
         });
 })
@@ -38,16 +42,24 @@ $(document).on('click', '.notify__modal__btn__close', function () {
     let modal = btn.closest('.notify__modal');
     modal.toggleClass('close');
 });
+$(document).on('click', '.my___win', function (e) {
+    e.preventDefault();
+    let auction_id = $(this).data('id');
+    $.get(`${URL}/payment/${auction_id}/win-info`, function (data) {
+        $('.response').html(data)
+    });
+});
+
 $(document).on('click', '.favorites', function (e) {
+    if ($(this).hasClass('top')) return false;
     let favorite = $(this).children();
     let auction_id = favorite.closest('.card').attr('data-auction-id');
-    let container = $('.delete-margin');
+    let home_page = $('#home_page');
     $.post(`${URL}/${auction_id}/add-favorite`, function (data) {
         favorite.toggleClass('active');
-        container.html(data);
-        countdown();
+        home_page.html(data);
+        countdown(home_page);
     });
-
 });
 
 function oNoFF(action, data = {}, method = "GET") {
@@ -112,9 +124,9 @@ function copyToClipboard(elem) {
     return succeed;
 }
 
-function countdown() {
-    $('[data-countdown]').each(function () {
-        let $this = $(this), seconds = $(this).data('countdown');
+function countdown(element, timer = null) {
+    element.find('[data-countdown]').each(function () {
+        let $this = $(this), seconds = timer ?? $(this).data('countdown');
         let time = new Date();
         time.setSeconds(time.getSeconds() + seconds);
         $this.countdown(time)
@@ -132,11 +144,19 @@ function countdown() {
     });
 }
 
-function ChangeStatus() {
-    let container = $('.delete-margin');
-    $.post(`${URL}/change-status`, function (data) {
-        container.html(data);
-        countdown();
+function ChangeStatus(id = null) {
+    let url = `${URL}/${id}/change-status`;
+    let home_page = $('#home_page');
+    let auction_page = $('#auction_page[data-auction-id="' + id + '"]');
+    $.post(url, function (data) {
+        if (data.home_page) {
+            home_page.html(data.home_page);
+            countdown(home_page);
+        }
+        if (data.auction_page) {
+            auction_page.html(data.auction_page);
+            countdown(auction_page);
+        }
     });
 }
 

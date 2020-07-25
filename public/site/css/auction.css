@@ -46,7 +46,7 @@ button {
 
 .header .container .left {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .header .container .left img {
@@ -73,6 +73,16 @@ button {
     background-color: #1B8BCB;
     border-right: 1px solid #E5E5E5;
     color: #ffffff;
+}
+
+.header .container .left .text {
+    color: #1B8BCB;
+    position: absolute;
+    bottom: 30px;
+    left: 12px;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 13px;
 }
 
 .header .container .right .authorization .registration:hover {
@@ -371,11 +381,45 @@ button {
     padding: 20px 0;
     color: #ffffff;
     width: 50%;
+    min-height: 620px;
     background: #167DB8;
     box-shadow: 4px 0px 10px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+}
+
+.main .container .card .dashboard .info__my__bid {
+    position: absolute;
+    bottom: 170px;
+    width: 65%
+}
+
+.main .container .card .dashboard .info__my__bid div.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0px;
+    font-weight: bold;
+}
+
+.main .container .card .dashboard .info__my__bid span.bet {
+    padding: 5px;
+    font-weight: bold;
+    background-color: #095785;
+    border-radius: 20px;
+    width: 90px;
+    text-align: center;
+}
+
+.main .container .card .dashboard .info__my__bid span.bonus {
+    padding: 5px;
+    font-weight: bold;
+    background-color: #1b4b72;
+    border-radius: 20px;
+    width: 90px;
+    text-align: center;
 }
 
 .main .container .card .dashboard .title {
@@ -462,7 +506,7 @@ button {
     background: #095785;
     border-radius: 30px 0px 0px 30px;
     cursor: default;
-    width: 60%;
+    width: 70%;
     height: 35px;
     text-align: center;
 }
@@ -561,7 +605,7 @@ button {
     background: #095785;
     border-radius: 30px 0px 0px 30px;
     cursor: default;
-    width: 60%;
+    width: 70%;
     text-align: center;
 }
 
@@ -610,19 +654,218 @@ button {
 }
 
 .main .container .card .dashboard .log-bid {
+    min-width: 85%;
     margin-top: auto;
     background: #095785;
     box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.25);
 }
 
-.main .container .card .dashboard .log-bid table {
-    padding: 10px;
+.inf__pending {
+    white-space: pre-line;
+    text-align: center;
+    line-height: 15px;
 }
 
-.main .container .card .dashboard .log-bid table td {
-    padding: 0 20px;
+.inf__pending p {
+    font-size: 18px;
 }
 
+.inf__pending .to__start {
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.inf__finish {
+    /*white-space: pre-line;*/
+    line-height: 30px;
+}
+
+.inf__active {
+    display: flex;
+    width: 70%;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 15px;
+}
+
+.inf__active span.countdown {
+    font-weight: bold;
+    font-size: xx-large;
+    min-width: 90px;
+}
+
+.inf__active button {
+    padding: 8px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    color: white;
+    text-transform: uppercase;
+    font-size: inherit;
+    background-color: #255785;
+}
+
+.inf__finish .price {
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.inf__active .price {
+    padding: 7px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.btn.win {
+    margin: 15px 0;
+}
+
+.btn.win a {
+    padding: 5px;
+    border: 3px solid white;
+    background-color: #255785;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+
+}
+
+.winner {
+    text-align: center;
+    font-size: 20px;
+    min-height: 25px;
+    margin-bottom: 20px;
+}
+
+.inf__finish .winner {
+    margin: 0px;
+}
+
+.price__for_winner {
+    font-size: 18px;
+    text-align: center;
+}
+
+/*start*/
+table.scrolldown {
+    width: 100%;
+}
+
+/* To display the block as level element */
+table.scrolldown tbody, table.scrolldown thead {
+    display: block;
+}
+
+thead tr th {
+    height: 30px;
+}
+
+table.scrolldown tbody {
+
+    /* Set the height of table body */
+    height: 100px;
+
+    /* Set vertical scroll */
+    overflow-y: auto;
+
+    /* Hide the horizontal scroll */
+    overflow-x: hidden;
+}
+
+.auto__bid {
+    display: flex;
+    width: 70%;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 11px;
+}
+
+.auto__bid_inp {
+    text-align: center;
+    color: white;
+    width: 47%;
+    padding: 7px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    background-color: #377db8;
+}
+
+.auto__bid_inp::placeholder {
+    color: white;
+    opacity: 0.5; /* Firefox */
+}
+
+.buy__now {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 11px;
+    width: 70%;
+}
+
+.mt-80 {
+    margin-top: 80px;
+}
+
+.buy__now_price {
+    color: white;
+    width: 47%;
+    padding: 7px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    background-color: #377db8;
+    text-align: center;
+}
+
+.buy__now_btn {
+    text-align: center;
+    width: 47%;
+    padding: 7px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    color: white;
+    text-transform: uppercase;
+    font-size: inherit;
+    background-color: #255785;
+}
+
+.auto__bid_btn {
+    width: 47%;
+    padding: 7px;
+    font-weight: bold;
+    border: 3px solid;
+    border-radius: 20px;
+    color: white;
+    text-transform: uppercase;
+    font-size: inherit;
+    background-color: #255785;
+}
+
+thead th {
+    width: 125px;
+}
+
+td {
+    text-align: left;
+}
+
+tbody td {
+    text-align: center;
+    min-width: 125px;
+    max-width: 141px;
+    overflow: hidden;
+}
+
+/*end*/
 .main .card .left {
     width: 50%;
     border: 1px solid #C2C2C2;

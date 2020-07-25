@@ -30,7 +30,7 @@ class ProductRequest extends FormRequest
             'specify' => ['string','nullable'],
             'terms' => ['string','nullable'],
             'start_price' => ['required', 'numeric', 'min:1'],
-            'full_price' => ['required', 'numeric', 'min:0'],
+            'full_price' => ['required', 'numeric', 'min:1'],
             'bot_shutdown_price' => ['required', 'numeric', 'min:1'],
             'step_time' => ['required', 'integer', 'min:1'],
             'step_price' => ['required', 'integer', 'min:1'],

@@ -107,6 +107,8 @@
                        href="{{route('admin.pages.feedback')}}">Обратная связь</a>
                     <a class="collapse-item @if(request()->is('admin/pages/coupon')) active @endif"
                        href="{{route('admin.pages.coupon')}}">Пополнить баланс</a>
+                    <a class="collapse-item @if(request()->is('admin/pages/order')) active @endif"
+                       href="{{route('admin.pages.order')}}">Оформление заказа</a>
                     <div class="collapse-divider"></div>
                     <h6 class="collapse-header">Другие страницы:</h6>
                     <a class="collapse-item @if(request()->is('admin/pages/footer')) active @endif"

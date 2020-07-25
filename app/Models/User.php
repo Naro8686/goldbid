@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Auction\Auction;
+use App\Models\Auction\AutoBid;
 use App\Models\Auction\Bid;
+use App\Models\Auction\Order;
 use App\Settings\Setting as SettingApp;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -13,6 +15,8 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use Notifiable;
+
+    const BET_RUB = 0.1;
 
     /**
      * The attributes that are mass assignable.
@@ -127,10 +131,11 @@ class User extends Authenticatable
 
     public static function info()
     {
-        $users = User::query()->where('is_admin', false)->get();
+        $users = User::all()->where('is_admin', false);
+
         return collect([
             'count' => $users->count(),
-            'active' => 0,
+            'active' => Bid::query()->whereIn('user_id',$users->pluck('id'))->distinct('user_id')->count(),
             'banned' => $users->where('has_ban', true)->count(),
             'online' => $users->where('is_online', '>=', now())->count()
         ]);
@@ -160,8 +165,8 @@ class User extends Authenticatable
             'birthday' => $this->birthday ? $this->birthday->format('Y-m-d') : '',
             'phone' => $this->login(),
             'email' => $this->email,
-            'win' => 0,
-            'participation' => 0,
+            'win' => $this->bid()->where('win',true)->count(),
+            'participation' => $this->bid()->distinct('auction_id')->count(),
             'has_ban' => $this->has_ban ? 'да' : 'нет',
             'bet' => $this->balance()->bet,
             'bonus' => $this->balance()->bonus,
@@ -205,10 +210,22 @@ class User extends Authenticatable
         return $this->belongsToMany(Auction::class, 'favorites', 'user_id', 'auction_id');
     }
 
+    public function autoBid()
+    {
+        return $this->hasMany( AutoBid::class);
+    }
+
     public function bid()
     {
         return $this->hasMany(Bid::class);
     }
+
+    public function bid_price($auction_id = null)
+    {
+        $user_bet = $this->bid()->where('auction_id', $auction_id)->sum('bet');
+        return ($user_bet * self::BET_RUB);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -247,6 +264,11 @@ class User extends Authenticatable
     public function couponOrder()
     {
         return $this->hasMany(CouponOrder::class);
+    }
+
+    public function auctionOrder()
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function paymentType()

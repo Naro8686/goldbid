@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Pages;
 
+use App\Models\Auction\Step;
 use App\Models\Pages\Footer;
 use App\Models\Pages\Howitwork;
 use App\Http\Controllers\Controller;
@@ -265,5 +266,10 @@ class PageController extends Controller
         $meta = (new Setting('coupon'))->mete();
         $packages = Package::all();
         return view(self::DIR . 'coupon', compact('meta','packages'));
+    }
+    public function orderPage(){
+        $meta = (new Setting('order'))->mete();
+        $steps = Step::all()->groupBy('step');
+        return view(self::DIR . 'order', compact('meta','steps'));
     }
 }

@@ -17,8 +17,15 @@
 @section('content')
     <div class="auction container">
         <div class="favorite"></div>
-        <div class="delete-margin">
+        <div id="home_page" class="delete-margin">
             @include('site.include.auctions')
         </div>
     </div>
 @endsection
+@push('js')
+    <script>
+        $(document).ready(function () {
+            countdown($('#home_page'));
+        });
+    </script>
+@endpush

@@ -44,11 +44,19 @@ class AdminController extends Controller
                 return datatables()->of($auctions)->editColumn('img_1', function ($auction) {
                     $img = asset($auction['img_1']);
                     return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";
+                })->editColumn('title', function ($auction) {
+                    $link = route('auction.index', $auction['id']);
+                    return "<a href='{$link}'>{$auction['title']}</a>";
                 })->addColumn('action', function ($auction) {
+                    $linkShow = route('admin.auctions.show', $auction['id']);
                     $linkDelete = route('admin.auctions.destroy', $auction['id']);
                     $linkEditSeo = route('admin.auctions.edit', $auction['id']);
                     return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
+                                        <button data-href='{$linkShow}' type='button'
+                                                data-toggle='modal' data-target='#cardModal'
+                                                class='btn btn-info mr-1'><i class='fa fa-eye'></i></button>
                                         <a href='{$linkEditSeo}' class='btn btn-info'>seo</a>
+
                                         <button type='button' class='btn btn-danger'
                                                 data-toggle='modal'
                                                 data-target='#resourceModal'
@@ -56,7 +64,7 @@ class AdminController extends Controller
                                                     удалить
                                         </button>
                                     </div>";
-                })->rawColumns(['img_1','action'])->make(true);
+                })->rawColumns(['img_1','title', 'action'])->make(true);
             } catch (Exception $e) {
                 dd($e->getMessage());
             }

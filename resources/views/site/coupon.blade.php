@@ -111,15 +111,12 @@
             });
 
             function validate() {
-                //Считаем значения из полей name и email в переменные x и y
                 let payment_id = $('[name="payment_id"]').val();
                 let coupon_id = $('[name="coupon_id"]').val();
-                //Если поле name пустое выведем сообщение и предотвратим отправку формы
                 if (payment_id.length === 0) {
                     alert("Выберите метод оплаты");
                     return false;
                 }
-                //Если поле email пустое выведем сообщение и предотвратим отправку формы
                 if (coupon_id.length === 0) {
                     alert("Выберите купон");
                     return false;
@@ -129,12 +126,10 @@
             function getpayment(id) {
                 $('[name="payment_id"]').val(id);
             }
-
             $('.pay').on("click", function () {
                 let payment_id = $(this).data("id");
                 getpayment(payment_id);
             });
-
         </script>
     @endpush
 @endsection

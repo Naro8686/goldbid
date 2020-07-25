@@ -50,5 +50,13 @@ class AuctionController extends Controller
         $meta = (new Setting($slug->id))->mete();
         return view(self::DIR.'edit', compact('meta'));
     }
-
+    public function show($id){
+        if ($auction = Auction::query()->find($id)) {
+            $data = $auction->auctionCard();
+            $html = view('admin.auctions.card', compact('data'))->render();
+        } else {
+            $html = "<div class='col-md-12'><h3 class='text-center text-danger'>error</h3></div>";
+        }
+        return response(['success' => true, 'html' => $html, 'title' => "Аукциона ID: {$id}"]);
+    }
 }

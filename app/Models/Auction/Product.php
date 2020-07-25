@@ -12,7 +12,7 @@ class Product extends Model
         'img_1', 'img_2', 'img_3', 'img_4',
         'alt_1', 'alt_2', 'alt_3', 'alt_4',
         'start_price', 'full_price', 'bot_shutdown_price',
-        'step_time', 'step_price', 'to_start', 'exchange',
+        'step_time', 'step_price', 'to_start', 'exchange','buy_now',
         'top', 'visibly', 'company_id', 'category_id',
     ];
     protected $casts = [
@@ -20,6 +20,7 @@ class Product extends Model
         'step_price' => 'integer',
         'step_time' => 'integer',
         'exchange' => 'boolean',
+        'buy_now' => 'boolean',
         'top' => 'boolean',
         'visibly' => 'boolean',
     ];
@@ -67,6 +68,7 @@ class Product extends Model
                 'step_price' => $product->step_price,
                 'to_start' => $product->to_start,
                 'exchange' => $product->exchange,
+                'buy_now' => $product->buy_now,
                 'top' => $product->top,
                 'visibly' => $product->visibly,
             ]);

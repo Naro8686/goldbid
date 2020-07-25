@@ -45,7 +45,7 @@ class CreateAuctionJob implements ShouldQueue
     {
         $auction = $this->product->auction();
         $path = 'site/img/auction';
-        if (!is_dir($path)) mkdir($path, 0777, true);
+        if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);
         $img_1 = $this->imageCopy($this->product->img_1, 'site/img/product', $path);
         $img_2 = $this->imageCopy($this->product->img_2, 'site/img/product', $path);
         $img_3 = $this->imageCopy($this->product->img_3, 'site/img/product', $path);
@@ -69,9 +69,11 @@ class CreateAuctionJob implements ShouldQueue
             'full_price' => $this->product->full_price,
             'bot_shutdown_price' => $this->product->bot_shutdown_price,
             'bid_seconds' => $this->product->step_time,
+            'top' => $this->product->top,
             'step_price' => $this->product->step_price,
             'start' => Carbon::now()->addMinutes((int)$this->product->to_start),
             'exchange' => (bool)$this->product->exchange,
+            'buy_now' => (bool)$this->product->buy_now,
             'status' => ((int)$this->product->to_start === 0) ? Auction::STATUS_ACTIVE : Auction::STATUS_PENDING,
         ];
 

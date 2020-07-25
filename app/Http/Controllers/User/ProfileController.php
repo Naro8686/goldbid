@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Mail;
 class ProfileController extends Controller
 {
     use ImageTrait;
+
     /**
      * @var User|null $user
      */
@@ -84,15 +85,15 @@ class ProfileController extends Controller
         if ($request->isMethod('POST')) {
             $request['email'] = empty($this->user->email) ? $request['email'] : $this->user->email;
             $request->validate([
-                'fname' => ['nullable','sometimes', 'string','min:5', 'max:50'],
-                'lname' => ['nullable', 'string','min:5', 'max:50'],
-                'mname' => ['nullable', 'string','min:5', 'max:50'],
+                'fname' => ['nullable', 'sometimes', 'string', 'min:5', 'max:50'],
+                'lname' => ['nullable', 'string', 'min:5', 'max:50'],
+                'mname' => ['nullable', 'string', 'min:5', 'max:50'],
                 'gender' => ['nullable', 'string', 'regex:/^(male|female)/'],
                 'birthday' => ['nullable', 'date', 'date_format:Y-m-d', 'before:16 years ago'],
                 'postcode' => ['nullable', 'digits_between:4,10'],
-                'region' => ['nullable', 'string','min:5', 'max:50'],
-                'city' => ['nullable', 'string','min:5', 'max:50'],
-                'street' => ['nullable', 'string','min:5', 'max:50'],
+                'region' => ['nullable', 'string', 'min:5', 'max:50'],
+                'city' => ['nullable', 'string', 'min:5', 'max:50'],
+                'street' => ['nullable', 'string', 'min:5', 'max:50'],
                 'email' => ['nullable', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
                 'payment_type' => ['nullable', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
                 'ccnum' => ['nullable', 'digits_between:8,16'],
@@ -115,9 +116,20 @@ class ProfileController extends Controller
         return view('user.balance', compact('balance'));
     }
 
-    public function auctionsHistory(Request $request)
+    public function auctionsHistory()
     {
-        return view('user.auctions_history');
+        $bids = $this->user->bid->groupBy('auction_id');
+
+        $bids = $bids->map(function ($item) {
+            return collect([
+                'bonus' => $item->sum('bonus'),
+                'bet' => $item->sum('bet'),
+                'win' => (bool)$item->where('win', true)->count(),
+                'title' => $item->sortDesc()->first()->title,
+                'end' => $item->sortDesc()->first()->created_at->format('Y-m-d H:i:s')
+            ]);
+        });
+        return view('user.auctions_history', compact('bids'));
     }
 
     public function referralProgram()
@@ -167,7 +179,7 @@ class ProfileController extends Controller
             if (!empty($this->user->email)) {
                 try {
                     $request['theme'] = Setting::feedbackTheme($request['theme']);
-                    Mail::to($this->user->email)->later(5,new MailingSendMail($this->user,Mailing::MAIL_CONFIRM));
+                    Mail::to($this->user->email)->later(5, new MailingSendMail(Mailing::MAIL_CONFIRM,[],$this->user));
                 } catch (Exception $exception) {
                     $text = 'что то пошло не так !';
                     $status = 'error';

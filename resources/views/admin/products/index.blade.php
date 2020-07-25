@@ -37,6 +37,7 @@
                             <th>Шаг (кол)</th>
                             <th>Автозапуск (мин)</th>
                             <th>Обмен на ставки</th>
+                            <th>Купить сейчас</th>
                             <th>Топ</th>
                             <th>Выводит на сайт</th>
                             <th>Действие</th>
@@ -71,6 +72,7 @@
                         {data: 'step_price', name: 'step_price'},
                         {data: 'to_start', name: 'to_start'},
                         {data: 'exchange', name: 'exchange'},
+                        {data: 'buy_now', name: 'buy_now'},
                         {data: 'top', name: 'top'},
                         {data: 'visibly', name: 'visibly'},
                         {data: 'action', name: 'action', orderable: false, searchable: false},

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
              FooterLinksSeeder::class,
              SliderSeeder::class,
              StepSeeder::class,
+             OrderStepsSeeder::class,
              ReviewsSeed::class,
              PackagesSeed::class,
              MailingSeeder::class,
