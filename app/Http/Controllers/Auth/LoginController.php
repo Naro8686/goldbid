@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Balance;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use App\Settings\Setting;
@@ -55,9 +56,11 @@ class LoginController extends Controller
         ]);
     }
 
-    protected function authenticated(Request $request,User $user)
+    protected function authenticated(Request $request, User $user)
     {
-        if (!$user->fullProfile()) $request->session()->flash('bonus_modal',30);
+
+        if (!$user->fullProfile() && !$user->balanceHistory()->where('reason', Balance::REGISTRATION_BONUS_REASON)->exists())
+            $request->session()->flash('bonus_modal', Balance::bonusCount(Balance::REGISTRATION_BONUS_REASON));
         if ($user->is_admin) $this->redirectTo = '/admin';
         if ($request->ajax()) {
             return response()->json([

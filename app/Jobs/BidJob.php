@@ -21,9 +21,9 @@ class BidJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     const BID_COUNT = 1;
-    public Auction $auction;
-    public ?User $user;
-    public string $nickname;
+    public $auction;
+    public $user;
+    public $nickname;
 
     /**
      * Create a new job instance.
@@ -50,8 +50,7 @@ class BidJob implements ShouldQueue
         $auction = $this->auction;
         try {
             DB::beginTransaction();
-            if ($auction->status === Auction::STATUS_ACTIVE &&
-                $auction->winner()->nickname !== $this->nickname) {
+            if ($auction->status === Auction::STATUS_ACTIVE && $auction->winner()->nickname !== $this->nickname) {
                 $data['price'] = $auction->new_price();
                 $data['title'] = $auction->title;
                 $data['nickname'] = $this->nickname;

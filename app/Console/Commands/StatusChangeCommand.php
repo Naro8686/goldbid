@@ -78,11 +78,11 @@ class StatusChangeCommand extends Command
     {
         try {
             DB::beginTransaction();
-            $pending = Auction::query()->find($auction->id);
-            $pending->update([
-                'status' => Auction::STATUS_ACTIVE,
-                'step_time' => $now->addSeconds($auction->bid_seconds)
-            ]);
+            if ($pending = Auction::query()->find($auction->id))
+                $pending->update([
+                    'status' => Auction::STATUS_ACTIVE,
+                    'step_time' => $now->addSeconds($auction->bid_seconds)
+                ]);
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();

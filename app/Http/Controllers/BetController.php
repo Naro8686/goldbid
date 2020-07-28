@@ -25,6 +25,5 @@ class BetController extends Controller
             }
         }
         BidJob::dispatchIf(($auction->winner()->nickname !== $user->nickname), $auction, $user->nickname, $user);
-        return response()->json(['bet' => Auth::user()->balance()->bet, 'bonus' => Auth::user()->balance()->bonus]);
     }
 }

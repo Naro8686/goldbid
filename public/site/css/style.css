@@ -1,6 +1,7 @@
 * {
     padding: 0;
     margin: 0;
+    font-family: sans-serif;
 }
 
 
@@ -234,15 +235,13 @@ button {
     border: none;
     outline: none;
     padding: 10px;
+    box-sizing: border-box;
 }
 
 form#register a {
     color: blue !important;
 }
 
-form#register p {
-    font-weight: bolder !important;
-}
 
 input[type="checkbox"].fail {
     box-shadow: inset 0px 0px 5px 0px red;

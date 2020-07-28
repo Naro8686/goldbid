@@ -12,13 +12,13 @@
             <form action="{{route('site.feedback')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <label for="name">Имя</label>
-                <input type="text" name="name" id="name" value="{{old('name')}}">
+                <input placeholder="Для зарегистрированных пользователей ник" type="text" name="name" id="name" value="{{old('name')}}">
                 @error('name')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror
                 <br><br>
                 <label for="email">E-mail</label>
-                <input type="email" name="email" id="email" value="{{old('email')}}">
+                <input placeholder="Для обратной связи" type="email" name="email" id="email" value="{{old('email')}}">
                 @error('email')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror
@@ -38,7 +38,7 @@
                 <br><br>
 
                 <label for="message">Сообщение</label>
-                <textarea name="message" id="message" cols="30" rows="10">{{old('message')}}</textarea>
+                <textarea placeholder="Напишите здесь то, что поможет нам понять и решить вашу проблему" name="message" id="message" cols="30" rows="10">{{old('message')}}</textarea>
                 @error('message')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror
@@ -52,11 +52,11 @@
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror
                 <div class="buttons">
-                    <input type="submit" value="отправить" style="margin-right: 5px">
                     <label>
                         <input type="file" name="file" id="uploade-file">
                         <span>Загрузить файл</span>
                     </label>
+                    <input type="submit" value="отправить">
                 </div>
                 @error('file')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>

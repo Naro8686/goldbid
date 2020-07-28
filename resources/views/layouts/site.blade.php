@@ -18,15 +18,23 @@
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="{{asset('js/app.js')}}"></script>
 </head>
-<body >
-@if (session('bonus_modal'))
+
+<body>
+
+@if ($bonus = session('bonus_modal'))
     <div class="notify__modal">
-        <div class="notify__item">
+        <div class="notify notify__item">
+            <div class="bonus__30"></div>
             <button class="notify__modal__btn__close btn__close">X</button>
-            <div class="notify__modal__body" style="text-align: center">
-                <p>Заполни персональные данные и получи на счет </p>
-                <h2>{{\App\Models\Balance::bonusCount(\App\Models\Balance::REGISTRATION_BONUS_REASON)}}
-                    <sup>Бонусов</sup></h2>
+            <div class="notify__modal__body">
+                <h3>Заполни персональные данные и
+                    получи на счет </h3>
+                <h2>
+                <span>
+                    {{$bonus}}
+                </span>
+                    Бонусов
+                </h2>
             </div>
             <div class="notify__modal__footer">
                 <a href="{{route('profile.personal')}}" class="button__app">Получить</a>
@@ -70,7 +78,7 @@
                                 <p>
                                     <label>Введите пароль
                                         <input type="password" name="password" autocomplete="new-password"
-                                               placeholder="Не более 8 символов">
+                                               placeholder="Не менее 8 символов">
                                     </label>
                                 </p>
                                 <p>
@@ -150,8 +158,8 @@
             @else
                 <div class="userin" id="user_{{auth()->id()}}">
                     <div class="balance">
-                        <p>Ставки:&nbsp<span class="phpbalance">{{auth()->user()->balance()->bet}}</span>&nbspшт</p>
-                        <p>Бонусы:&nbsp<span class="phpbonus">{{auth()->user()->balance()->bonus}}</span>&nbspшт</p>
+                        <p>Ставки:&nbsp<span class="phpbalance">{{auth()->user()->balance()->bet}}</span></p>
+                        <p>Бонусы:&nbsp<span class="phpbonus">{{auth()->user()->balance()->bonus}}</span></p>
                     </div>
                     <div class="accaunt">
                         <a href="{{route('profile.index')}}">
@@ -312,7 +320,7 @@
 </div>
 
 @if(!request()->hasCookie('cookiesPolicy'))
-    <div class="down-footer">
+    <div class="down-footer fix">
         <div class="agree_cookie">
             <div class="container">
                 <div>

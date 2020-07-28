@@ -226,6 +226,7 @@ button {
     box-shadow: inset 0px 0px 24px -10px rgba(0, 0, 0, 0.75);
     border: none;
     outline: none;
+    box-sizing: border-box;
 }
 
 .overlay .modal.open form input.sub {
@@ -522,11 +523,12 @@ button {
 
 .send-feedback {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+    /*align-items: center;*/
+    justify-content: space-between;
     margin: 0 auto;
-    width: 500px;
+    width: 100%;
 }
 
 .send-feedback p {
@@ -534,9 +536,19 @@ button {
 }
 
 .send-feedback form {
-    width: 500px;
+    width: 50%;
+    box-sizing: border-box;
+    padding: 20px;
 }
-
+.send-feedback .img_container{
+    width: 50% !important;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 85px 20px;
+}
+.send-feedback .img_container p{
+text-align: left;
+}
 .send-feedback textarea,
 .send-feedback input {
     width: 100%;
@@ -556,7 +568,7 @@ button {
 .send-feedback .buttons input[type ="submit"] {
     background: #1B8BCB;
     border: none;
-    margin-right: 5px;
+    margin-left: 5px;
     color: #ffffff;
     cursor: pointer;
 }
@@ -616,10 +628,12 @@ button {
     }
 
     .send-feedback {
-        max-width: 300px;
+        width: 100% !important;
     }
-
+.send-feedback .img_container{
+    width: 100% !important;
+}
     form {
-        max-width: 300px;
+        width: 100% !important;
     }
 }

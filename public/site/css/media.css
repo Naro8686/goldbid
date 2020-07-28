@@ -1,3 +1,9 @@
+
+@media only screen and (min-width: 320px) and (max-width : 410px) {
+    .bonus__30{
+        top: calc(-72vw/ 2) !important;
+    }
+}
 @media screen and (max-width: 417px) {
     .inf__active, .buy__now, .auto__bid, .info__my__bid, .log-bid {
         width: 100% !important;
@@ -190,7 +196,9 @@
     .personal-info > .personal-edit input, select {
         width: 100% !important;
     }
-
+    .personal-info > .personal-edit input[type="checkbox"] {
+        width: auto !important;
+    }
     .personal-info .personal-item-title {
         max-width: 100% !important;
     }

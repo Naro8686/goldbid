@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,7 +19,7 @@ class AutoBidJob implements ShouldQueue
      * AutoBidJob constructor.
      * @param AutoBid $active
      */
-    public AutoBid $active;
+    public $active;
     /**
      * @var mixed
      */
@@ -34,8 +33,8 @@ class AutoBidJob implements ShouldQueue
     public function __construct(AutoBid $active)
     {
         $this->active = $active;
-        $this->auction = $this->active->auction;
-        $this->user = $this->active->user;
+//        $this->auction = $this->active->auction;
+//        $this->user = $this->active->user;
     }
 
     /**
@@ -47,8 +46,8 @@ class AutoBidJob implements ShouldQueue
     public function handle()
     {
         $autoBid = $this->active;
-        $user = $this->user;
-        $auction = $this->auction;
+        $user = $autoBid->user;
+        $auction = $autoBid->auction;
         $balance = $user->balance();
         if ($autoBid->count <= 0 ||
             ($balance->bet + $balance->bonus) <= 0 ||
@@ -57,10 +56,12 @@ class AutoBidJob implements ShouldQueue
         } else {
             try {
                 DB::beginTransaction();
-                if ($autoBid->update([
-                    'count' => ($autoBid->count - 1),
-                ]))
-                    BidJob::dispatchNow($auction, $user->nickname, $user);
+                if ($auction->winner()->nickname !== $user->nickname) {
+                    if ($autoBid->update(['count' => ($autoBid->count - 1)]))
+                        BidJob::dispatchNow($auction, $user->nickname, $user);
+                } else {
+                    $autoBid->touch();
+                }
                 DB::commit();
             } catch (\Exception $exception) {
                 DB::rollBack();

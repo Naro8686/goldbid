@@ -23,18 +23,18 @@
 
             <br>
             <hr>
+            <p class="title" style="text-align: center">Оставить отзыв</p>
             <div class="send-feedback">
-                <p class="title">Оставить отзыв</p>
-                <form action="{{route('site.reviews')}}" method="POST" enctype="multipart/form-data">
+                <form action="{{route('site.reviews')}}" method="POST" enctype="multipart/form-data" style="display: flex;flex-direction: column">
                     @csrf
                     <label for="name">Имя</label>
-                    <input type="text" name="name" id="name" value="{{old('name')}}">
+                    <input type="text" placeholder="Для зарегистрированных пользователей ник" name="name" id="name" value="{{old('name')}}">
                     @error('name')
                     <small class="alert alert-danger" role="alert">{{ $message }}</small>
                     @enderror
                     <br><br>
                     <label for="email">E-mail</label>
-                    <input type="email" name="email" id="email" value="{{old('email')}}">
+                    <input type="email" placeholder="Для обратной связи" name="email" id="email" value="{{old('email')}}">
                     @error('email')
                     <small class="alert alert-danger" role="alert">{{ $message }}</small>
                     @enderror
@@ -54,16 +54,20 @@
                     <small class="alert alert-danger" role="alert">{{ $message }}</small>
                     @enderror
                     <div class="buttons">
-                        <input type="submit" value="отправить">
                         <label>
                             <input type="file" name="file" id="uploade-file">
                             <span>Загрузить фото</span>
                         </label>
+                        <input type="submit" value="отправить">
                         @error('file')
                         <small class="alert alert-danger" role="alert">{{ $message }}</small>
                         @enderror
                     </div>
                 </form>
+                <div class="img_container">
+                    <img alt="img" src="{{asset('site/img/settings/pen.png')}}">
+                    <p>Если Вам понравился наш аукцион , или наоборот, есть замечания , напишите об этом . За развёрнутый и обоснованный отзыв мы начислим Вам бонусы ! много бонусов !</p>
+                </div>
             </div>
         </div>
     </div>

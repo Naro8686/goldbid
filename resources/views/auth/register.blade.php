@@ -23,7 +23,7 @@
             </label>
             <label>Введите пароль
                 <input type="password" name="password" autocomplete="new-password"
-                       placeholder="Не более 8 символов">
+                       placeholder="Не менее 8 символов">
                 @error('password')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror

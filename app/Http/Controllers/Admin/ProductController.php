@@ -306,7 +306,7 @@ class ProductController extends Controller
             'bot_shutdown_price' => $product->bot_shutdown_price,
             'bid_seconds' => $product->step_time,
             'step_price' => $product->step_price,
-            'top' => $product->top,
+            'top' => (bool)$product->top,
             'start' => Carbon::now()->addMinutes((int)$product->to_start),
             'exchange' => (bool)$product->exchange,
             'buy_now' => (bool)$product->buy_now,

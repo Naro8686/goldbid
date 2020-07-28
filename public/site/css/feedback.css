@@ -226,6 +226,7 @@ button {
     box-shadow: inset 0px 0px 24px -10px rgba(0, 0, 0, 0.75);
     border: none;
     outline: none;
+    box-sizing: border-box;
 }
 
 .overlay .modal.open form input.sub {
@@ -396,7 +397,7 @@ button {
 
 @media screen and (max-width: 575.98px) {
     .main .container form {
-        width: 300px;
+        width: 100%;
     }
 }
 

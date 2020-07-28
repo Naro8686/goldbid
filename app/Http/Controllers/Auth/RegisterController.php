@@ -15,7 +15,9 @@ class RegisterController extends Controller
 {
     protected $rules = [
         'nickname.unique' => 'этот ник уже занят',
+        'nickname.required' => 'Это поля обезательно для заполнения ',
         'phone.unique' => 'этот номер уже используется',
+        'password.min' => 'Пароль должен быть не менее 8 символов',
         'g-recaptcha-response.required' => 'проверка captcha не пройдена',
     ];
     /*

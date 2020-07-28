@@ -3,10 +3,18 @@
 
     <div class="right personal tabContent" style="font-size:14px;">
         <div class="title">Персональные данные</div>
-        <div
-            style="color: #1b8bcb;text-transform: uppercase;margin: 10px;width: 100%;font-size: 12px;font-weight: 600;display: block;justify-content: inherit;text-align: center">
-            Заполните все поля регистрационнной анкеты. Не вводите фиктивные данные.
-        </div>
+        @if($user->fullProfile())
+            <div
+                style="color: #1b8bcb;text-transform: uppercase;margin-top: 30px;width: 100%;font-size: 15px;font-weight: 600;display: block;justify-content: inherit;text-align: center">
+                По этим реквизитам мы отправим вам приобретенные товары
+            </div>
+        @else
+            <div
+                style="color: #d41642;text-transform: uppercase;margin-top: 30px;width: 100%;font-size: 12.5px;font-weight: 600;display: block;justify-content: inherit;text-align: center">
+                Заполните все поля регистрационнной анкеты. Не вводите фиктивные данные.
+            </div>
+        @endif
+
         @if (session('status'))
             <b style="color: green">
                 {{ session('status') }}
@@ -111,7 +119,7 @@
                             <span class="personal-item-title">Введите адрес:</span>
                             <input type="email" class="@error('email')is-invalid @enderror"
                                    name="email" id="email"
-                                   placeholder="name@example.com"
+                                   placeholder="Pochta@gmail.com"
                                    value="{{old('email')??$user->email}}">
                         </label>
                         @if($user->email && !$user->email_code_verified)

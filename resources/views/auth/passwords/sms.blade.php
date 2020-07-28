@@ -34,7 +34,7 @@
             .main form h1 {
                 font-size: 24px;
                 margin-top: 0;
-                text-align: center;
+                /*text-align: center;*/
             }
 
             .main form input[type="text"], .main form input[type="password"] {
@@ -49,6 +49,7 @@
                 margin: 5px 0;
                 padding: 5px;
                 width: 100%;
+                box-sizing: border-box !important;
             }
 
             .main form p {
@@ -77,7 +78,7 @@
                 <p class="warning">{{session('error')}}</p>
             @endif
             @if (!session('reset_id'))
-                <label for="phone_number">Введите логин
+                <label for="phone_number">Введите номер телефона
                     <input type="text" id="phone_number" name="phone" value="{{old('phone')}}">
                 </label>
                 @error('phone')

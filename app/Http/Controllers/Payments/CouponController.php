@@ -57,14 +57,15 @@ class CouponController extends Controller
             ]);
         $referred = $this->user->referred()->first();
         if ($referred && $this->user->fullProfile() && $referred->pivot->referral_bonus === 0) {
-            $referred->pivot->update(['referral_bonus' => Balance::bonusCount(Balance::REFERRAL_BONUS_REASON)]);
+            $referralBonus = $coupon->bet / 2;
+            $referred->pivot->update(['referral_bonus' => $referralBonus]);
             $referred->balanceHistory()->create(['bonus' => $referred->pivot->referral_bonus, 'reason' => Balance::REFERRAL_BONUS_REASON]);
         }
         /** @var CouponOrder $coupon_order */
         try {
             Mail::to(config('mail.from.address'))->later(5, new CouponOrderSendMail($coupon_order));
-        }catch (\Throwable $exception){
-            Log::info('order_coupon'.$exception->getMessage());
+        } catch (\Throwable $exception) {
+            Log::info('order_coupon' . $exception->getMessage());
         }
         return redirect()->back();
     }

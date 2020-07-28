@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\General\CollectionHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\MailingSendMail;
+use App\Models\Auction\Auction;
 use App\Models\Balance;
 use App\Models\Mailing;
 use App\Models\User;
@@ -60,7 +62,7 @@ class ProfileController extends Controller
                 $request->validate([
                     'file' => ['image', 'mimes:jpeg,jpg,png,gif,svg', 'max:2048'],
                 ]);
-            } else if ($request->hasAny(['current_password', 'new_password', 'new_confirm_password'])) {
+            } elseif ($request->hasAny(['current_password', 'new_password', 'new_confirm_password'])) {
                 $request->validate([
                     'current_password' => ['required', new OldPasswordRule],
                     'new_password' => ['required', 'min:8'],
@@ -73,6 +75,8 @@ class ProfileController extends Controller
                 if ($request['avatar'] && is_file(public_path($this->user->avatar))) unlink(public_path($this->user->avatar));
             }
             $this->user->update($request->only(['avatar', 'password']));
+            if ($request->ajax() && $request->hasFile('file'))
+                return response()->json(['success' => true], 200);
             return redirect()->back()->with('status', 'Изменения успешно сохранились ');
         }
         $mailings = Mailing::ads();
@@ -112,29 +116,31 @@ class ProfileController extends Controller
     {
         $balance = $this->user->balanceHistory()
             ->where('type', Balance::PLUS)
-            ->paginate(10);
+            ->paginate(14);
         return view('user.balance', compact('balance'));
     }
 
     public function auctionsHistory()
     {
-        $bids = $this->user->bid->groupBy('auction_id');
-
-        $bids = $bids->map(function ($item) {
-            return collect([
-                'bonus' => $item->sum('bonus'),
-                'bet' => $item->sum('bet'),
-                'win' => (bool)$item->where('win', true)->count(),
-                'title' => $item->sortDesc()->first()->title,
-                'end' => $item->sortDesc()->first()->created_at->format('Y-m-d H:i:s')
-            ]);
-        });
+        $bids = $this->user->bid()
+            ->get()
+            ->groupBy('auction_id')
+            ->map(function ($item) {
+                return collect([
+                    'bonus' => $item->sum('bonus'),
+                    'bet' => $item->sum('bet'),
+                    'win' => (bool)$item->where('win', true)->count(),
+                    'title' => $item->sortDesc()->first()->title,
+                    'end' => $item->sortDesc()->first()->created_at->format('Y-m-d H:i:s')
+                ]);
+            });
+        $bids = CollectionHelper::paginate($bids, 14);
         return view('user.auctions_history', compact('bids'));
     }
 
     public function referralProgram()
     {
-        $referrals = $this->user->referrals;
+        $referrals = $this->user->referrals()->paginate(14);
         return view('user.referral_program', compact('referrals'));
     }
 
@@ -179,7 +185,7 @@ class ProfileController extends Controller
             if (!empty($this->user->email)) {
                 try {
                     $request['theme'] = Setting::feedbackTheme($request['theme']);
-                    Mail::to($this->user->email)->later(5, new MailingSendMail(Mailing::MAIL_CONFIRM,[],$this->user));
+                    Mail::to($this->user->email)->later(5, new MailingSendMail(Mailing::MAIL_CONFIRM, [], $this->user));
                 } catch (Exception $exception) {
                     $text = 'что то пошло не так !';
                     $status = 'error';

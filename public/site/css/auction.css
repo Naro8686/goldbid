@@ -222,6 +222,7 @@ button {
     box-shadow: inset 0px 0px 24px -10px rgba(0, 0, 0, 0.75);
     border: none;
     outline: none;
+    box-sizing: border-box;
 }
 
 .overlay .modal.open form input.sub {
@@ -692,6 +693,7 @@ button {
     font-weight: bold;
     font-size: xx-large;
     min-width: 90px;
+    text-align: center;
 }
 
 .inf__active button {

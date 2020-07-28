@@ -102,11 +102,10 @@ class AuctionController extends Controller
         } else {
             if (!is_null($request['count'])) {
                 $bid = $auto_bid->create(['status' => $status, 'user_id' => $user->id, 'count' => $request['count']]);
-                $bid = $bid->first();
+                $bid = $bid->where('user_id' , $user->id)->first();
             }
         }
         if (!is_null($bid) && $auction->winner()->nickname !== $bid->user->nickname) {
-
             BidJob::dispatchIf($bid->update(['count' => $bid->count - 1]), $auction, $bid->user->nickname, $bid->user);
         }
 
