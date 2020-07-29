@@ -43,7 +43,7 @@ trait ImageTrait
         $image_name = time() . '.' . $image->getClientOriginalExtension();
         $urlPath = asset($path);
         $path = public_path($path);
-        if (!is_dir($path)) mkdir($path, 755, true);
+        if (!is_dir($path)) mkdir($path, 0755, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
@@ -58,7 +58,7 @@ trait ImageTrait
     public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0)
     {
         $image_name = md5(rand(1, time())) . '.' . $image->getClientOriginalExtension();
-        if (!is_dir(public_path($path))) mkdir(public_path($path), 777, true);
+        if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
