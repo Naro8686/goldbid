@@ -11,7 +11,7 @@
                  alt="{{$auction['images'][0]['alt']}}">
         </a>
         <div class="name">
-            <a title="Подсказка" href="{{route('auction.index',$auction['id'])}}">{{$auction['title']}}</a>
+            <a title="{{$auction['title']}}" href="{{route('auction.index',$auction['id'])}}">{{$auction['title']}}</a>
         </div>
         <div class="short__desc">
             <span>{{$auction['short_desc']}}</span>

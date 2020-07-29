@@ -454,6 +454,10 @@ input[type="checkbox"].fail {
 .auction .card .name a {
     color: #494949;
     width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 5px;
+    text-overflow: ellipsis;
 }
 
 .auction .card .info {
