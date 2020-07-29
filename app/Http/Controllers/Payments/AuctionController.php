@@ -150,6 +150,7 @@ class AuctionController extends Controller
         $step = Step::all()->where('type', $type)->where('step', 2)->first();
         if ($type === Step::PRODUCT) {
             $replace['title'] = $auction->title;
+            $data['country'] = $user->country;
             $data['postcode'] = $user->postcode;
             $data['region'] = $user->region;
             $data['city'] = $user->city;
@@ -172,6 +173,7 @@ class AuctionController extends Controller
         $data['fname'] = $user->fname;
         $data['mname'] = $user->mname;
         if ($type === Step::PRODUCT) {
+            $data['country'] = $user->country;
             $data['postcode'] = $user->postcode;
             $data['region'] = $user->region;
             $data['city'] = $user->city;

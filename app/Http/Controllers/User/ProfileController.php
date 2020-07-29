@@ -89,22 +89,23 @@ class ProfileController extends Controller
         if ($request->isMethod('POST')) {
             $request['email'] = empty($this->user->email) ? $request['email'] : $this->user->email;
             $request->validate([
-                'fname' => ['nullable', 'sometimes', 'string', 'min:5', 'max:50'],
-                'lname' => ['nullable', 'string', 'min:5', 'max:50'],
-                'mname' => ['nullable', 'string', 'min:5', 'max:50'],
+                'fname' => ['nullable', 'sometimes', 'string', 'min:3', 'max:50'],
+                'lname' => ['nullable', 'string', 'min:3', 'max:50'],
+                'mname' => ['nullable', 'string', 'min:3', 'max:50'],
                 'gender' => ['nullable', 'string', 'regex:/^(male|female)/'],
                 'birthday' => ['nullable', 'date', 'date_format:Y-m-d', 'before:16 years ago'],
                 'postcode' => ['nullable', 'digits_between:4,10'],
-                'region' => ['nullable', 'string', 'min:5', 'max:50'],
-                'city' => ['nullable', 'string', 'min:5', 'max:50'],
-                'street' => ['nullable', 'string', 'min:5', 'max:50'],
+                'region' => ['nullable', 'string', 'min:3', 'max:50'],
+                'country' => ['nullable', 'string', 'min:3', 'max:50'],
+                'city' => ['nullable', 'string', 'min:3', 'max:50'],
+                'street' => ['nullable', 'string', 'min:3', 'max:50'],
                 'email' => ['nullable', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
                 'payment_type' => ['nullable', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
                 'ccnum' => ['nullable', 'digits_between:8,16'],
             ]);
             $this->user->update($request->only([
                 'lname', 'fname', 'mname', 'gender',
-                'birthday', 'postcode', 'region', 'city',
+                'birthday', 'postcode', 'region', 'city','country',
                 'street', 'email', 'payment_type', 'ccnum'
             ]));
             return redirect()->back()->with('status', 'Изменения успешно сохранились ');

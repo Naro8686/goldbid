@@ -129,16 +129,16 @@
                     <input type="text" class="form-control m-2" value="{{$data['birthday']}}" readonly>
                 </div>
             </div>
-{{--            <div class="row">--}}
-{{--                <div class="col-md-4">--}}
-{{--                    <p class="m-2">--}}
-{{--                        Страна--}}
-{{--                    </p>--}}
-{{--                </div>--}}
-{{--                <div class="col-md-8">--}}
-{{--                    <input type="text" class="form-control m-2" value="{{$data['city']}}" readonly>--}}
-{{--                </div>--}}
-{{--            </div>--}}
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="m-2">
+                        Страна
+                    </p>
+                </div>
+                <div class="col-md-8">
+                    <input type="text" class="form-control m-2" value="{{$data['country']}}" readonly>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-4">
                     <p class="m-2">
@@ -151,7 +151,7 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <p class="m-2">Край/Область</p>
+                    <p class="m-2">Регион</p>
                 </div>
                 <div class="col-md-8">
                     <input type="text" class="form-control m-2" value="{{$data['region']}}" readonly>

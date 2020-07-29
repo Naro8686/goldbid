@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 40px;
+  /*padding: 40px;*/
   position: fixed;
   top: 0;
   left: 0;
@@ -48,7 +48,7 @@
   margin-top: 0;
 }
 /*style.css*/
-.overlay .modal.open form {
+.overlay .modal form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,24 +59,24 @@
     box-shadow: 0px 0px 24px -4px rgba(0, 0, 0, 0.75);
 }
 
-.overlay .modal.open form h1 {
+.overlay .modal form h1 {
     margin-bottom: 10px;
 }
 
-.overlay .modal.open form p {
+.overlay .modal form p {
     display: block;
     margin-bottom: 10px;
     width: 100%;
     text-align: left;
 }
 
-.overlay .modal.open form input {
+.overlay .modal form input {
     margin: 5px 0;
     padding: 5px;
     width: 100%;
 }
 
-.overlay .modal.open form input[type="text"], .overlay .modal.open form input[type="password"] {
+.overlay .modal form input[type="text"], .overlay .modal form input[type="password"] {
     -webkit-box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);
     -moz-box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);
     box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.77);

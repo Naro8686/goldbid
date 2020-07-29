@@ -71,45 +71,6 @@
         </div>
     </div>
     @push('js')
-        <script>
-            (function () {
-                let uploader = document.createElement('input'),
-                    image = document.getElementById('img-result'),
-                    avatar = document.getElementById('avatar');
-                uploader.type = 'file';
-                uploader.accept = 'image/*';
-                image.onclick = function () {
-                    uploader.click();
-                }
-                uploader.onchange = function () {
-                    let reader = new FileReader();
-                    let form = new FormData();
-                    reader.onload = function (evt) {
-                        image.classList.remove('no-image');
-                        image.style.backgroundImage = 'url(' + evt.target.result + ')';
-                        avatar.style.backgroundImage = 'url(' + evt.target.result + ')';
-                    }
-                    form.append('file', uploader.files[0]);
-                    $.ajax({
-                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                        url: "{{route('profile.index')}}",
-                        method: "POST",
-                        data: form,
-                        dataType: 'JSON',
-                        contentType: false,
-                        cache: false,
-                        processData: false,
-                        success: function (data) {
-                            if (data.success === true) {
-                                reader.readAsDataURL(uploader.files[0]);
-                            }
-                        },
-                        error: function (err) {
-                            window.location.reload();
-                        }
-                    })
-                }
-            })();
-        </script>
+        <script src="{{asset('site/js/profile.js')}}"></script>
     @endpush
 @endsection

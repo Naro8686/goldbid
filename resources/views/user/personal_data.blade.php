@@ -73,6 +73,12 @@
                     <p>Адрес доставки *</p>
                 </div>
                 <div class="personal-edit">
+                    <label class="personal-item" for="country">
+                        <span class="personal-item-title">Страна:</span>
+                        <input type="text" class="@error('country')is-invalid @enderror"
+                               name="country" value="{{old('country')??$user->country}}"
+                               id="country">
+                    </label>
                     <label class="personal-item" for="postcode">
                         <span class="personal-item-title">Почтовый индекс:</span>
                         <input type="text" class="@error('postcode')is-invalid @enderror"
@@ -80,7 +86,7 @@
                                id="postcode">
                     </label>
                     <label class="personal-item" for="region">
-                        <span class="personal-item-title">Край/Область:</span>
+                        <span class="personal-item-title">Регион:</span>
                         <input type="text" class="@error('region')is-invalid @enderror"
                                value="{{old('region')??$user->region}}" name="region"
                                id="region">
@@ -92,7 +98,7 @@
                                name="city" id="city">
                     </label>
                     <label class="personal-item" for="street">
-                        <span class="personal-item-title">Улица, дом/кв:</span>
+                        <span class="personal-item-title">Адрес:</span>
                         <input type="text" class="@error('street')is-invalid @enderror"
                                value="{{old('street')??$user->street}}"
                                name="street" id="street">
@@ -185,17 +191,5 @@
             <input type="hidden" value="" name="code">
         </form>
     </div>
-    @push('js')
-        <script>
-            $(document).ready(function () {
-                $('#check__code').click(function () {
-                    let code = $(this).prev().val();
-                    let form = $('form#send__code_check');
-                    let input = form.find('input[name="code"]');
-                    if (code !== '' && input.val(code)) form.submit();
-                });
-            });
-        </script>
-    @endpush
 @endsection
 

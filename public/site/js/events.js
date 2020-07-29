@@ -30,13 +30,14 @@ Echo.channel('goldbid_database_bet-auction')
                     if (user_page.length) {
                         user_page.find('.phpbalance').text(user.bet);
                         user_page.find('.phpbonus').text(user.bonus);
-
-                        console.log(user_page.closest('body').find(auction_page));
-                        user_page.closest('body').find(auction_page).children('.bet').text(user.auction_bet);
-                        user_page.closest('body').find(auction_page).children('.bonus').text(user.auction_bonus);
-                        user_page.closest('body').find(auction_page).children('.buy__now_price').text(user.full_price);
-                        user_page.closest('body').find(auction_page).children('.auto__bid_inp').val(user.auto_bid);
-
+                        let user_auction_page = user_page.closest('body').find($(auction_page));
+                        if (user_auction_page.length){
+                            let elements = user_page.closest('body').find($(auction_page)).contents();
+                            elements.find('.bet').text(user.auction_bet);
+                            elements.find('.bonus').text(user.auction_bonus);
+                            elements.find('.buy__now_price').text(user.full_price);
+                            elements.find('.auto__bid_inp').val(user.auto_bid);
+                        }
                     }
                 }
             }

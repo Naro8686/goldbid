@@ -19,6 +19,9 @@
             :</b> {{$auction_order->user->fname ?? ''}} {{$auction_order->user->fname ?? ''}} {{$auction_order->user->mname ?? ''}}
     </p>
     <p>
+        <b>Страна :</b> {{$auction_order->user->country ?? ''}}
+    </p>
+    <p>
         <b>Индекс :</b> {{$auction_order->user->postcode ?? ''}}
     </p>
     <p>

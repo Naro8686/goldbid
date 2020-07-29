@@ -39,19 +39,12 @@
             </div>
         @else
             <div class="list-ref">
-                <p>Что бы получить реферальную ссылку необходимо заполнить свои
-                    <a href="{{route('profile.personal')}}" style="color: #1B8BCB;">персональные данные</a>
-                    помеченные знаком * и приобрести любой
+                <p>Чтобы получить реферальную ссылку, необходимо заполнить свои
+                    <a href="{{route('profile.personal')}}" style="color: #1B8BCB;">персональные данные</a>,
+                    помеченные знаком *, и приобрести любой
                     <a href="{{route('site.coupon')}}" style="color: #1B8BCB; ">пакет ставок</a>.
                 </p>
             </div>
         @endif
     </div>
-    @push('js')
-        <script>
-            document.getElementById("copyButton").addEventListener("click", function () {
-                copyToClipboard(document.getElementById("ref-link"));
-            });
-        </script>
-    @endpush
 @endsection

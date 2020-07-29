@@ -38,11 +38,15 @@
                         @endif
                         @if($data['type'] === \App\Models\Auction\Step::PRODUCT)
                             <tr>
-                                <td>Почтовый индекс:</td>
+                                <td>Страна:</td>
+                                <td>{{$data['country']}}</td>
+                            </tr>
+                            <tr>
+                                <td>Индекс:</td>
                                 <td>{{$data['postcode']}}</td>
                             </tr>
                             <tr>
-                                <td>Край/Область:</td>
+                                <td>Регион:</td>
                                 <td>{{$data['region']}}</td>
                             </tr>
                             <tr>
@@ -50,7 +54,7 @@
                                 <td>{{$data['city']}}</td>
                             </tr>
                             <tr>
-                                <td>Улица дом/кв:</td>
+                                <td>Адрес:</td>
                                 <td>{{$data['street']}}</td>
                             </tr>
                             <tr>

@@ -25,8 +25,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'is_admin', 'has_ban', 'nickname', 'avatar',
-        'fname', 'lname', 'mname',
-        'phone', 'postcode', 'region', 'city',
+        'fname', 'lname', 'mname', 'phone',
+        'country', 'postcode', 'region', 'city',
         'street', 'gender', 'birthday', 'sms_code',
         'sms_verified_at', 'email', 'email_verified_at',
         'password', 'remember_token', 'is_online',
@@ -135,7 +135,7 @@ class User extends Authenticatable
 
         return collect([
             'count' => $users->count(),
-            'active' => Bid::query()->whereIn('user_id',$users->pluck('id'))->distinct('user_id')->count(),
+            'active' => Bid::query()->whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
             'banned' => $users->where('has_ban', true)->count(),
             'online' => $users->where('is_online', '>=', now())->count()
         ]);
@@ -158,6 +158,7 @@ class User extends Authenticatable
             'fname' => $this->fname,
             'mname' => $this->mname,
             'gender' => $this->gender === 'female' ? 'Ж' : 'М',
+            'country' => $this->country,
             'city' => $this->city,
             'postcode' => $this->postcode,
             'region' => $this->region,
@@ -165,7 +166,7 @@ class User extends Authenticatable
             'birthday' => $this->birthday ? $this->birthday->format('Y-m-d') : '',
             'phone' => $this->login(),
             'email' => $this->email,
-            'win' => $this->bid()->where('win',true)->count(),
+            'win' => $this->bid()->where('win', true)->count(),
             'participation' => $this->bid()->distinct('auction_id')->count(),
             'has_ban' => $this->has_ban ? 'да' : 'нет',
             'bet' => $this->balance()->bet,
@@ -212,7 +213,7 @@ class User extends Authenticatable
 
     public function autoBid()
     {
-        return $this->hasMany( AutoBid::class);
+        return $this->hasMany(AutoBid::class);
     }
 
     public function bid()
@@ -252,8 +253,8 @@ class User extends Authenticatable
         $data = array_filter([
             $this->fname, $this->lname, $this->mname,
             $this->phone, $this->postcode, $this->region,
-            $this->city, $this->street, $this->gender,
-            $this->birthday, $this->email_code_verified,
+            $this->country,$this->city, $this->street,
+            $this->gender, $this->birthday, $this->email_code_verified,
         ], static function ($var) {
             return $var === null;
         });
