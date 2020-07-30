@@ -8,6 +8,8 @@
                 </div>
                 <div class="info__container">
                     <div class="info__container_absolute">
+                        <span
+                            style="width: 24px;height: 8px;color: #575656;font-size: 14px;font-weight: 400;;position: absolute;top: 110px;">или</span>
                         <div class="left__item">
                             <p>{{$data['price']}}</p>
                             <span style="font-size: 23px;font-weight: 400;padding: 5px;">рублей</span>
