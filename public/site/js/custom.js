@@ -37,26 +37,29 @@ $(document).on('click', '.btn.active,.inf__active button', function (e) {
     if (auction_id)
         $.get(`${URL}/bet/${auction_id}`, (data) => {
             if (data) {
-                if (data.error)
-                    $('.response').html(data.error)
-                else {
-                    $('.balance span.phpbalance').html(data.bet);
-                    $('.balance span.phpbonus').html(data.bonus);
-                }
-
+                $('.response').empty().html(data);
             }
         });
-})
+});
+$(document).mouseup(function (e) {
+    if ($(e.target).closest(".notify__item").length === 0) {
+        let modal = $('.notify__modal');
+        modal.toggleClass('close');
+        modal.closest('.response').empty();
+    }
+});
 $(document).on('click', '.notify__modal__btn__close', function () {
     let btn = $(this);
     let modal = btn.closest('.notify__modal');
     modal.toggleClass('close');
+    modal.closest('.response').empty();
 });
 $(document).on('click', '.my___win', function (e) {
     e.preventDefault();
     let auction_id = $(this).data('id');
+
     $.get(`${URL}/payment/${auction_id}/win-info`, function (data) {
-        $('.response').html(data)
+        $('.response').empty().html(data);
     });
 });
 
@@ -65,9 +68,10 @@ $(document).on('click', '.favorites', function (e) {
     let favorite = $(this).children();
     let auction_id = favorite.closest('.card').attr('data-auction-id');
     let home_page = $('#home_page');
+
     $.post(`${URL}/${auction_id}/add-favorite`, function (data) {
         favorite.toggleClass('active');
-        home_page.html(data);
+        home_page.empty().html(data);
         countdown(home_page);
     });
 });
@@ -160,11 +164,11 @@ function ChangeStatus(id = null) {
     let auction_page = $('#auction_page[data-auction-id="' + id + '"]');
     $.post(url, function (data) {
         if (data.home_page) {
-            home_page.html(data.home_page);
+            home_page.empty().html(data.home_page);
             countdown(home_page);
         }
         if (data.auction_page) {
-            auction_page.html(data.auction_page);
+            auction_page.empty().html(data.auction_page);
             countdown(auction_page);
         }
     });

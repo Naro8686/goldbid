@@ -16,14 +16,6 @@ class BetController extends Controller
         /** @var User $user */
         $auction = Auction::query()->findOrFail($id);
         $user = Auth::user();
-        if ($user->auctionOrder()->where('auction_id', $id)->where('status', '<>', Order::PENDING)->exists()) {
-            try {
-                $html = view('site.include.info_modal')->with('message', 'Вы уже приобрели этот товар , и больше не можете совершать дествия в данном аукционе .')->render();
-                return response()->json(['error' => $html]);
-            } catch (\Throwable $e) {
-                dd($e->getMessage());
-            }
-        }
         BidJob::dispatchIf(($auction->winner()->nickname !== $user->nickname), $auction, $user->nickname, $user);
     }
 }

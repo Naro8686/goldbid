@@ -30,11 +30,7 @@ class AuctionController extends Controller
         $data = [];
         $user = User::query()->findOrFail(Auth::id());
         $auction = Auction::auctionPage($id);
-
         if (!$auction['my_win']) return abort(403);
-        if ($user->auctionOrder()->where('auction_id', $id)->where('status', '<>', Order::PENDING)->exists()) {
-            return view('site.include.info_modal')->with('message', 'Вы уже приобрели этот товар , и больше не можете совершать дествия в данном аукционе .')->render();
-        }
         $data['id'] = $auction['id'];
         $data['image'] = $auction['images'][0]['img'];
         $data['alt'] = $auction['images'][0]['alt'];
@@ -42,39 +38,35 @@ class AuctionController extends Controller
         $data['price'] = $auction['price'];
         $data['bet'] = $auction['exchangeBetBonus']['bet'];
         $data['bonus'] = $auction['exchangeBetBonus']['bonus'];
-        if ($request->ajax()) {
+        if ((bool)$request["exchange"]) {
             try {
-                $modal = view('site.include.winner_modal', compact('data'))->render();
-            } catch (\Throwable $e) {
-                $modal = $e->getMessage();
-            }
-            return response()->json($modal);
-        } else {
-            if ((bool)$request["exchange"]) {
-                try {
-                    DB::beginTransaction();
-                    $user->balanceHistory()->create([
-                        'type' => Balance::PLUS,
-                        'bet' => $data['bet'],
-                        'bonus' => $data['bonus'],
-                        'reason' => Balance::EXCHANGE_REASON,
+                DB::beginTransaction();
+                $user->auctionOrder()
+                    ->create([
+                        'status' => Order::SUCCESS,
+                        'exchanged' => true,
+                        'auction_id' => $auction['id']
                     ]);
-
-                    if (!$user->auctionOrder()->where('auction_id', $auction['id'])->exists()) {
-                        $user->auctionOrder()
-                            ->where('auction_id', $auction['id'])
-                            ->firstOrCreate([
-                                'status' => Order::SUCCESS,
-                                'exchanged' => true,
-                                'auction_id' => $auction['id']
-                            ]);
-                    }
-                    DB::commit();
-                } catch (\Exception $exception) {
-                    DB::rollBack();
-                }
+                $user->balanceHistory()->create([
+                    'type' => Balance::PLUS,
+                    'bet' => $data['bet'],
+                    'bonus' => $data['bonus'],
+                    'reason' => Balance::EXCHANGE_REASON,
+                ]);
+                DB::commit();
+            } catch (\Exception $exception) {
+                DB::rollBack();
             }
             return redirect()->route('profile.balance');
+        } else {
+            if ($request->ajax()) {
+                try {
+                    $modal = view('site.include.winner_modal', compact('data'))->render();
+                } catch (\Throwable $e) {
+                    $modal = $e->getMessage();
+                }
+                return response()->json($modal);
+            }
         }
     }
 
@@ -85,20 +77,7 @@ class AuctionController extends Controller
         /** @var Order $order */
         $auction = Auction::query()->where('active', true)->findOrFail($id);
         $user = User::query()->findOrFail(Auth::id());
-        if ($user->auctionOrder()->where('auction_id', $id)->where('status', '<>', Order::PENDING)->exists()) {
-            return redirect()->back()->with('message', 'Вы уже приобрели этот товар , и больше не можете совершать дествия в данном аукционе .');
-        } else {
-            $order = $user->auctionOrder()->where('auction_id', '=', $auction->id)->first();
-            if (is_null($order)) {
-                $order = $user->auctionOrder()
-                    ->create([
-                        'order_num' => Setting::orderNumAuction($user->id),
-                        'status' => Order::PENDING,
-                        'exchanged' => false,
-                        'auction_id' => $auction->id
-                    ]);
-            }
-        }
+
         $request->validate([
             'step' => ['required', 'integer', 'between:1,3']
         ]);
@@ -106,19 +85,30 @@ class AuctionController extends Controller
         $winner = ($auction->status === Auction::STATUS_FINISHED)
             ? ($auction->winner()->nickname === $user->nickname)
             : false;
+        $order = $user->auctionOrder()->where('auction_id', '=', $auction->id)->first();
+        if (is_null($order)) {
+            $order = $user
+                ->auctionOrder()
+                ->create([
+                    'order_num' => Setting::orderNumAuction($user->id),
+                    'status' => Order::PENDING,
+                    'exchanged' => false,
+                    'auction_id' => $auction->id
+                ]);
+        }
         $type = $auction->type();
         if ($type !== Step::PRODUCT && !$winner) return abort(404);
         switch ($step) {
             case 1:
-                return $this->stepOne($auction, $user, $order, $winner, $type);
+                return $this->stepOne($auction, $user, $order, $winner);
             case 2:
-                return $this->stepTwo($auction, $user, $order, $winner, $type);
+                return $this->stepTwo($auction, $user, $type);
             case 3:
-                return $this->stepThree($auction, $user, $order, $winner, $type);
+                return $this->stepThree($auction, $user, $order, $type);
         }
     }
 
-    public function stepOne(Auction $auction, User $user, Order $order, bool $winner, $type, $data = [])
+    public function stepOne(Auction $auction, User $user, Order $order, bool $winner, $data = [])
     {
         $step = Step::all()->where('for_winner', $winner)->where('step', 1)->first();
         $data['text'] = $step->textReplace(['title' => $auction->title]);
@@ -140,7 +130,7 @@ class AuctionController extends Controller
         return view('site.order.step_1', compact('data'));
     }
 
-    public function stepTwo(Auction $auction, User $user, Order $order, bool $winner, $type, $data = [])
+    public function stepTwo(Auction $auction, User $user, $type, $data = [])
     {
         $data['auction_id'] = $auction->id;
         $data['type'] = $type;
@@ -167,7 +157,7 @@ class AuctionController extends Controller
         return view('site.order.step_2', compact('data'));
     }
 
-    public function stepThree(Auction $auction, User $user, Order $order, bool $winner, $type, $data = [])
+    public function stepThree(Auction $auction, User $user, Order $order, $type, $data = [])
     {
         $data['lname'] = $user->lname;
         $data['fname'] = $user->fname;

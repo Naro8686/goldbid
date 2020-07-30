@@ -36,15 +36,15 @@ Route::group(['prefix' => '/cabinet', 'middleware' => 'auth', 'as' => 'profile.'
 Route::group(['as' => 'auction.',], function () {
     Route::get('/{id}/auction', 'AuctionController@auction')->name('index');
     Route::post('/{auction_id}/add-favorite', 'AuctionController@addFavorite')->name('add_favorite')->middleware('auth');
-    Route::post('/{auction_id}/auto_bid', 'AuctionController@autoBid')->name('auto_bid')->middleware('auth');
+    Route::post('/{id}/auto_bid', 'AuctionController@autoBid')->name('auto_bid')->middleware(['auth', 'banned', 'order']);
     Route::post('/{id?}/change-status', 'AuctionController@changeStatus')->name('change_status');
 });
 
 Route::group(['prefix' => '/payment', 'middleware' => ['auth', 'banned'], 'as' => 'payment.', 'namespace' => 'Payments'], function () {
     Route::post('/buy-coupon', 'CouponController@buy')->name('coupon.buy');
     Route::post('/buy-auction', 'AuctionController@buy')->name('auction.buy');
-    Route::get('/{id}/order', 'AuctionController@order')->name('auction.order');
-    Route::get('/{id}/win-info', 'AuctionController@winInfo')->name('win.info');
+    Route::get('/{id}/order', 'AuctionController@order')->name('auction.order')->middleware('order');
+    Route::get('/{id}/win-info', 'AuctionController@winInfo')->name('win.info')->middleware('order');
 });
 
 Route::group(['prefix' => '/reset', 'as' => 'reset.', 'namespace' => 'PasswordReset'], function () {
@@ -54,7 +54,7 @@ Route::group(['prefix' => '/reset', 'as' => 'reset.', 'namespace' => 'PasswordRe
     Route::post('/password-change', 'ResetController@passwordChangeSuccess')->name('password.change.success');
 });
 
-Route::group(['middleware' => ['auth', 'banned']], function () {
+Route::group(['middleware' => ['auth', 'banned', 'order']], function () {
     Route::get('/bet/{id}', 'BetController@bet')->name('bet');
 });
 

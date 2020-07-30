@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         StatusChangeCommand::class,
         CheckAuctionsStatus::class,
-        AutoBidCommand::class
+        //AutoBidCommand::class
     ];
 
     /**

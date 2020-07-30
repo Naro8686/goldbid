@@ -40,14 +40,14 @@ class AutoBidCommand extends Command
      */
     public function handle()
     {
-        while (true) {
-            if ($this->stop()) {
-                $this->info('end');
-                break;
-            }
-            $this->start();
-            sleep(1);
-        }
+//        while (true) {
+//            if ($this->stop()) {
+//                $this->info('end');
+//                break;
+//            }
+//            $this->start();
+//            sleep(1);
+//        }
     }
 
     public function stop()
@@ -79,12 +79,12 @@ class AutoBidCommand extends Command
             $time = $auction->created_at->addSeconds($rand);
             if ($auction->winner()->created_at)
                 $time = $auction->winner()->created_at->addSeconds($rand);
-            dispatch(new AutoBidJob([
-                "auction_id" => $pending->auction_id,
-                "user_id" => $pending->user_id,
-                "count" => $pending->count,
-                "status" => $pending->status
-            ]))->delay($time);
+//            dispatch(new AutoBidJob([
+//                "auction_id" => $pending->auction_id,
+//                "user_id" => $pending->user_id,
+//                "count" => $pending->count,
+//                "status" => $pending->status
+//            ]))->delay($time);
         }
     }
 }

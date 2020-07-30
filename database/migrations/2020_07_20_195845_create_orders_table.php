@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration
             $table->enum('status', [0, 1, 2])->default(\App\Models\Auction\Order::PENDING);
             $table->boolean('exchanged')->default(false);
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('auction_id')->nullable();
+            $table->unsignedBigInteger('auction_id');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
@@ -30,7 +30,8 @@ class CreateOrdersTable extends Migration
             $table->foreign('auction_id')
                 ->references('id')
                 ->on('auctions')
-                ->onDelete('set null');
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
             $table->timestamps();
         });
     }

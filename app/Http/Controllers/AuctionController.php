@@ -2,21 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\BetEvent;
-use App\Jobs\AutoBidJob;
-use App\Jobs\AutoBidRun;
 use App\Jobs\BidJob;
-use App\Jobs\CreateAuctionJob;
 use App\Models\Auction\Auction;
-use App\Models\Auction\AutoBid;
 use App\Models\Auction\Order;
-use App\Models\User;
 use App\Settings\Setting;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 
@@ -75,14 +66,10 @@ class AuctionController extends Controller
 
     public function autoBid($id, Request $request)
     {
-
         $bid = null;
         $user = Auth::user();
         $balance = $user->balance();
         $max_count = $balance->bet + $balance->bonus;
-        if ($user->auctionOrder()->where('auction_id', $id)->where('status', '<>', Order::PENDING)->exists()) {
-            return redirect()->back()->with('message', 'Вы уже приобрели этот товар , и больше не можете совершать дествия в данном аукционе .');
-        }
         $request->validate([
             'count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']
         ]);
