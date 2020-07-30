@@ -287,8 +287,8 @@ class Auction extends Model
         $auction = self::query()->where('active', true)->findOrFail($id);
         $data = self::auctionsForHomePage()->firstWhere('id', '=', $id);
         $data['desc'] = $auction->desc;
-        $data['specify'] = $auction->desc;
-        $data['terms'] = $auction->desc;
+        $data['specify'] = $auction->specify;
+        $data['terms'] = $auction->terms;
         $data['bids'] = $auction->bid->sortByDesc('id');
         $data['bet'] = $data['bonus'] = 0;
         if (Auth::check() && $user = Auth::user()) {

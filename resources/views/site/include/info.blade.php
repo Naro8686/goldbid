@@ -69,13 +69,13 @@
 @endif
 
 @if($auction['buy_now'] && !$auction['my_win'])
-    <div class="buy__now @if(!($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE)) mt-80 @endif">
+    <div class="buy__now @if(!($auction['status'] === \App\Models\Auction\Auction::STATUS_ACTIVE) && !($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)) mt-100 @elseif(($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED) && !$auction['my_win']) mt-90 @endif ">
         <span class="buy__now_price">{{$auction['full_price']}} руб</span>
         <a href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}" class="buy__now_btn">
             купить сейчас
         </a>
     </div>
-    <p style="margin-top: 7px;text-align:center;font-weight: bold;font-size: 15.4px">Цена с учетом сделанных Вами
+    <p class="info__text" @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED) style="margin: 0" @endif>Цена с учетом сделанных Вами
         ставок</p>
 @endif
 <div class="info__my__bid">

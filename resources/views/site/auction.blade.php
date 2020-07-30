@@ -10,7 +10,14 @@
         <div class="container">
             <div class="card">
                 <div class="left" style="overflow: hidden;">
-                    <div class="auction__slider">
+                    <div class="slider-for">
+                        @foreach($auction['images'] as $image)
+                            <div>
+                                <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="slider-nav">
                         @foreach($auction['images'] as $image)
                             <div>
                                 <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
