@@ -3,7 +3,10 @@
     margin: 0;
     box-sizing: border-box;
 }
-
+@font-face {
+    font-family: 'georgiai';
+    src: url('fonts/georgiai.ttf');
+}
 ul, li {
     list-style: none;
 }
@@ -308,7 +311,7 @@ button {
 }
 
 .main .blocks .kupon {
-    background-image: url(img/kupon.png);
+    /*background-image: url(img/kupon.png);*/
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -540,15 +543,19 @@ button {
     box-sizing: border-box;
     padding: 20px;
 }
-.send-feedback .img_container{
+
+.send-feedback .img_container {
     width: 50% !important;
     text-align: center;
     box-sizing: border-box;
     padding: 85px 20px;
 }
-.send-feedback .img_container p{
-text-align: left;
+
+.send-feedback .img_container p {
+    text-align: left;
+    font-family: georgiai, cursive;
 }
+
 .send-feedback textarea,
 .send-feedback input {
     width: 100%;
@@ -571,6 +578,8 @@ text-align: left;
     margin-left: 5px;
     color: #ffffff;
     cursor: pointer;
+    text-transform: capitalize;
+    font-size: 16px;
 }
 
 .send-feedback .buttons label {
@@ -581,6 +590,7 @@ text-align: left;
     width: 300px;
     cursor: pointer;
 }
+
 .payment-methods {
     margin-bottom: 15px;
 }
@@ -588,7 +598,11 @@ text-align: left;
 .payment-methods img {
     max-width: 100%;
 }
-.footer li{margin: 2px 0;}
+
+.footer li {
+    margin: 2px 0;
+}
+
 @media screen and (max-width: 991.98px) {
     .main .container {
         padding: 0 15px;
@@ -630,9 +644,11 @@ text-align: left;
     .send-feedback {
         width: 100% !important;
     }
-.send-feedback .img_container{
-    width: 100% !important;
-}
+
+    .send-feedback .img_container {
+        width: 100% !important;
+    }
+
     form {
         width: 100% !important;
     }

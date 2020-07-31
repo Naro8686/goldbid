@@ -9,7 +9,7 @@
         </p>
     </div>
     <div class="circl">
-        <p title="Шаг ставки">{{$auction['step_price']}}<br><span>руб</span></p>
+        <p title="Шаг ставки">{{$auction['step_price_info']}}<br><span>коп</span></p>
     </div>
     @if($auction['exchange'])
         <div class="circl">
@@ -62,7 +62,7 @@
         </div>
         @if($auction['my_win'])
             <div class="btn win">
-                <a @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif data-id="{{$auction['id']}}" href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">Оформит заказ</a>
+                <a @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif data-id="{{$auction['id']}}" href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">Оформить заказ</a>
             </div>
         @endif
     @endif

@@ -23,6 +23,12 @@ button {
     cursor: pointer;
 }
 
+button:focus,
+input[type='button']:focus,
+input[type='submit']:focus {
+    outline: 0;
+}
+
 .container {
     max-width: 992px;
     margin: 0 auto;
@@ -41,6 +47,7 @@ button {
     justify-content: space-between;
     height: 129px;
 }
+
 .header .container .left .text {
     color: #1B8BCB;
     position: absolute;
@@ -48,6 +55,7 @@ button {
     left: 12px;
     white-space: nowrap;
 }
+
 .header .container .left {
     position: relative;
     display: flex;
@@ -427,7 +435,7 @@ input[type="checkbox"].fail {
 
 .auction .card .product-img {
     margin: 0 auto;
-    margin-bottom: 15px;
+    /*margin-bottom: 15px;*/
     overflow: hidden;
     height: 190px;
 }
@@ -842,7 +850,8 @@ input[type="checkbox"].fail {
     height: auto;
     font-size: 14px;
     font-weight: 600;
-    margin-top: -5px;
+    margin-top: -10px;
+    color: #827b77;
 }
 
 
@@ -871,6 +880,7 @@ input[type="checkbox"].fail {
 .auction .card .btn.win {
     border-color: #06f61d;
 }
+
 .auction .card .btn.win a {
     color: white;
     border: none;
@@ -881,6 +891,7 @@ input[type="checkbox"].fail {
     background-color: #06f61d;
     border-radius: 50px;
 }
+
 .auction .card .btn button {
     color: white;
     width: 120px;
@@ -901,9 +912,11 @@ input[type="checkbox"].fail {
     background-color: #FF3249;
     border-radius: 50px;
 }
+
 .auction .card .btn.win form {
     width: 100%;
 }
+
 .auction .card .btn.win button {
     width: 100%;
     background-color: #06f61d;

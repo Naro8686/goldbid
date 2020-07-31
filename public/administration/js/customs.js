@@ -157,6 +157,27 @@ function imagesURL(input) {
     }
 }
 
+function validWidth(el, size = 16, max = 190) {
+    let fontSize = `${size}px`;
+    let span = document.createElement('span');
+    let form = el.closest('form');
+    span.style.fontSize = fontSize;
+    span.style.whiteSpace = 'pre';
+    span.style.position = 'absolute';
+    span.style.bottom = '0';
+    span.style.zIndex = '-1';
+    span.style.opacity = '0';
+    span.textContent = el.value;
+    document.body.appendChild(span);
+    let width = Math.floor(span.getBoundingClientRect().width);
+    span.remove()
+    if (width >= max) el.classList.add("is-invalid");
+    else el.classList.remove("is-invalid");
+    form.onsubmit = (e) => {
+        return (!$(form.title).hasClass("is-invalid") && !$(form.short_desc).hasClass("is-invalid"));
+    }
+}
+
 $("input.imageUpload").change(function () {
     imagesURL(this);
 });

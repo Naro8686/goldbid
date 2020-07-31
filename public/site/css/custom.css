@@ -1,3 +1,8 @@
+button:focus,
+input[type='button']:focus,
+input[type='submit']:focus {
+    outline: 0;
+}
 /* pagination */
 
 .pagination {

@@ -240,6 +240,10 @@ class Auction extends Model
                 ->where('auto_bids.user_id', $user->id)
                 ->first() : false;
             $winner = $auction->winner();
+            $ordered = $user ? $user->auctionOrder()
+                ->where('auction_id', $auction->id)
+                ->where('status', Order::SUCCESS)
+                ->exists() : false;
             $auctions->push([
                 'id' => $auction->id,
                 'top' => $auction->top,
@@ -250,6 +254,7 @@ class Auction extends Model
                 'images' => $images,
                 'title' => $auction->title,
                 'step_price' => $auction->step_price(),
+                'step_price_info' => $auction->step_price,
                 'start_price' => $auction->start_price(),
                 'exchange' => $auction->exchange,
                 'buy_now' => (bool)$auction->buy_now,
@@ -262,6 +267,7 @@ class Auction extends Model
                 'my_win' => (isset($user) && $auction->status === Auction::STATUS_FINISHED)
                     ? $winner->nickname === $user->nickname
                     : false,
+                'ordered' => $ordered,
                 'price' => $auction->price(),
                 'end' => $auction->end ? $auction->end->format('Y-m-d H:i:s') : null,
             ]);
@@ -269,7 +275,7 @@ class Auction extends Model
         return $auctions->sortByDesc(function ($auction) {
             $top = (int)$auction['top'];
             $favorite = (int)$auction['favorite'];
-            $my_win = (int)$auction['my_win'];
+            $my_win = $auction['ordered'] ? 0 : (int)$auction['my_win'];
             if ($auction['status'] === Auction::STATUS_ACTIVE)
                 $status = 2;
             elseif ($auction['status'] === Auction::STATUS_PENDING)
@@ -315,7 +321,7 @@ class Auction extends Model
             $data['user']['bonus'] = $balance->bonus;
             $data['user']['auction_bet'] = $bid->sum('bet');
             $data['user']['auction_bonus'] = $bid->sum('bonus');
-            $data['user']['full_price'] = $this->full_price($user->id).' руб';
+            $data['user']['full_price'] = $this->full_price($user->id) . ' руб';
             $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
         }
         $data['auction']['id'] = $last->auction_id;

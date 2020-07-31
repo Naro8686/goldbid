@@ -29,7 +29,7 @@
             </div>
             <div class="con-tooltip top">
                 <div class="circl ">
-                    <p title="Шаг ставки">{{$auction['step_price']}}<br><span>руб</span></p>
+                    <p title="Шаг ставки">{{$auction['step_price_info']}}<br><span>коп</span></p>
                 </div>
                 <div class="tooltip second">
                     <p>Шаг ставки</p>
@@ -39,7 +39,7 @@
                 <div class="con-tooltip top">
                     <div class="circl">
                         <img title="Возможнось получить вместо выигранного товара &quot;ставки&quot;"
-                             src="{{asset('site/img/if_Update_984748.png')}}" alt="">
+                             src="{{asset('site/img/arrow_black.png')}}" alt="">
                     </div>
 
                     <div class="tooltip three">
@@ -59,11 +59,6 @@
                                  alt="">
                         </div>
                     </a>
-                    {{--                    <a href="order.php?id=269">--}}
-                    {{--                        <div class="tooltip four">--}}
-                    {{--                            <p>Купить товар</p>--}}
-                    {{--                        </div>--}}
-                    {{--                    </a>--}}
                 </div>
             @endif
         </div>
@@ -103,7 +98,7 @@
                     <p class="winner">{{$auction['winner']}}</p>
                     <p class="price">{{$auction['price']}} руб</p>
                 </div>
-                @if(!$auction['my_win'])
+                @if(!$auction['my_win'] || $auction['ordered'])
                     <div class="lenta close">ЗАВЕРШЕН</div>
                     <div class="btn close">
                         <span class="price">{{$auction['price']}} руб</span>
@@ -114,7 +109,7 @@
                         <span class="price">{{$auction['price']}} руб</span>
                         <a data-id="{{$auction['id']}}"
                            href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}"
-                           @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif>Оформит заказ</a>
+                           @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif>Оформить заказ</a>
                     </div>
                 @endif
             @endif

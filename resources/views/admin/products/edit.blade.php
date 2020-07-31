@@ -14,7 +14,7 @@
                     <div class="form-group row">
                         <label for="title" class="col-sm-2 col-form-label">Наименование </label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
+                            <input onkeyup="validWidth(this)" type="text" class="form-control @error('title') is-invalid @enderror" id="title"
                                    name="title" value="{{old('title')??$product->title}}">
                             @error('title') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
@@ -22,7 +22,7 @@
                     <div class="form-group row">
                         <label for="short_desc" class="col-sm-2 col-form-label">Пояснение</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control @error('short_desc') is-invalid @enderror"
+                            <input onkeyup="validWidth(this,14)" type="text" class="form-control @error('short_desc') is-invalid @enderror"
                                    id="short_desc" name="short_desc" value="{{old('short_desc')??$product->short_desc}}">
                             @error('short_desc') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
