@@ -14,7 +14,7 @@
                             <p>{{$data['price']}}</p>
                             <span style="font-size: 23px;font-weight: 400;padding: 5px;">рублей</span>
                             <a href="{{route('payment.auction.order',['id'=>$data['id'],'step'=>'1'])}}">оплатить</a>
-                            <span style="margin:75px 0px 30px 0px;width: 120px;font-size: 14px;font-weight: 400;">После оплаты мы отправим Вам выигранный лот </span>
+                            <span style="margin:75px 0px 15px 0px;width: 120px;font-size: 14px;font-weight: 400;">После оплаты мы отправим Вам выигранный лот </span>
                             <img style="width: 54px;height: 61px;" src="{{asset('site/img/gift.png')}}" alt="gift">
                         </div>
                         <div class="right__item">

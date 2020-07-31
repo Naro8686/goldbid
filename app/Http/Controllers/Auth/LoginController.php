@@ -59,7 +59,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, User $user)
     {
 
-        if (!$user->fullProfile() && !$user->balanceHistory()->where('reason', Balance::REGISTRATION_BONUS_REASON)->exists())
+        if (!$user->balanceHistory()->where('reason', Balance::REGISTRATION_BONUS_REASON)->exists())
             $request->session()->flash('bonus_modal', Balance::bonusCount(Balance::REGISTRATION_BONUS_REASON));
         if ($user->is_admin) $this->redirectTo = '/admin';
         if ($request->ajax()) {
