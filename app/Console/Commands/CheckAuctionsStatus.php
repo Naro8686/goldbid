@@ -46,7 +46,7 @@ class CheckAuctionsStatus extends Command
         $auctions = Auction::query()->whereNotNull('end')->get();
         foreach ($auctions as $key => $auction) {
             if ($auction->active && !(bool)$auction->end->addHours(72)->diff(now())->invert)
-                $auction->update(['active' => false,'timestamp'=>false]);
+                $auction->update(['active' => false, 'timestamp' => false]);
             elseif (!$auction->active && !is_null($config)) {
                 $delete = !(bool)$auction->end->addMonths((int)$config->storage_period_month)->diff(now())->invert;
                 DeleteAuctionInNotWinner::dispatchIf($delete, $auction)->delay(now()->addSeconds($key * 2));

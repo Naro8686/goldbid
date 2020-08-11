@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AutoBidJob implements ShouldQueue
 {
@@ -20,21 +21,10 @@ class AutoBidJob implements ShouldQueue
      * @param AutoBid $active
      */
     public $active;
-    /**
-     * @var mixed
-     */
-    public $auction;
-    /**
-     * @var mixed
-     */
-    public $user;
-
 
     public function __construct(AutoBid $active)
     {
         $this->active = $active;
-//        $this->auction = $this->active->auction;
-//        $this->user = $this->active->user;
     }
 
     /**
@@ -49,23 +39,19 @@ class AutoBidJob implements ShouldQueue
         $user = $autoBid->user;
         $auction = $autoBid->auction;
         $balance = $user->balance();
-        if ($autoBid->count <= 0 ||
-            ($balance->bet + $balance->bonus) <= 0 ||
-            $auction->status === Auction::STATUS_FINISHED) {
-            $autoBid->delete();
-        } else {
-            try {
-                DB::beginTransaction();
-                if ($auction->winner()->nickname !== $user->nickname) {
-                    if ($autoBid->update(['count' => ($autoBid->count - 1)]))
-                        BidJob::dispatchNow($auction, $user->nickname, $user);
-                } else {
-                    $autoBid->touch();
-                }
-                DB::commit();
-            } catch (\Exception $exception) {
-                DB::rollBack();
+        try {
+            DB::beginTransaction();
+            if ($autoBid->count <= 0 || ($balance->bet + $balance->bonus) <= 0 || $auction->status === Auction::STATUS_FINISHED) {
+                $autoBid->delete();
+            } else {
+                //if ($auction->winner()->nickname !== $user->nickname) {
+                $autoBid->decrement('count');
+                BidJob::dispatch($auction, $user->nickname, $user);
+                //}
             }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
         }
     }
 }

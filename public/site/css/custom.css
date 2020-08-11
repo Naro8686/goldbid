@@ -445,7 +445,9 @@ table.personal__info td {
 .is-invalid {
     border-color: red !important;
 }
-
+.disabled{
+    opacity: 0.5;
+}
 small.is-invalid {
     color: red !important;
 }

@@ -8,11 +8,12 @@ use Illuminate\Support\Collection;
 class Product extends Model
 {
     protected $fillable = [
-        'title','short_desc', 'desc', 'specify', 'terms',
+        'title', 'short_desc', 'desc', 'specify', 'terms',
         'img_1', 'img_2', 'img_3', 'img_4',
         'alt_1', 'alt_2', 'alt_3', 'alt_4',
-        'start_price', 'full_price', 'bot_shutdown_price',
-        'step_time', 'step_price', 'to_start', 'exchange','buy_now',
+        'start_price', 'full_price',
+        'bot_shutdown_price', 'bot_shutdown_count',
+        'step_time', 'step_price', 'to_start', 'exchange', 'buy_now',
         'top', 'visibly', 'company_id', 'category_id',
     ];
     protected $casts = [
@@ -63,6 +64,7 @@ class Product extends Model
                 'category' => $product->category ? $product->category->name : 'Другой',
                 'start_price' => $product->start_price,
                 'full_price' => $product->full_price,
+                'bot_shutdown_count' => $product->bot_shutdown_count,
                 'bot_shutdown_price' => $product->bot_shutdown_price,
                 'step_time' => $product->step_time,
                 'step_price' => $product->step_price,

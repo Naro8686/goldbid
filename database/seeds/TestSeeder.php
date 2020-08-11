@@ -15,7 +15,7 @@ class TestSeeder extends Seeder
      */
     public function run()
     {
-        if (!is_dir(public_path('site/img/product'))) mkdir(public_path('site/img/product', 0777));
+        if (!is_dir(public_path('site/img/product'))) mkdir(public_path('site/img/product'), 0777,true);
         factory(User::class, 100)->create();
         factory(Product::class, 2)->create();
     }

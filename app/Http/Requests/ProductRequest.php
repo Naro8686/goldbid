@@ -25,13 +25,22 @@ class ProductRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:30'],
-            'short_desc' => ['nullable','string', 'max:30'],
-            'desc' => ['string','nullable'],
-            'specify' => ['string','nullable'],
-            'terms' => ['string','nullable'],
+            'short_desc' => ['nullable', 'string', 'max:30'],
+            'desc' => ['string', 'nullable'],
+            'specify' => ['string', 'nullable'],
+            'terms' => ['string', 'nullable'],
             'start_price' => ['required', 'numeric', 'min:1'],
             'full_price' => ['required', 'numeric', 'min:1'],
-            'bot_shutdown_price' => ['required', 'numeric', 'min:1'],
+            'bot_shutdown_count' => ['required', function ($attribute, $value, $fail) {
+                list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                if (is_null($min) || is_null($max) || $min > $max)
+                    $fail('заполните поля правильно');
+            }],
+            'bot_shutdown_price' => ['required', function ($attribute, $value, $fail) {
+                list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                if (is_null($min) || is_null($max) || $min > $max)
+                    $fail('заполните поля правильно');
+            }],
             'step_time' => ['required', 'integer', 'min:1'],
             'step_price' => ['required', 'integer', 'min:1'],
             'to_start' => ['required', 'integer', 'min:1'],

@@ -86,7 +86,7 @@ class StatusChangeCommand extends Command
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
-            Log::info('status_change_pending' . $e->getMessage());
+            Log::error('status_change_pending' . $e->getMessage());
         }
         event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
     }
@@ -96,22 +96,23 @@ class StatusChangeCommand extends Command
         /** @var User $user */
         try {
             DB::beginTransaction();
-            $finished = Auction::query()->find($auction->id);
-            if ($finished->update(['status' => Auction::STATUS_FINISHED, 'end' => $end, 'top' => false]))
-                CreateAuctionJob::dispatchIf((isset($finished->product) && $finished->product->visibly), $finished->product);
-            if ($bid = $finished->bid->last()) {
-                $bid->win = true;
-                $bid->save(['timestamp' => false]);
-                if (!$bid->is_bot && isset($bid->user_id) && $user = User::query()->find($bid->user_id)) {
-                    if ($user->email)
-                        Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
-                }
-            } else
-                DeleteAuctionInNotWinner::dispatchIf(isset($finished), $finished)->delay(now()->addSeconds(5));
+            if($finished = Auction::query()->find($auction->id)){
+                if ($finished->update(['status' => Auction::STATUS_FINISHED, 'end' => $end, 'top' => false]))
+                    CreateAuctionJob::dispatchIf((isset($finished->product) && $finished->product->visibly), $finished->product);
+                if ($bid = $finished->bid->last()) {
+                    $bid->win = true;
+                    $bid->save(['timestamp' => false]);
+                    if (!$bid->is_bot && isset($bid->user_id) && $user = User::query()->find($bid->user_id)) {
+                        if ($user->email)
+                            Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
+                    }
+                } else
+                    DeleteAuctionInNotWinner::dispatchIf(isset($finished), $finished)->delay(now()->addSeconds(5));
+            }
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
-            Log::info('status_change_active' . $e->getMessage());
+            Log::error('status_change_active' . $e->getMessage());
         }
         event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
     }

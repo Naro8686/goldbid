@@ -31,24 +31,25 @@ class BetListener
      */
     public function handle(BetEvent $event)
     {
-        if ($event->auction->autoBid()->exists()) {
-            $last = $event->auction->autoBid()->orderBy('updated_at')->first();
+        $auction = $event->auction;
+        if ($auction->autoBid()->exists()) {
+            /** @var AutoBid $last */
+            $last = $auction->autoBid()->orderBy('updated_at')->first();
             $this->autoBid($last);
         }
         return $event;
     }
 
-    private function autoBid(?\Illuminate\Database\Eloquent\Model $last)
+    private function autoBid(AutoBid $last)
     {
-        Log::info('ok' . $last->toJson());
-        /** @var AutoBid $active */
         if ($active = $last) {
-            $rand = rand(0, $active->auction->bid_seconds - 1);
-//            $time = $active->auction->start->addSeconds($rand);
-//            if ($active->auction->winner()->created_at)
-            $time = $active->auction->winner()->created_at->addSeconds($rand);
-            Log::info($time);
-            AutoBidJob::dispatch($active)->delay($time);
+            $active->touch();
+            $auction = $active->auction;
+            $user = $active->user;
+            $rand = rand(0, $auction->step_time() - 2);
+            $delay = Carbon::now()->addSeconds((int)$rand);
+//            Log::info("{$auction->step_time()} = {$rand}");
+            AutoBidJob::dispatchIf($auction->winner()->nickname !== $user->nickname, $active)->delay($delay);
         }
     }
 }

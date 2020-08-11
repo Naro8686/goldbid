@@ -39,7 +39,7 @@
     <div class="inf__active">
         <span class="price">{{$auction['price']}} руб.</span>
         <span class="countdown" data-countdown="{{$auction['step_time']}}"></span>
-        <button>Ставка</button>
+        <button class="@if((bool)$auction['autoBid']) disabled @endif">Ставка</button>
     </div>
     <!-- Сюда вставляется автоставки -->
     <form class="auto__bid" method="POST" action="{{route('auction.auto_bid',$auction['id'])}}">

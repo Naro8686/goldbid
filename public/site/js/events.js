@@ -22,6 +22,7 @@ Echo.channel('goldbid_database_bet-auction')
                 tbody.html($(tr));
                 auction_page.find('.winner').text(nickname);
                 auction_page.find('.price').text(price);
+                console.log(step_time);
                 countdown(auction_page, step_time);
                 if (data.user) {
                     let user = data.user;
@@ -37,6 +38,7 @@ Echo.channel('goldbid_database_bet-auction')
                             elements.find('.bonus').text(user.auction_bonus);
                             elements.find('.buy__now_price').text(user.full_price);
                             elements.find('.auto__bid_inp').val(user.auto_bid);
+                            console.log(user.auto_bid);
                         }
                     }
                 }

@@ -157,11 +157,12 @@ function imagesURL(input) {
     }
 }
 
-function validWidth(el, size = 16, max = 190) {
+function validWidth(el, size = 16, max = 175) {
     let fontSize = `${size}px`;
     let span = document.createElement('span');
     let form = el.closest('form');
     span.style.fontSize = fontSize;
+    span.style.fontWeight = 'bold';
     span.style.whiteSpace = 'pre';
     span.style.position = 'absolute';
     span.style.bottom = '0';

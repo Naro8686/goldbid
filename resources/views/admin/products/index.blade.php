@@ -32,7 +32,8 @@
                             <th>Группа товара</th>
                             <th>Стартовая цена (руб)</th>
                             <th>Полная цена (руб)</th>
-                            <th>Отключения бота (руб)</th>
+                            <th>Отключения бота 1 (кол)</th>
+                            <th>Отключения бота 2,3 (руб)</th>
                             <th>Таймер (сек)</th>
                             <th>Шаг (кол)</th>
                             <th>Автозапуск (мин)</th>
@@ -67,6 +68,7 @@
                         {data: 'category', name: 'category'},
                         {data: 'start_price', name: 'start_price'},
                         {data: 'full_price', name: 'full_price'},
+                        {data: 'bot_shutdown_count', name: 'bot_shutdown_count'},
                         {data: 'bot_shutdown_price', name: 'bot_shutdown_price'},
                         {data: 'step_time', name: 'step_time'},
                         {data: 'step_price', name: 'step_price'},

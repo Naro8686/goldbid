@@ -31,7 +31,8 @@ class CreateAuctionsTable extends Migration
             $table->string('alt_4')->nullable()->default('image');
             $table->string('start_price');
             $table->string('full_price');
-            $table->string('bot_shutdown_price');
+            $table->string('bot_shutdown_count')->nullable();
+            $table->string('bot_shutdown_price')->nullable();
             $table->integer('bid_seconds');
             $table->timestamp('step_time')->nullable();
             $table->integer('step_price');

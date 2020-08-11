@@ -19,7 +19,8 @@ class Auction extends Model
         'title', 'short_desc', 'desc', 'specify', 'terms',
         'img_1', 'img_2', 'img_3', 'img_4',
         'alt_1', 'alt_2', 'alt_3', 'alt_4',
-        'start_price', 'full_price', 'bot_shutdown_price',
+        'start_price', 'full_price',
+        'bot_shutdown_count', 'bot_shutdown_price',
         'step_time', 'step_price', 'start', 'end', 'exchange', 'buy_now',
         'top', 'active', 'product_id', 'status', 'bid_seconds',
     ];

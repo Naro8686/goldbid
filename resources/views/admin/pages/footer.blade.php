@@ -33,8 +33,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary submit">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыт</button>
+                    <button type="button" class="btn btn-primary submit">Отправить</button>
                 </div>
             </div>
         </div>

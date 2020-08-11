@@ -15,8 +15,8 @@
 	"protocol": "http",
 	"socketio": {},
 	"secureOptions": 67108864,
-	"sslCertPath": "",
-	"sslKeyPath": "",
+	"sslCertPath": "/etc/apache2/ssl/apache.crt",
+	"sslKeyPath": "/etc/apache2/ssl/apache.key",
 	"sslCertChainPath": "",
 	"sslPassphrase": "",
 	"subscribers": {

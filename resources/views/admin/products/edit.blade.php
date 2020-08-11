@@ -1,6 +1,20 @@
 @extends('layouts.admin')
 @section('content')
+
     <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <a href="{{route('admin.products.index')}}"
+                       class="btn btn-light btn-icon-split float-right mb-2">
+                            <span class="icon text-gray-600">
+                              <i class="fas fa-arrow-left"></i>
+                            </span>
+                        <span class="text">назад</span>
+                    </a>
+                </div>
+            </div>
+        </div>
         @include('admin.products.groups')
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -14,7 +28,8 @@
                     <div class="form-group row">
                         <label for="title" class="col-sm-2 col-form-label">Наименование </label>
                         <div class="col-sm-10">
-                            <input onkeyup="validWidth(this)" type="text" class="form-control @error('title') is-invalid @enderror" id="title"
+                            <input onkeyup="validWidth(this)" type="text"
+                                   class="form-control @error('title') is-invalid @enderror" id="title"
                                    name="title" value="{{old('title')??$product->title}}">
                             @error('title') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
@@ -22,8 +37,10 @@
                     <div class="form-group row">
                         <label for="short_desc" class="col-sm-2 col-form-label">Пояснение</label>
                         <div class="col-sm-10">
-                            <input onkeyup="validWidth(this,14)" type="text" class="form-control @error('short_desc') is-invalid @enderror"
-                                   id="short_desc" name="short_desc" value="{{old('short_desc')??$product->short_desc}}">
+                            <input onkeyup="validWidth(this,14)" type="text"
+                                   class="form-control @error('short_desc') is-invalid @enderror"
+                                   id="short_desc" name="short_desc"
+                                   value="{{old('short_desc')??$product->short_desc}}">
                             @error('short_desc') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
                     </div>
@@ -32,8 +49,9 @@
                         <div class="col-sm-10">
                             <select class="form-control" name="company_id" id="company_id">
                                 @foreach($companies as $company)
-                                    <option @if((int)old('company_id')===(int)$company->id || (int)$product->company->id===(int)$company->id) selected
-                                            @endif value="{{$company->id}}">{{$company->name}}</option>
+                                    <option
+                                        @if((int)old('company_id')===(int)$company->id || (int)$product->company->id===(int)$company->id) selected
+                                        @endif value="{{$company->id}}">{{$company->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -43,8 +61,9 @@
                         <div class="col-sm-10">
                             <select class="form-control" name="category_id" id="category_id">
                                 @foreach($categories as $category)
-                                    <option @if((int)old('category_id')===(int)$category->id || (int)$product->category->id===(int)$category->id) selected
-                                            @endif value="{{$category->id}}">{{$category->name}}</option>
+                                    <option
+                                        @if((int)old('category_id')===(int)$category->id || (int)$product->category->id===(int)$category->id) selected
+                                        @endif value="{{$category->id}}">{{$category->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -68,11 +87,27 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="bot_shutdown_price" class="col-sm-2 col-form-label">Отключение бота (руб)</label>
+                        <label for="bot_shutdown_count" class="col-sm-2 col-form-label">Отключения бота 1 (кол)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control @error('bot_shutdown_count') is-invalid @enderror"
+                                   id="bot_shutdown_count"
+                                   pattern="^(\d+)-(\d+)$"
+                                   placeholder="0-1"
+                                   name="bot_shutdown_count"
+                                   value="{{old('bot_shutdown_count')??$product->bot_shutdown_count}}">
+                            @error('bot_shutdown_count') <small class="text-danger">{{$message}}</small> @enderror
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bot_shutdown_price" class="col-sm-2 col-form-label">Отключение бота 2,3
+                            (руб)</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control @error('bot_shutdown_price') is-invalid @enderror"
                                    id="bot_shutdown_price"
-                                   name="bot_shutdown_price" value="{{old('bot_shutdown_price')??$product->bot_shutdown_price}}">
+                                   placeholder="0-1"
+                                   pattern="^(\d+)-(\d+)$"
+                                   name="bot_shutdown_price"
+                                   value="{{old('bot_shutdown_price')??$product->bot_shutdown_price}}">
                             @error('bot_shutdown_price') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
                     </div>
@@ -152,7 +187,8 @@
                                     <label for="imageUpload1"></label>
                                 </div>
                                 <div class="image-preview">
-                                    <div class="imagePreview" @if($product->img_1) style="background-image: url('{{asset($product->img_1)}}')" @endif></div>
+                                    <div class="imagePreview"
+                                         @if($product->img_1) style="background-image: url('{{asset($product->img_1)}}')" @endif></div>
                                 </div>
                             </div>
                             @error('file_1') <small class="text-danger">{{$message}}</small> @enderror
@@ -171,7 +207,8 @@
                                     <label for="imageUpload2"></label>
                                 </div>
                                 <div class="image-preview">
-                                    <div class="imagePreview" @if($product->img_2) style="background-image: url('{{asset($product->img_2)}}')" @endif></div>
+                                    <div class="imagePreview"
+                                         @if($product->img_2) style="background-image: url('{{asset($product->img_2)}}')" @endif></div>
                                 </div>
                             </div>
                             @error('file_2') <small class="text-danger">{{$message}}</small> @enderror
@@ -191,7 +228,8 @@
                                     <label for="imageUpload3"></label>
                                 </div>
                                 <div class="image-preview">
-                                    <div class="imagePreview" @if($product->img_3) style="background-image: url('{{asset($product->img_3)}}')" @endif></div>
+                                    <div class="imagePreview"
+                                         @if($product->img_3) style="background-image: url('{{asset($product->img_3)}}')" @endif></div>
                                 </div>
                             </div>
                             @error('file_3') <small class="text-danger">{{$message}}</small> @enderror
@@ -211,7 +249,8 @@
                                     <label for="imageUpload4"></label>
                                 </div>
                                 <div class="image-preview">
-                                    <div class="imagePreview" @if($product->img_4) style="background-image: url('{{asset($product->img_4)}}')" @endif></div>
+                                    <div class="imagePreview"
+                                         @if($product->img_4) style="background-image: url('{{asset($product->img_4)}}')" @endif></div>
                                 </div>
                             </div>
                             @error('file_4') <small class="text-danger">{{$message}}</small> @enderror

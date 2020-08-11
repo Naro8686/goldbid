@@ -221,7 +221,7 @@ class AuctionController extends Controller
             Mail::to(config('mail.from.address'))->later(2, new AuctionOrderSendMail($order));
             Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, ['order_num' => $order->order_num]));
         } catch (\Exception $e) {
-            Log::info($e->getMessage());
+            Log::error('send mail for buy auction '.$e->getMessage());
         }
         $order->update(['status' => Order::SUCCESS]);
         return redirect()->route('site.home')->with('message', 'Вы успешно оформили заказ ');

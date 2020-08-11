@@ -39,14 +39,17 @@ class DeleteAuctionInNotWinner implements ShouldQueue
     public function handle()
     {
         try {
-            if (is_file(public_path($this->auction->img_1))) @unlink(public_path($this->auction->img_1));
-            if (is_file(public_path($this->auction->img_2))) @unlink(public_path($this->auction->img_2));
-            if (is_file(public_path($this->auction->img_3))) @unlink(public_path($this->auction->img_3));
-            if (is_file(public_path($this->auction->img_4))) @unlink(public_path($this->auction->img_4));
-            Page::query()->where('slug',$this->auction->id)->delete();
+            $images = [
+                public_path($this->auction->img_1),
+                public_path($this->auction->img_2),
+                public_path($this->auction->img_3),
+                public_path($this->auction->img_4),
+            ];
+            foreach ($images as $image) if (is_file($image)) @unlink($image);
+            Page::query()->where('slug', $this->auction->id)->delete();
             $this->auction->delete();
         } catch (Exception $e) {
-            Log::info('delete_auction_job'.$e->getMessage());
+            Log::info('delete_auction_job' . $e->getMessage());
         }
     }
 }

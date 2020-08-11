@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
 use Illuminate\Console\Command;

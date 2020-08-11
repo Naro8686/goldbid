@@ -68,6 +68,7 @@ class CreateAuctionJob implements ShouldQueue
             'start_price' => $this->product->start_price,
             'full_price' => $this->product->full_price,
             'bot_shutdown_price' => $this->product->bot_shutdown_price,
+            'bot_shutdown_count' => $this->product->bot_shutdown_count,
             'bid_seconds' => $this->product->step_time,
             'top' => $this->product->top,
             'step_price' => $this->product->step_price,

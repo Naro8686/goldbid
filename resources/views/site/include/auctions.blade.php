@@ -82,7 +82,7 @@
             </div>
             <div class="btn active">
                 <span class="price">{{$auction['price']}} руб</span>
-                <button>Ставка</button>
+                <button class="@if((bool)$auction['autoBid']) disabled @endif">Ставка</button>
             </div>
         @endif
         @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)

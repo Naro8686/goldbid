@@ -1,6 +1,19 @@
 @extends('layouts.admin')
 @section('content')
     <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <a href="{{route('admin.products.index')}}"
+                       class="btn btn-light btn-icon-split float-right mb-2">
+                            <span class="icon text-gray-600">
+                              <i class="fas fa-arrow-left"></i>
+                            </span>
+                        <span class="text">назад</span>
+                    </a>
+                </div>
+            </div>
+        </div>
         @include('admin.products.groups')
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -66,10 +79,23 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="bot_shutdown_price" class="col-sm-2 col-form-label">Отключение бота (руб)</label>
+                        <label for="bot_shutdown_count" class="col-sm-2 col-form-label">Отключения бота 1 (кол)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control @error('bot_shutdown_count') is-invalid @enderror"
+                                   id="bot_shutdown_count"
+                                   placeholder="0-1"
+                                   pattern="^(\d+)-(\d+)$"
+                                   name="bot_shutdown_count" value="{{old('bot_shutdown_count')}}">
+                            @error('bot_shutdown_count') <small class="text-danger">{{$message}}</small> @enderror
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bot_shutdown_price" class="col-sm-2 col-form-label">Отключение бота 2,3 (руб)</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control @error('bot_shutdown_price') is-invalid @enderror"
                                    id="bot_shutdown_price"
+                                   placeholder="0-1"
+                                   pattern="^(\d+)-(\d+)$"
                                    name="bot_shutdown_price" value="{{old('bot_shutdown_price')}}">
                             @error('bot_shutdown_price') <small class="text-danger">{{$message}}</small> @enderror
                         </div>

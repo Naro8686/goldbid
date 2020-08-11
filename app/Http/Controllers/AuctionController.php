@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\BidJob;
+use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
-use App\Models\Auction\Order;
 use App\Settings\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,7 +59,7 @@ class AuctionController extends Controller
             $auctions = Auction::auctionsForHomePage();
             return view('site.include.auctions', compact('auctions'))->render();
         } catch (\Throwable $e) {
-            Log::info($e->getMessage());
+            Log::error('add favorite ' . $e->getMessage());
         }
     }
 
@@ -86,18 +85,11 @@ class AuctionController extends Controller
                 $update->save();
                 $bid = $update;
             }
-        } else {
-            if (!is_null($request['count'])) {
-                $bid = $auto_bid->create(['status' => $status, 'user_id' => $user->id, 'count' => $request['count']]);
-                $bid = $bid->where('user_id' , $user->id)->first();
-            }
+        } elseif (!is_null($request['count'])) {
+            $bid = $auto_bid->create(['status' => $status, 'user_id' => $user->id, 'count' => $request['count']]);
         }
-        if (!is_null($bid) && $auction->winner()->nickname !== $bid->user->nickname) {
-            BidJob::dispatchIf($bid->update(['count' => $bid->count - 1]), $auction, $bid->user->nickname, $bid->user);
-        }
-
-        //AutoBidRun::dispatch();
-        return redirect()->back()->with('message', 'В разработке !');
+        AutoBidJob::dispatchIf((!is_null($bid) && $auction->winner()->nickname !== $bid->user->nickname), $bid);
+        return redirect()->back();
     }
 
     public function changeStatus($id = null)
@@ -116,7 +108,7 @@ class AuctionController extends Controller
             }
             return response()->json($html);
         } catch (\Throwable $e) {
-            Log::info('status_change.' . $e->getMessage());
+            Log::error('status_change.' . $e->getMessage());
         }
     }
 
