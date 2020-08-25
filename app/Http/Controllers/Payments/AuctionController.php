@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class AuctionController extends Controller
 {
@@ -25,6 +26,12 @@ class AuctionController extends Controller
         view()->share(['page' => (new Setting('order'))->page()]);
     }
 
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|void
+     * @throws Throwable
+     */
     public function winInfo($id, Request $request)
     {
         $data = [];
@@ -41,20 +48,28 @@ class AuctionController extends Controller
         if ((bool)$request["exchange"]) {
             try {
                 DB::beginTransaction();
-                $user->auctionOrder()
-                    ->create([
+                if ($ordered = $user->auctionOrder()->where('auction_id', '=', $auction['id'])->lockForUpdate()->first()) {
+                    if ((string)$ordered->status === Order::PENDING) {
+                        $run = $ordered->update(['status' => Order::SUCCESS, 'exchanged' => true]);
+                    } else throw new \Exception('error');
+                } else {
+                    $run = Order::firstOrCreate([
                         'status' => Order::SUCCESS,
                         'exchanged' => true,
+                        'user_id' => $user->id,
                         'auction_id' => $auction['id']
                     ]);
-                $user->balanceHistory()->create([
-                    'type' => Balance::PLUS,
-                    'bet' => $data['bet'],
-                    'bonus' => $data['bonus'],
-                    'reason' => Balance::EXCHANGE_REASON,
-                ]);
+                }
+                if ($run) {
+                    $user->balanceHistory()->create([
+                        'type' => Balance::PLUS,
+                        'bet' => $data['bet'],
+                        'bonus' => $data['bonus'],
+                        'reason' => Balance::EXCHANGE_REASON
+                    ]);
+                }
                 DB::commit();
-            } catch (\Exception $exception) {
+            } catch (Throwable $exception) {
                 DB::rollBack();
             }
             return redirect()->route('profile.balance');
@@ -62,7 +77,7 @@ class AuctionController extends Controller
             if ($request->ajax()) {
                 try {
                     $modal = view('site.include.winner_modal', compact('data'))->render();
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $modal = $e->getMessage();
                 }
                 return response()->json($modal);
@@ -95,6 +110,8 @@ class AuctionController extends Controller
                     'exchanged' => false,
                     'auction_id' => $auction->id
                 ]);
+        } else {
+            $order->update(['exchanged' => false]);
         }
         $type = $auction->type();
         if ($type !== Step::PRODUCT && !$winner) return abort(404);
@@ -221,7 +238,7 @@ class AuctionController extends Controller
             Mail::to(config('mail.from.address'))->later(2, new AuctionOrderSendMail($order));
             Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, ['order_num' => $order->order_num]));
         } catch (\Exception $e) {
-            Log::error('send mail for buy auction '.$e->getMessage());
+            Log::error('send mail for buy auction ' . $e->getMessage());
         }
         $order->update(['status' => Order::SUCCESS]);
         return redirect()->route('site.home')->with('message', 'Вы успешно оформили заказ ');

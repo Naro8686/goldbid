@@ -19,6 +19,7 @@ class CreateAutoBidsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('count')->default(0);
             $table->unsignedTinyInteger('status')->default(\App\Models\Auction\AutoBid::PENDING);
+            $table->timestamp('bid_time')->useCurrent();
             $table->foreign('auction_id')
                 ->references('id')
                 ->on('auctions')

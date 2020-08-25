@@ -47,6 +47,10 @@ Route::group(['as' => 'admin.'], function () {
     Route::resource('orders', 'OrderController')->only([
         'edit', 'update',
     ]);
+    Route::delete('bots/name/{id}/delete', 'BotController@nameDelete')->name('bots.destroy.name');
+    Route::resource('bots', 'BotController')->only([
+        'index', 'create', 'store', 'edit', 'update', 'destroy'
+    ]);
     Route::group(['as' => 'settings.', 'prefix' => 'settings'], function () {
         Route::match(['GET', 'POST'], '/mail', 'AdminController@mailConfig')->name('mail');
         Route::match(['GET', 'POST'], '/site', 'AdminController@siteConfig')->name('site');

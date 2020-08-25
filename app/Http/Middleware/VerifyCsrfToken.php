@@ -12,6 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        '/admin/pages/dynamic-page/upload/image'
+        '/admin/pages/dynamic-page/upload/image',
+        '/change-status/*',
+        '/change-status',
     ];
 }

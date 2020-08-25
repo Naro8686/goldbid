@@ -3,16 +3,16 @@
 namespace App\Events;
 
 use App\Models\Auction\Auction;
-use Carbon\Carbon;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BetEvent implements ShouldBroadcast
+class BetEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,6 +26,10 @@ class BetEvent implements ShouldBroadcast
     public function __construct(Auction $auction)
     {
         $this->auction = $auction;
+    }
+    public function broadcastWhen()
+    {
+        return ($this->auction->status === Auction::STATUS_ACTIVE);
     }
 
     public function broadcastWith()

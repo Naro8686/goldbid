@@ -173,7 +173,7 @@
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label">Изображения</label>
-                        <div class="col-sm-2 m-2">
+                        <div class="col-lg-2 m-2">
                             <input type="text"
                                    placeholder="alt 1"
                                    name="alt_1"
@@ -193,7 +193,7 @@
                             </div>
                             @error('file_1') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
-                        <div class="col-sm-2 m-2">
+                        <div class="col-lg-2 m-2">
                             <input type="text"
                                    placeholder="alt 2"
                                    name="alt_2"
@@ -213,7 +213,7 @@
                             </div>
                             @error('file_2') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
-                        <div class="col-sm-2 m-2">
+                        <div class="col-lg-2 m-2">
                             <input type="text"
                                    placeholder="alt 3"
                                    name="alt_3"
@@ -234,7 +234,7 @@
                             </div>
                             @error('file_3') <small class="text-danger">{{$message}}</small> @enderror
                         </div>
-                        <div class="col-sm-2 m-2">
+                        <div class="col-lg-2 m-2">
                             <input type="text"
                                    placeholder="alt 4"
                                    name="alt_4"

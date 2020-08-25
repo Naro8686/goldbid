@@ -44,28 +44,33 @@
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Аукционы</span></a>
         </li>
-        <li class="nav-item @if(request()->is('admin/users')) active @endif">
-            <a class="nav-link" href="{{route('admin.users.index')}}">
-                <i class="fas fa-fw fa-user-alt"></i>
-                <span>Пользователи</span></a>
-        </li>
         <li class="nav-item @if(request()->is('admin/products') || request()->is('admin/products/*')) active @endif">
             <a class="nav-link" href="{{route('admin.products.index')}}">
                 <i class="fas fa-fw fa-cog"></i>
                 <span>Каталог</span>
             </a>
         </li>
-
+        <li class="nav-item @if(request()->is('admin/users')) active @endif">
+            <a class="nav-link" href="{{route('admin.users.index')}}">
+                <i class="fas fa-fw fa-user-alt"></i>
+                <span>Пользователи</span></a>
+        </li>
+        <li class="nav-item @if(request()->is('admin/bots')) active @endif">
+            <a class="nav-link" href="{{route('admin.bots.index')}}">
+                <i class="fas fa-fw fa-robot"></i>
+                <span>Боты</span></a>
+        </li>
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link @if(request()->route()->getPrefix()!=='admin/settings') collapsed @endif" href="#"
+            <a class="nav-link @if(!is_null(request()->route()) && request()->route()->getPrefix()!=='admin/settings') collapsed @endif"
+               href="#"
                data-toggle="collapse" data-target="#collapseUtilities"
                aria-expanded="true" aria-controls="collapseUtilities">
                 <i class="fas fa-fw fa-wrench"></i>
                 <span>Настройки</span>
             </a>
             <div id="collapseUtilities"
-                 class="collapse @if(request()->route()->getPrefix()==='admin/settings') show @endif"
+                 class="collapse @if(!is_null(request()->route()) && request()->route()->getPrefix()==='admin/settings') show @endif"
                  aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
@@ -88,13 +93,15 @@
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link @if(request()->route()->getPrefix()!=='admin/pages') collapsed @endif" href="#"
+            <a class="nav-link @if(!is_null(request()->route()) && request()->route()->getPrefix()!=='admin/pages') collapsed @endif"
+               href="#"
                data-toggle="collapse" data-target="#collapsePages"
                aria-expanded="true" aria-controls="collapsePages">
                 <i class="fas fa-fw fa-folder"></i>
                 <span>Страницы</span>
             </a>
-            <div id="collapsePages" class="collapse @if(request()->route()->getPrefix()==='admin/pages') show @endif"
+            <div id="collapsePages"
+                 class="collapse @if(!is_null(request()->route()) && request()->route()->getPrefix()==='admin/pages') show @endif"
                  aria-labelledby="headingPages" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item @if(request()->is('admin/pages/home')) active @endif"
@@ -139,34 +146,36 @@
                     <i class="fa fa-bars"></i>
                 </button>
                 <!-- Topbar Navbar -->
-                <ul class="navbar-nav ml-auto">
-                    <div class="topbar-divider d-none d-sm-block"></div>
+                @auth
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
 
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span
                                 class="mr-2 d-none d-lg-inline text-gray-600 small">{{auth()->user()->nickname}}</span>
-                            <img class="img-profile rounded-circle" src="{{auth()->user()->avatar()}}">
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="{{route('admin.profile')}}">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Профиль
+                                <img class="img-profile rounded-circle" src="{{auth()->user()->avatar()}}">
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Выйти
-                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{{route('admin.profile')}}">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Профиль
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Выйти
+                                </a>
 
-                        </div>
-                    </li>
+                            </div>
+                        </li>
 
-                </ul>
+                    </ul>
+                @endauth
 
             </nav>
             <!-- Notify -->
@@ -183,15 +192,6 @@
                                 {{ session('error') }}
                             </div>
                         @endif
-                        {{-- @if ($errors->any())--}}
-                        {{--    <div class="alert alert-danger">--}}
-                        {{--         <ul>--}}
-                        {{--         @foreach ($errors->all() as $error)--}}
-                        {{--            <li>{{ $error }}</li>--}}
-                        {{--         @endforeach--}}
-                        {{--         </ul>--}}
-                        {{--    </div>--}}
-                        {{-- @endif--}}
                     </div>
                 </div>
             </div>
@@ -283,7 +283,7 @@
                     <div class="btn-group w-100" role="group" aria-label="Basic example">
                         <button type="button" data-dismiss="modal" class="btn btn-secondary btn-icon-split">
                         <span class="icon text-white-50">
-                          <i class="fas fa-info-circle"></i>
+                          <i class="fas fa-times-circle"></i>
                         </span>
                             <span class="text">Нет</span>
                         </button>

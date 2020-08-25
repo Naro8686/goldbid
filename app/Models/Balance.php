@@ -4,6 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Balance
+ *
+ * @property int $id
+ * @property int $type
+ * @property string|null $reason
+ * @property int $bet
+ * @property int $bonus
+ * @property int|null $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $user
+ * @property-read int|null $user_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereBet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereBonus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Balance whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Balance extends Model
 {
     protected $fillable = ['type', 'reason', 'bet', 'bonus', 'user_id'];

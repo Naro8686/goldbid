@@ -12,6 +12,92 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * App\Models\User
+ *
+ * @property int $id
+ * @property bool $is_admin
+ * @property bool $has_ban
+ * @property string $nickname
+ * @property string|null $avatar
+ * @property string|null $fname
+ * @property string|null $lname
+ * @property string|null $mname
+ * @property string $phone
+ * @property string|null $country
+ * @property string|null $postcode
+ * @property string|null $region
+ * @property string|null $city
+ * @property string|null $street
+ * @property string|null $gender
+ * @property \Illuminate\Support\Carbon|null $birthday
+ * @property string|null $sms_code
+ * @property \Illuminate\Support\Carbon|null $sms_verified_at
+ * @property string|null $email
+ * @property int|null $email_code
+ * @property \Illuminate\Support\Carbon|null $email_code_verified
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string $password
+ * @property \Illuminate\Support\Carbon $is_online
+ * @property int|null $payment_type
+ * @property int|null $ccnum
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|Order[] $auctionOrder
+ * @property-read int|null $auction_order_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|AutoBid[] $autoBid
+ * @property-read int|null $auto_bid_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Balance[] $balanceHistory
+ * @property-read int|null $balance_history_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Bid[] $bid
+ * @property-read int|null $bid_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CouponOrder[] $couponOrder
+ * @property-read int|null $coupon_order_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Auction[] $favorite
+ * @property-read int|null $favorite_count
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $referrals
+ * @property-read int|null $referrals_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $referred
+ * @property-read int|null $referred_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Mailing[] $subscribe
+ * @property-read int|null $subscribe_count
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereBirthday($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCcnum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailCodeVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGender($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereHasBan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsAdmin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsOnline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereMname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereNickname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePaymentType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePostcode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRegion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSmsCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSmsVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereStreet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class User extends Authenticatable
 {
     use Notifiable;

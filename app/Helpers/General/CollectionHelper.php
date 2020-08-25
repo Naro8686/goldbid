@@ -9,6 +9,12 @@ use Illuminate\Support\Collection;
 
 class CollectionHelper
 {
+    /**
+     * @param Collection $results
+     * @param $pageSize
+     * @return LengthAwarePaginator
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public static function paginate(Collection $results, $pageSize)
     {
         $page = Paginator::resolveCurrentPage('page');
@@ -31,6 +37,7 @@ class CollectionHelper
      * @param int $currentPage
      * @param array $options
      * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected static function paginator($items, $total, $perPage, $currentPage, $options)
     {

@@ -7,13 +7,11 @@ namespace App\Settings;
 use App\Models\Mail;
 use App\Models\Pages\Footer;
 use App\Models\User;
-use App\Models\Setting as Config;
+use App\Models\Setting as ConfigSite;
 use App\Models\Pages\Page;
 use Exception;
 use Illuminate\Support\Str;
-
 use stdClass;
-
 
 class Setting
 {
@@ -23,12 +21,10 @@ class Setting
      * Setting constructor.
      * @param string|null $slug
      */
-    public function __construct($slug)
+    public function __construct(?string $slug)
     {
         $slug = Str::slug($slug);
-
         $this->page = new stdClass;
-
         $this->page->footer = new stdClass;
         $this->page->meta = Page::whereSlug($slug)->first() ?? Page::query()->firstOrNew();
         $this->page->footer->social = Footer::query()
@@ -176,7 +172,7 @@ class Setting
 
     public static function siteConfig()
     {
-        return Config::query()->first() ?? Config::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
+        return ConfigSite::query()->first() ?? ConfigSite::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
     }
 
     public static function emailRandomCode()

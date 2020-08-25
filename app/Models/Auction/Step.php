@@ -4,6 +4,28 @@ namespace App\Models\Auction;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Auction\Step
+ *
+ * @property int $id
+ * @property int $step
+ * @property string|null $type
+ * @property bool|null $for_winner
+ * @property string|null $text
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|Step newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Step newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Step query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereForWinner($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereStep($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Step whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Step extends Model
 {
     const PRODUCT = 'product';

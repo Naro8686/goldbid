@@ -4,10 +4,8 @@ namespace App\Console\Commands;
 
 use App\Jobs\DeleteAuctionInNotWinner;
 use App\Models\Auction\Auction;
-use App\Models\Setting;
-use Carbon\Carbon;
+use App\Models\Setting as ConfigSite;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class CheckAuctionsStatus extends Command
 {
@@ -42,7 +40,7 @@ class CheckAuctionsStatus extends Command
      */
     public function handle()
     {
-        $config = Setting::query()->whereNotNull('storage_period_month')->first();
+        $config = ConfigSite::query()->whereNotNull('storage_period_month')->first();
         $auctions = Auction::query()->whereNotNull('end')->get();
         foreach ($auctions as $key => $auction) {
             if ($auction->active && !(bool)$auction->end->addHours(72)->diff(now())->invert)

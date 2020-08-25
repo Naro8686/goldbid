@@ -83,5 +83,6 @@ class CreateAuctionJob implements ShouldQueue
             'slug' => $new->id,
             'title' => $new->title,
         ]);
+        event(new StatusChangeEvent(['status_change' => true]));
     }
 }

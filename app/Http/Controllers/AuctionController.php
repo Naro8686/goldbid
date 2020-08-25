@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
+use App\Models\Auction\AutoBid;
 use App\Settings\Setting;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 
 class AuctionController extends Controller
@@ -31,6 +34,8 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
+//        $auc =Auction::query()->with('bid')->find(92);
+//        dd($auc->bid()->where('bids.created_at','>',$auc->end)->get()->groupBy('bids.user_id'));
         if (Auth::check()) {
             $closeAuction = Auction::query()
                 ->whereHas('bid', function ($query) {
@@ -58,7 +63,7 @@ class AuctionController extends Controller
         try {
             $auctions = Auction::auctionsForHomePage();
             return view('site.include.auctions', compact('auctions'))->render();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('add favorite ' . $e->getMessage());
         }
     }
@@ -68,34 +73,39 @@ class AuctionController extends Controller
         $bid = null;
         $user = Auth::user();
         $balance = $user->balance();
-        $max_count = $balance->bet + $balance->bonus;
-        $request->validate([
-            'count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']
-        ]);
+        $max_count = ($balance->bet + $balance->bonus);
+        $request->validate(['count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']]);
+        $time = Carbon::now()->timezone("Europe/Moscow");
         $auction = Auction::query()->where('status', Auction::STATUS_ACTIVE)->findOrFail($id);
         $auto_bid = $auction->autoBid();
-        $status = (int)!$auto_bid->exists();
-        if ($auto_bid->where('user_id', $user->id)->exists()) {
-            if ((int)$request['count'] === 0)
-                $auto_bid->where('user_id', $user->id)->delete();
-            else {
-                $update = $auto_bid->where('user_id', $user->id)->first();
-                $update->count = $request['count'];
-                $update->timestamps = false;
-                $update->save();
-                $bid = $update;
+        $count = (int)$request['count'];
+        try {
+            if ($first = $auto_bid->where('user_id', $user->id)->first()) {
+                if ($count === 0) $first->delete();
+                else $first->update(['count' => $count]);
+            } elseif ((bool)$count) {
+                $bid = $auto_bid->create([
+                    'user_id' => $user->id,
+                    'count' => $count,
+                    'bid_time' => $time,
+                    'status' => AutoBid::WORKED
+                ]);
+                AutoBidJob::dispatchAfterResponse($bid);
             }
-        } elseif (!is_null($request['count'])) {
-            $bid = $auto_bid->create(['status' => $status, 'user_id' => $user->id, 'count' => $request['count']]);
+        } catch (Throwable $e) {
+            return redirect()->back()->with('status', $e->getMessage());
         }
-        AutoBidJob::dispatchIf((!is_null($bid) && $auction->winner()->nickname !== $bid->user->nickname), $bid);
         return redirect()->back();
     }
 
-    public function changeStatus($id = null)
+    /**
+     * @param int|null $id
+     * @param array $html
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changeStatus($id = null, $html = [])
     {
         try {
-            $html = [];
             $auctions = Auction::auctionsForHomePage();
             $html['home_page'] = view('site.include.auctions', compact('auctions'))->render();
             if (!is_null($id)) {
@@ -106,10 +116,10 @@ class AuctionController extends Controller
                 unset($auction['terms']);
                 $html['auction_page'] = view('site.include.info', compact('auction'))->render();
             }
-            return response()->json($html);
-        } catch (\Throwable $e) {
-            Log::error('status_change.' . $e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
         }
+        return response()->json($html);
     }
 
 

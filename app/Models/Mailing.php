@@ -4,6 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Mailing
+ *
+ * @property int $id
+ * @property int $type
+ * @property string|null $title
+ * @property string $subject
+ * @property string|null $text
+ * @property bool $visibly
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailing whereVisibly($value)
+ * @mixin \Eloquent
+ */
 class Mailing extends Model
 {
     const ADS = 0;

@@ -36,9 +36,7 @@ $(document).on('click', '.btn.active,.inf__active button', function (e) {
     let auction_id = $(this).closest('div[data-auction-id]').attr('data-auction-id');
     if (auction_id)
         $.get(`${URL}/bet/${auction_id}`, (data) => {
-            if (data) {
-                $('.response').empty().html(data);
-            }
+            if (data) $('.response').empty().html(data);
         });
 });
 $(document).mouseup(function (e) {
@@ -57,7 +55,6 @@ $(document).on('click', '.notify__modal__btn__close', function () {
 $(document).on('click', '.my___win', function (e) {
     e.preventDefault();
     let auction_id = $(this).data('id');
-
     $.get(`${URL}/payment/${auction_id}/win-info`, function (data) {
         $('.response').empty().html(data);
     });
@@ -139,13 +136,13 @@ function copyToClipboard(elem) {
 }
 
 function countdown(element, timer = null) {
-    element.find('[data-countdown]').each(function () {
-        let $this = $(this), seconds = timer ?? $(this).data('countdown');
+    element.find('[data-countdown]').each(function (e, v) {
+        let $this = $(this), seconds = (timer !== null) ? timer : $(this).data('countdown');
         let time = new Date();
-        time.setSeconds(time.getSeconds() + seconds);
-        $this.countdown(time)
+        let countdown = time.setSeconds(time.getSeconds() + seconds);
+        $this.countdown(countdown)
             .on('update.countdown', (event) => {
-                let H = event.offset.totalDays * 24 + event.offset.hours;
+                let H = (event.offset.totalDays * 24 + event.offset.hours);
                 if (H < 10) H = `0${H}`;
                 if ($this.hasClass('to__start'))
                     $this.html(event.strftime(`${H}:%M:%S`));
@@ -159,12 +156,12 @@ function countdown(element, timer = null) {
 }
 
 function ChangeStatus(id = null) {
-    let url = `${URL}/${id}/change-status`;
+    let url = ((id !== null) ? `${URL}/change-status/${id}` : `${URL}/change-status`);
     let home_page = $('#home_page');
     let auction_page = $('#auction_page[data-auction-id="' + id + '"]');
     $.post(url, function (data) {
         if (data.home_page) {
-            home_page.empty().html(data.home_page);
+            home_page.html(data.home_page);
             countdown(home_page);
         }
         if (data.auction_page) {

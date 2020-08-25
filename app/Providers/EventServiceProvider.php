@@ -4,13 +4,13 @@ namespace App\Providers;
 
 use App\Events\BetEvent;
 use App\Events\StatusChangeEvent;
+use App\Listeners\AutoBidListener;
 use App\Listeners\BetListener;
 use App\Listeners\StatusChangeListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
-
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -22,8 +22,9 @@ class EventServiceProvider extends ServiceProvider
         StatusChangeEvent::class => [
             StatusChangeListener::class,
         ],
-        BetEvent::class=>[
+        BetEvent::class => [
             BetListener::class,
+            AutoBidListener::class,
         ]
     ];
 
@@ -36,8 +37,4 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
     }
-//    public function shouldDiscoverEvents()
-//    {
-//        return true;
-//    }
 }

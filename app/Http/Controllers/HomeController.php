@@ -57,7 +57,8 @@ class HomeController extends Controller
                 'theme' => ['required', 'integer'],
                 'message' => ['required', 'string', 'max:250'],
                 'file' => ['sometimes', 'mimes:jpeg,jpg,png,gif,svg,doc,docx,pdf', 'max:2048'],
-                'g-recaptcha-response' => ['required', 'recaptcha']
+                'g-recaptcha-response' => ['required', 'recaptcha'],
+                'personal_data' => ['required'],
             ]);
             try {
                 $request['theme'] = Setting::feedbackTheme($request['theme']);
@@ -80,7 +81,8 @@ class HomeController extends Controller
                 'email' => ['required', 'email', 'max:150'],
                 'message' => ['required', 'string', 'max:250'],
                 'file' => ['sometimes', 'image', 'mimes:jpeg,jpg,png,gif,svg', 'max:2048'],
-                'g-recaptcha-response' => ['required', 'recaptcha']
+                'g-recaptcha-response' => ['required', 'recaptcha'],
+                'personal_data' => ['required'],
             ]);
             try {
                 Mail::to(config('mail.from.address'))->later(5, new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));

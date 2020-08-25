@@ -42,6 +42,14 @@
                 @error('message')
                 <small class="alert alert-danger" role="alert">{{ $message }}</small>
                 @enderror
+                <label>
+                    <input style="margin-top:10px;width: 15px" type="checkbox"
+                           @if(old('personal_data')) checked @endif
+                           @error('personal_data') class="fail" @enderror
+                           name="personal_data">
+                    На <a href="{{Setting::dynamicURL('personal-data')}}">обработку</a> персональных данных
+                    согласен
+                </label>
                 <br><br>
                 @if(config('recaptcha.key'))
                     <div class="g-recaptcha"

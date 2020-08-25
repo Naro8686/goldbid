@@ -8,6 +8,83 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * App\Models\Auction\Auction
+ *
+ * @property int $id
+ * @property string $title
+ * @property string|null $short_desc
+ * @property string|null $desc
+ * @property string|null $specify
+ * @property string|null $terms
+ * @property string|null $img_1
+ * @property string|null $img_2
+ * @property string|null $img_3
+ * @property string|null $img_4
+ * @property string|null $alt_1
+ * @property string|null $alt_2
+ * @property string|null $alt_3
+ * @property string|null $alt_4
+ * @property string $start_price
+ * @property string $full_price
+ * @property string|null $bot_shutdown_count
+ * @property string|null $bot_shutdown_price
+ * @property int $bid_seconds
+ * @property Carbon|null $step_time
+ * @property int $step_price
+ * @property Carbon $start
+ * @property Carbon|null $end
+ * @property bool $exchange
+ * @property bool $buy_now
+ * @property bool $top
+ * @property bool $active
+ * @property int $status
+ * @property int|null $product_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auction\AutoBid[] $autoBid
+ * @property-read int|null $auto_bid_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Auction\Bid[] $bid
+ * @property-read int|null $bid_count
+ * @property-read \App\Models\Auction\Product|null $product
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $userFavorites
+ * @property-read int|null $user_favorites_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereAlt1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereAlt2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereAlt3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereAlt4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereBidSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereBotShutdownCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereBotShutdownPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereBuyNow($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereDesc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereExchange($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereFullPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereImg1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereImg2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereImg3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereImg4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereShortDesc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereSpecify($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereStartPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereStepPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereStepTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereTop($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Auction whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Auction extends Model
 {
     const BET_RUB = 0.1;
@@ -76,7 +153,7 @@ class Auction extends Model
     public function bidTable()
     {
         $tr = "";
-        foreach ($this->bid()->orderBy('id', 'desc')->get() as $bid) {
+        foreach ($this->bid()->orderBy('id', 'desc')->take(5)->get() as $bid) {
             $tr .= "<tr>
                       <td>{$bid->price} руб</td>
                       <td>{$bid->nickname}</td>
@@ -291,12 +368,13 @@ class Auction extends Model
 
     public static function auctionPage($id)
     {
+        /** @var Auction $auction */
         $auction = self::query()->where('active', true)->findOrFail($id);
         $data = self::auctionsForHomePage()->firstWhere('id', '=', $id);
         $data['desc'] = $auction->desc;
         $data['specify'] = $auction->specify;
         $data['terms'] = $auction->terms;
-        $data['bids'] = $auction->bid->sortByDesc('id');
+        $data['bids'] = $auction->bid()->orderBy('id', 'desc')->take(5)->get();
         $data['bet'] = $data['bonus'] = 0;
         if (Auth::check() && $user = Auth::user()) {
             $bid = $user->bid->where('auction_id', $id);
@@ -308,15 +386,14 @@ class Auction extends Model
 
     public function bidDataForUser()
     {
-        $last = $this->winner();
+        $last = $this->bid()->orderBy('bids.id', 'desc')
+            ->first(['bids.user_id', 'bids.auction_id', 'bids.nickname', 'bids.price']);
         $data['user'] = [];
         $data['auction'] = [];
-        if (!is_null($last->user_id) && $user = User::query()->find($last->user_id)) {
+        if (!is_null($last) && $user = User::query()->find($last->user_id)) {
             $balance = $user->balance();
             $bid = $user->bid->where('auction_id', $last->auction_id);
-            $autoBid = $user->autoBid()
-                ->where('auto_bids.auction_id', $last->auction_id)
-                ->first();
+            $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first();
             $data['user']['id'] = $user->id;
             $data['user']['bet'] = $balance->bet;
             $data['user']['bonus'] = $balance->bonus;

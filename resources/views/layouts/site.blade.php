@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{$page->meta->title()??''}}</title>
-    <meta name="keywords" content="{{$page->meta->keywords??''}}">
-    <meta name="description" content="{{$page->meta->description??''}}">
+    <title>{{isset($page) ? $page->meta->title() : 'GoldBid'}}</title>
+    <meta name="keywords" content="{{$page->meta->keywords ?? ''}}">
+    <meta name="description" content="{{$page->meta->description ?? ''}}">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     @stack('css')
     <link href="{{asset('site/css/humburger.css')}}" rel="stylesheet">
@@ -15,8 +15,8 @@
     <link href="{{asset('site/css/agree_cookie.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
-    <script src='https://www.google.com/recaptcha/api.js'></script>
     <script src="{{asset('js/app.js')}}"></script>
+    <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 
 <body>
@@ -203,15 +203,20 @@
 <div class="nav">
     <div class="container">
         <ul>
-            <li @if(request()->route()->getName()==='site.home') class="active" @endif><a
+            <li @if(!is_null(request()->route()) && request()->route()->getName()==='site.home') class="active" @endif>
+                <a
                     href="{{url('/')}}">Аукцион</a></li>
-            <li @if(request()->route()->getName()==='site.how_it_works') class="active" @endif><a
+            <li @if(!is_null(request()->route()) && request()->route()->getName()==='site.how_it_works') class="active" @endif>
+                <a
                     href="{{route('site.how_it_works')}}">Как это работает</a></li>
-            <li @if(request()->route()->getName()==='site.coupon') class="active" @endif><a
+            <li @if(!is_null(request()->route()) && request()->route()->getName()==='site.coupon') class="active" @endif>
+                <a
                     href="{{route('site.coupon')}}">Пополнить баланс</a></li>
-            <li @if(request()->route()->getName()==='site.reviews') class="active" @endif><a
+            <li @if(!is_null(request()->route()) && request()->route()->getName()==='site.reviews') class="active" @endif>
+                <a
                     href="{{route('site.reviews')}}">Отзывы</a></li>
-            <li @if(request()->route()->getName()==='site.feedback') class="active" @endif><a
+            <li @if(!is_null(request()->route()) && request()->route()->getName()==='site.feedback') class="active" @endif>
+                <a
                     href="{{route('site.feedback')}}">Обратная связь</a></li>
         </ul>
     </div>
@@ -266,28 +271,34 @@
         </nav>
         <nav class="social">
             <ul>
-                @foreach($page->footer->social as $social)
-                    <li>
-                        <img src="{{asset($social->icon)}}" alt="">
-                        <a href="{{$social->link}}">
-                            <span>{{$social->name}}</span>
-                        </a>
-                    </li>
-                @endforeach
+                @if(isset($page))
+                    @foreach($page->footer->social as $social)
+                        <li>
+                            <img src="{{asset($social->icon)}}" alt="">
+                            <a href="{{$social->link}}">
+                                <span>{{$social->name}}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
             </ul>
         </nav>
         <nav>
             <ul>
-                @foreach($page->footer->left as $left)
-                    <li><a href="{{url($left->link)}}">{{$left->name}}</a></li>
-                @endforeach
+                @if(isset($page))
+                    @foreach($page->footer->left as $left)
+                        <li><a href="{{url($left->link)}}">{{$left->name}}</a></li>
+                    @endforeach
+                @endif
             </ul>
         </nav>
         <nav style="text-align: right">
             <ul>
-                @foreach($page->footer->right as $right)
-                    <li><a href="{{url($right->link)}}">{{$right->name}}</a></li>
-                @endforeach
+                @if(isset($page))
+                    @foreach($page->footer->right as $right)
+                        <li><a href="{{url($right->link)}}">{{$right->name}}</a></li>
+                    @endforeach
+                @endif
             </ul>
         </nav>
     </div>

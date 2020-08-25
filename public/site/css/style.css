@@ -757,7 +757,6 @@ input[type="checkbox"].fail {
 @media screen and (max-width: 1024px) {
     .slick-prev {
         left: 90px;
-        z-index: 100;
     }
 
     .slick-next {
@@ -951,4 +950,12 @@ input[type="checkbox"].fail {
 .auction .card .inf {
     min-height: 40px;
     padding: 5px 0;
+}
+
+.text-gray-800 {
+    color: #5a5c69;
+}
+.lead {
+    font-size: 1.2rem;
+    font-weight: 400;
 }

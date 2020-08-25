@@ -211,6 +211,9 @@
 }
 
 @media screen and (max-width: 992px) {
+    .header .container .right .userin .accaunt:hover .drop-menu{
+        display: none;
+    }
     .header .container {
         /* padding: 0 15px; */
     }

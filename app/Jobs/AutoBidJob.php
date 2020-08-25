@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AutoBidJob implements ShouldQueue
 {
@@ -18,40 +19,40 @@ class AutoBidJob implements ShouldQueue
 
     /**
      * AutoBidJob constructor.
-     * @param AutoBid $active
+     * @param AutoBid $autoBid
      */
-    public $active;
+    public $autoBid;
 
-    public function __construct(AutoBid $active)
+    public function __construct(AutoBid $autoBid)
     {
-        $this->active = $active;
+        $this->autoBid = $autoBid;
     }
 
     /**
      * Execute the job.
      *
      * @return void
-     * @throws \Exception
+     * @throws Throwable
      */
     public function handle()
     {
-        $autoBid = $this->active;
-        $user = $autoBid->user;
-        $auction = $autoBid->auction;
-        $balance = $user->balance();
-        try {
-            DB::beginTransaction();
-            if ($autoBid->count <= 0 || ($balance->bet + $balance->bonus) <= 0 || $auction->status === Auction::STATUS_FINISHED) {
-                $autoBid->delete();
-            } else {
-                //if ($auction->winner()->nickname !== $user->nickname) {
-                $autoBid->decrement('count');
+        if ($autoBid = $this->autoBid) {
+            try {
+                $user = $autoBid->user;
+                $auction = $autoBid->auction;
+                DB::beginTransaction();
+                $data['bid_time'] = Carbon::now()->timezone("Europe/Moscow");
+                $data['status'] = AutoBid::PENDING;
+                if ($auction->winner()->nickname !== $user->nickname) {
+                    $autoBid->minus();
+                }
+                $autoBid->update($data);
                 BidJob::dispatch($auction, $user->nickname, $user);
-                //}
+                DB::commit();
+            } catch (Throwable $exception) {
+                DB::rollBack();
+                Log::error('AutoBidJob ' . $exception->getMessage());
             }
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollBack();
         }
     }
 }

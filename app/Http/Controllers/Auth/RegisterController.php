@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Validator;
 class RegisterController extends Controller
 {
     protected $rules = [
-        'nickname.unique' => 'этот ник уже занят',
+        'nickname.unique' => 'Этот ник уже занят',
         'nickname.required' => 'Это поле обезательно для заполнения ',
+        'nickname.without_spaces' => 'Удалите пробелы ',
         'phone.unique' => 'этот номер уже используется',
         'password.min' => 'Пароль должен быть не менее 8 символов',
         'g-recaptcha-response.required' => 'проверка captcha не пройдена',
@@ -60,7 +61,7 @@ class RegisterController extends Controller
     {
         $data['phone'] = User::unsetPhoneMask($data['phone']);
         return Validator::make($data, [
-            'nickname' => ['required', 'string', 'max:16', 'unique:users'],
+            'nickname' => ['required', 'string', 'max:16', 'unique:users', 'unique:bot_names,name,' . $data['nickname'],'without_spaces'],
             'phone' => ['required', 'numeric', 'digits:11', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms_of_use' => ['required'],
@@ -80,7 +81,7 @@ class RegisterController extends Controller
     {
         $referred_by = Cookie::get('referral');
         $user = User::query()->create([
-            'nickname' => $data['nickname'],
+            'nickname' => trim($data['nickname']),
             'phone' => User::unsetPhoneMask($data['phone']),
             'password' => Hash::make($data['password']),
         ]);

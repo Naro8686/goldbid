@@ -3,10 +3,17 @@
 namespace App\Listeners;
 
 use App\Events\StatusChangeEvent;
+use App\Jobs\CreateAuctionJob;
+use App\Jobs\DeleteAuctionInNotWinner;
+use App\Mail\MailingSendMail;
+use App\Models\Auction\Auction;
+use App\Models\Mailing;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class StatusChangeListener implements ShouldQueue
 {

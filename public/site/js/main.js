@@ -24,6 +24,8 @@ $(document).ready(function () {
                         else
                             input.after(`<small class="alert alert-danger">${errors[key][0]}</small>`);
                     });
+                } else if (response.status === 419) {
+                    window.location.assign('/register');
                 } else {
                     window.location.reload();
                 }
@@ -58,6 +60,8 @@ $(document).ready(function () {
                         else
                             input.after(`<small class="alert alert-danger">${errors[key][0]}</small>`);
                     });
+                } else if (response.status === 419) {
+                    window.location.assign('/login');
                 } else {
                     window.location.reload();
                 }

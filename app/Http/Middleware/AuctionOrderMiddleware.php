@@ -27,8 +27,8 @@ class AuctionOrderMiddleware
 
         if (!is_null($id) && !is_null($user)) {
             $ordered = $user->auctionOrder()
-                ->where('auction_id', '=', $id)
-                ->where('status', '<>', Order::PENDING)
+                ->where('orders.auction_id', '=', $id)
+                ->where('orders.status', '<>', Order::PENDING)
                 ->exists();
             if ($ordered) {
                 if ($request->ajax()) {
