@@ -87,7 +87,7 @@ class StatusChangeCommand extends Command
     {
         try {
             DB::beginTransaction();
-            if ($pending = Auction::find($auction->id)){
+            if ($pending = Auction::find($auction->id)) {
                 $pending->update([
                     'status' => Auction::STATUS_ACTIVE,
                     'step_time' => $now->addSeconds($auction->bid_seconds)
@@ -111,8 +111,9 @@ class StatusChangeCommand extends Command
         try {
             DB::beginTransaction();
             if ($finished = Auction::find($auction->id)) {
-                if ($finished->update(['status' => Auction::STATUS_FINISHED, 'end' => $end, 'top' => false]))
+                if ($finished->update(['status' => Auction::STATUS_FINISHED, 'end' => $end, 'top' => false])) {
                     CreateAuctionJob::dispatchIf((isset($finished->product) && $finished->product->visibly), $finished->product);
+                }
                 if ($bid = $finished->bid->last()) {
                     $bid->win = true;
                     $bid->save(['timestamp' => false]);
@@ -120,13 +121,14 @@ class StatusChangeCommand extends Command
                         if ($user->email)
                             Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
                     }
-                } else
+                } else {
                     DeleteAuctionInNotWinner::dispatchIf(isset($finished), $finished)->delay(now()->addSeconds(5));
+                }
             }
             DB::commit();
         } catch (Throwable $e) {
-            DB::rollBack();
             Log::error('status_change_active' . $e->getMessage());
+            DB::rollBack();
         }
         event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
     }

@@ -165,7 +165,7 @@ function ChangeStatus(id = null) {
             countdown(home_page);
         }
         if (data.auction_page) {
-            auction_page.empty().html(data.auction_page);
+            auction_page.html(data.auction_page);
             countdown(auction_page);
         }
     });

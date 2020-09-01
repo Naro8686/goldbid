@@ -19,6 +19,5 @@ class TestSeeder extends Seeder
         if (!is_dir(public_path('site/img/product'))) mkdir(public_path('site/img/product'), 0777,true);
         factory(User::class, 100)->create();
         factory(Product::class, 2)->create();
-        factory(BotName::class, 20)->create();
     }
 }

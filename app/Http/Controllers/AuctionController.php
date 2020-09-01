@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BetEvent;
 use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
 use App\Settings\Setting;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +53,10 @@ class AuctionController extends Controller
         return view('site.auction', compact('auction'));
     }
 
+    /**
+     * @param $id
+     * @return array|string
+     */
     public function addFavorite($id)
     {
         $auction = Auction::query()->findOrFail($id);
@@ -68,6 +74,12 @@ class AuctionController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws Throwable
+     */
     public function autoBid($id, Request $request)
     {
         $bid = null;
@@ -80,20 +92,24 @@ class AuctionController extends Controller
         $auto_bid = $auction->autoBid();
         $count = (int)$request['count'];
         try {
+            DB::beginTransaction();
             if ($first = $auto_bid->where('user_id', $user->id)->first()) {
                 if ($count === 0) $first->delete();
                 else $first->update(['count' => $count]);
             } elseif ((bool)$count) {
+                $run = ($auto_bid->where('auto_bids.status', AutoBid::WORKED)->count() === 0);
                 $bid = $auto_bid->create([
                     'user_id' => $user->id,
                     'count' => $count,
                     'bid_time' => $time,
-                    'status' => AutoBid::WORKED
+                    'status' => (int)$run
                 ]);
-                AutoBidJob::dispatchAfterResponse($bid);
+                AutoBidJob::dispatchIf($bid->status === AutoBid::WORKED, $bid)->afterResponse();
             }
+            DB::commit();
         } catch (Throwable $e) {
-            return redirect()->back()->with('status', $e->getMessage());
+            Log::error('function autoBid = ' . $e->getMessage());
+            DB::rollBack();
         }
         return redirect()->back();
     }
@@ -117,7 +133,9 @@ class AuctionController extends Controller
                 $html['auction_page'] = view('site.include.info', compact('auction'))->render();
             }
         } catch (Throwable $e) {
-            Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
+
+            if ($e->getCode() !== 0)
+                Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
         }
         return response()->json($html);
     }

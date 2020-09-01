@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Log;
+use Throwable;
 
 /**
  * App\Models\Auction\Auction
@@ -172,13 +174,12 @@ class Auction extends Model
 
     public function status()
     {
-        $text = '';
         $winner = ($this->winner()->is_bot) ? 'бот' : 'игрок';
         if ((int)$this->status === self::STATUS_ACTIVE) $text = 'Активный';
         if ((int)$this->status === self::STATUS_PENDING) $text = 'Скоро начало';
         if ((int)$this->status === self::STATUS_FINISHED) $text = "Победил {$winner}";
         if ((int)$this->status === self::STATUS_ERROR) $text = 'Ошибка';
-        return $text;
+        return $text ?? '';
     }
 
     public function price()
@@ -273,15 +274,13 @@ class Auction extends Model
 
     public function exchangeBetBonus($user_id = null)
     {
+        $bet = $bonus = 0;
         if (isset($this->bid) && $this->status === self::STATUS_FINISHED && !is_null($user_id)) {
-            //$user_bet = $this->bid()->where('user_id', $user_id)->sum('bet');
-            //$new_price = ($this->full_price - $this->winner()->price - ($user_bet * self::BET_RUB));
             $new_price = $this->full_price;
             $bet = (int)round($new_price / 10);
             $bonus = (int)round($bet / 2);
-            return ['bet' => $bet, 'bonus' => $bonus];
-        } else
-            return ['bet' => 0, 'bonus' => 0];
+        }
+        return ['bet' => $bet, 'bonus' => $bonus];
     }
 
     public function step_time()
@@ -384,30 +383,36 @@ class Auction extends Model
         return $data;
     }
 
+    /**
+     * @return mixed
+     */
     public function bidDataForUser()
     {
-        $last = $this->bid()->orderBy('bids.id', 'desc')
-            ->first(['bids.user_id', 'bids.auction_id', 'bids.nickname', 'bids.price']);
         $data['user'] = [];
         $data['auction'] = [];
-        if (!is_null($last) && $user = User::query()->find($last->user_id)) {
-            $balance = $user->balance();
-            $bid = $user->bid->where('auction_id', $last->auction_id);
-            $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first();
-            $data['user']['id'] = $user->id;
-            $data['user']['bet'] = $balance->bet;
-            $data['user']['bonus'] = $balance->bonus;
-            $data['user']['auction_bet'] = $bid->sum('bet');
-            $data['user']['auction_bonus'] = $bid->sum('bonus');
-            $data['user']['full_price'] = $this->full_price($user->id) . ' руб';
-            $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
+        try {
+            $last = $this->bid()->orderBy('bids.id', 'desc')
+                ->first(['bids.user_id', 'bids.auction_id', 'bids.nickname', 'bids.price']);
+            if (!is_null($last) && $user = User::query()->find($last->user_id)) {
+                $balance = $user->balance();
+                $bid = $user->bid->where('auction_id', $last->auction_id);
+                $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first();
+                $data['user']['id'] = $user->id;
+                $data['user']['bet'] = $balance->bet;
+                $data['user']['bonus'] = $balance->bonus;
+                $data['user']['auction_bet'] = $bid->sum('bet');
+                $data['user']['auction_bonus'] = $bid->sum('bonus');
+                $data['user']['full_price'] = $this->full_price($user->id) . ' руб';
+                $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
+            }
+            $data['auction']['id'] = $last->auction_id;
+            $data['auction']['step_time'] = $this->step_time();
+            $data['auction']['nickname'] = $last->nickname;
+            $data['auction']['price'] = $last->price . ' руб';
+            $data['auction']['tr'] = $this->bidTable();
+        } catch (Throwable $throwable) {
+            Log::error('bidDataForUser - ' . $throwable->getMessage());
         }
-        $data['auction']['id'] = $last->auction_id;
-        $data['auction']['step_time'] = $this->step_time();
-        $data['auction']['nickname'] = $last->nickname;
-        $data['auction']['price'] = $last->price . ' руб';
-        $data['auction']['tr'] = $this->bidTable();
-
         return $data;
     }
 }

@@ -16,7 +16,75 @@
             <div class="panel panel-primary col-md-8">
                 <div class="panel-heading"><h4 class="panel-title">Боты</h4></div>
                 <div class="panel-body">
-                    ddd
+                    <div class="table-responsive">
+                        <table class="table table-sm text-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Вкл/Выкл</th>
+                                <th scope="col">Время для ставки</th>
+                                <th scope="col">Менять имя</th>
+                                <th scope="col">Действие</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th scope="row">{{$botOne->number}}</th>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-toggle @if($botOne->is_active) active @endif"
+                                            data-toggle="button" @if($botOne->is_active) aria-pressed="true"
+                                            @else aria-pressed="false" @endif  autocomplete="off"
+                                            onclick='oNoFF("{{route('admin.bots.update',[$botOne->id])}}",{is_active:($(this).attr("aria-pressed") === "true" ? 0 : 1),},"PUT")'>
+                                        <span class="handle"></span>
+                                    </button>
+                                </td>
+                                <td>{{$botOne->time_to_bet}}</td>
+                                <td>{{$botOne->change_name}}</td>
+                                <td>
+                                    <a href="{{route('admin.bots.edit',$botOne->id)}}" class="btn btn-sm btn-info">изменить</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm text-center">
+                            <thead class="thead-light nowrap">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Вкл/Выкл</th>
+                                <th scope="col">Время для ставки</th>
+                                <th scope="col">Количество ходов</th>
+                                <th scope="col">Количество ходов с другим ботом</th>
+                                <th scope="col">Действие</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($bots as $bot)
+                                <tr>
+                                    <th scope="row">{{$bot->number}}</th>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-toggle @if($bot->is_active) active @endif"
+                                                data-toggle="button" @if($bot->is_active) aria-pressed="true"
+                                                @else aria-pressed="false" @endif  autocomplete="off"
+                                                onclick='oNoFF("{{route('admin.bots.update',[$bot->id])}}",{is_active:($(this).attr("aria-pressed") === "true" ? 0 : 1),},"PUT")'>
+                                            <span class="handle"></span>
+                                        </button>
+                                    </td>
+                                    <td>{{$bot->time_to_bet}}</td>
+                                    <td>{{$bot->num_moves}}</td>
+                                    <td>{{$bot->num_moves_other_bot}}</td>
+                                    <td>
+                                        <a href="{{route('admin.bots.edit',$bot->id)}}" class="btn btn-sm btn-info">изменить</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

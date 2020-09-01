@@ -89,8 +89,8 @@ class BidJob
             }
             DB::commit();
         } catch (Throwable $exception) {
-            DB::rollBack();
             Log::error('Bid Job ' . $exception->getMessage());
+            DB::rollBack();
         }
         event(new BetEvent($this->auction));
     }

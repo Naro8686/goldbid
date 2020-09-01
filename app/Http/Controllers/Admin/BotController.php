@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bots\Bot;
 use App\Models\Bots\BotName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,9 @@ class BotController extends Controller
     public function index()
     {
         $names = BotName::all();
-        return view(self::DIR . 'index', compact('names'));
+        $botOne = Bot::query()->where('number', 1)->first();
+        $bots = Bot::query()->where('number', '<>', 1)->get();
+        return view(self::DIR . 'index', compact('names', 'botOne', 'bots'));
     }
 
     public function create()
@@ -41,7 +44,8 @@ class BotController extends Controller
 
     public function edit($id)
     {
-        return view(self::DIR . 'edit');
+        $bot = Bot::query()->findOrFail($id);
+        return view(self::DIR . 'edit', compact('bot'));
     }
 
     /**
@@ -51,9 +55,45 @@ class BotController extends Controller
      * @param int $id
      * @return RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
-        return redirect()->route('admin.pages.order')->with('status', 'успешные дествия !');
+        $bot = Bot::query()->findOrFail($id);
+        if ($request->ajax()) {
+            $request->validate([
+                'is_active' => ['sometimes', 'required', 'boolean'],
+            ]);
+            $bot->update($request->only(['is_active']));
+        } else {
+            $request->validate([
+                'time_to_bet' => ['required', function ($attribute, $value, $fail) {
+                    list($max, $min) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                    if ((is_null($min) && $max !== '0') || is_null($max) || $min > $max)
+                        $fail('заполните поля правильно');
+                }],
+                'change_name' => ['sometimes', 'required', function ($attribute, $value, $fail) {
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                    if (is_null($min) || is_null($max) || $min > $max)
+                        $fail('заполните поля правильно');
+                }],
+                'num_moves' => ['sometimes', 'required', function ($attribute, $value, $fail) {
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                    if (is_null($min) || is_null($max) || $min > $max)
+                        $fail('заполните поля правильно');
+                }],
+                'num_moves_other_bot' => ['sometimes', 'required', function ($attribute, $value, $fail) {
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
+                    if (is_null($min) || is_null($max) || $min > $max)
+                        $fail('заполните поля правильно');
+                }],
+            ],[
+                'time_to_bet.required' => 'Это поле обезательно для заполнения ',
+                'change_name.required' => 'Это поле обезательно для заполнения ',
+                'num_moves.required' => 'Это поле обезательно для заполнения ',
+                'num_moves_other_bot.required' => 'Это поле обезательно для заполнения ',
+            ]);
+            $bot->update($request->only(['time_to_bet','change_name','num_moves','num_moves_other_bot']));
+        }
+        return redirect()->route('admin.bots.index')->with('status', 'успешные дествия !');
     }
 
     public function nameDelete($id)

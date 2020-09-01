@@ -315,14 +315,10 @@ class ProductController extends Controller
     {
         $old = Product::query()->findOrFail($id);
         $new = $old->replicate();
-        $img_1 = $this->imageCopy($old->img_1);
-        $img_2 = $this->imageCopy($old->img_2);
-        $img_3 = $this->imageCopy($old->img_3);
-        $img_4 = $this->imageCopy($old->img_4);
-        $new->img_1 = $img_1;
-        $new->img_2 = $img_2;
-        $new->img_3 = $img_3;
-        $new->img_4 = $img_4;
+        $new->img_1 = $this->imageCopy($old->img_1);
+        $new->img_2 = $this->imageCopy($old->img_2);
+        $new->img_3 = $this->imageCopy($old->img_3);
+        $new->img_4 = $this->imageCopy($old->img_4);
         $new->created_at = now();
         $new->updated_at = now();
         $new->save();

@@ -2,9 +2,7 @@ Echo.channel('goldbid_database_status-change')
     .listen('StatusChangeEvent', (e) => {
         let status_change = e.data.status_change;
         let id = e.data.auction_id ?? null;
-        if (status_change) {
-            ChangeStatus(id);
-        }
+        if (status_change) ChangeStatus(id);
     });
 
 Echo.channel('goldbid_database_bet-auction')

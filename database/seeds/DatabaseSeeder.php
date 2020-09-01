@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
          $this->call([
              AdminSeeder::class,
+             BotsSeeder::class,
              SlugSeeder::class,
              FooterLinksSeeder::class,
              SliderSeeder::class,
