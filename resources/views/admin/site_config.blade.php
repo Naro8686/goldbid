@@ -21,7 +21,7 @@
                         <div class="form-group col-md-6">
                             <label for="phone" class="col-form-label">Телефон для показа на сайте </label>
                             <input
-                                type="text" class="form-control mask" id="phone" name="phone_number"
+                                type="text" class="form-control" id="phone" name="phone_number"
                                 value="{{old('phone_number')??$site->phone_number}}">
                             @error('phone_number')
                             <small class="form-text text-danger" role="alert">{{ $message }}</small>

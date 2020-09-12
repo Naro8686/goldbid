@@ -81,6 +81,10 @@
         <script>
             $(function () {
                 $('#users_table').DataTable({
+                    aLengthMenu: [
+                        [100, -1],
+                        [100,"Все"]
+                    ],
                     processing: true,
                     serverSide: true,
                     ajax: '{{ route('admin.users.index') }}',

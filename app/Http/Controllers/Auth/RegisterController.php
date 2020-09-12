@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Mailing;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Settings\Setting;
@@ -61,7 +62,7 @@ class RegisterController extends Controller
     {
         $data['phone'] = User::unsetPhoneMask($data['phone']);
         return Validator::make($data, [
-            'nickname' => ['required', 'string', 'max:16', 'unique:users', 'unique:bot_names,name,' . $data['nickname'],'without_spaces'],
+            'nickname' => ['required', 'string', 'max:16', 'unique:users', 'unique:bot_names,name,' . $data['nickname'], 'without_spaces'],
             'phone' => ['required', 'numeric', 'digits:11', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms_of_use' => ['required'],
@@ -86,6 +87,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
         $user->referred()->attach($referred_by);
+        foreach (Mailing::ads(['id'])->toArray() as $id) $user->subscribe()->attach($id);
         return $user;
     }
 

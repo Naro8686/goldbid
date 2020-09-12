@@ -38,10 +38,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Bid extends Model
 {
-    protected $fillable = ['auction_id','user_id','title','nickname','bet','bonus','price','is_bot'];
+    const COUNT = 1;
+    protected $fillable = ['auction_id', 'user_id', 'title', 'nickname', 'bet', 'bonus', 'price', 'is_bot', 'bot_num'];
 
     protected $casts = [
         'bet' => 'integer',
+        'bot_num' => 'integer',
         'bonus' => 'integer',
         'is_bot' => 'boolean',
         'win' => 'boolean'

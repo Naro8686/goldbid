@@ -6,6 +6,7 @@ use App\Jobs\DeleteAuctionInNotWinner;
 use App\Models\Auction\Auction;
 use App\Models\Setting as ConfigSite;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckAuctionsStatus extends Command
 {
@@ -43,11 +44,13 @@ class CheckAuctionsStatus extends Command
         $config = ConfigSite::query()->whereNotNull('storage_period_month')->first();
         $auctions = Auction::query()->whereNotNull('end')->get();
         foreach ($auctions as $key => $auction) {
-            if ($auction->active && !(bool)$auction->end->addHours(72)->diff(now())->invert)
+            $timezone = $auction->end->timezoneName;
+            $current = now($timezone);
+            if ($auction->active && !(bool)$auction->end->addHours(72)->diff($current)->invert)
                 $auction->update(['active' => false, 'timestamp' => false]);
             elseif (!$auction->active && !is_null($config)) {
-                $delete = !(bool)$auction->end->addMonths((int)$config->storage_period_month)->diff(now())->invert;
-                DeleteAuctionInNotWinner::dispatchIf($delete, $auction)->delay(now()->addSeconds($key * 2));
+                $delete = !(bool)$auction->end->addMonths((int)$config->storage_period_month)->diff($current)->invert;
+                DeleteAuctionInNotWinner::dispatchIf($delete, $auction)->delay($current->addSeconds($key * 1));
             }
         }
     }

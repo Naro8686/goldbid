@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('check:auctions')->everyFiveMinutes();
+        $schedule->command('check:auctions')->everyMinute();
     }
 
     /**
@@ -41,5 +41,9 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
+    }
+    protected function scheduleTimezone()
+    {
+        return "Europe/Moscow";
     }
 }

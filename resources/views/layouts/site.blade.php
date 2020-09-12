@@ -16,7 +16,7 @@
     <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
     <script src="{{asset('js/app.js')}}"></script>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
+    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
 </head>
 
 <body>
@@ -275,7 +275,7 @@
                     @foreach($page->footer->social as $social)
                         <li>
                             <img src="{{asset($social->icon)}}" alt="">
-                            <a href="{{$social->link}}">
+                            <a href="{{$social->link}}" target="_blank">
                                 <span>{{$social->name}}</span>
                             </a>
                         </li>
@@ -328,14 +328,15 @@
 <script src="{{asset('site/js/jquery.js')}}"></script>
 <script src="{{asset('site/js/slick.js')}}"></script>
 <script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>
-<script src="{{asset('site/js/prefixfree.min.js')}}"></script>
+<script src="{{asset('site/js/events.js')}}"></script>
+<script src="{{asset('site/js/prefixfree.min.js')}}" async></script>
 <script src="{{asset('site/js/jquery.cookie.js')}}"></script>
 <script src="{{asset('site/js/imask.js')}}"></script>
 <script src="{{asset('site/js/main.js')}}"></script>
 <script src="{{asset('site/js/humburger.js')}}"></script>
 <script src="{{asset('site/js/modal.js')}}"></script>
 <script src="{{asset('site/js/custom.js')}}"></script>
-<script src="{{asset('site/js/events.js')}}"></script>
+
 @stack('js')
 </body>
 </html>

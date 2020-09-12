@@ -130,6 +130,7 @@ class Product extends Model
                 'img_1' => $product->img_1,
                 'alt_1' => $product->alt_1,
                 'title' => $product->title,
+                'short_desc' => $product->short_desc,
                 'company' => $product->company ? $product->company->name : 'Другой',
                 'category' => $product->category ? $product->category->name : 'Другой',
                 'start_price' => $product->start_price,

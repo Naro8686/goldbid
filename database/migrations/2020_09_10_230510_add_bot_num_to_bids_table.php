@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBotNamesTable extends Migration
+class AddBotNumToBidsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateBotNamesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bot_names', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
+        Schema::table('bids', function (Blueprint $table) {
+            $table->unsignedTinyInteger('bot_num')->nullable()->after('is_bot');;
         });
     }
 
@@ -26,6 +25,8 @@ class CreateBotNamesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bot_names');
+        Schema::table('bids', function (Blueprint $table) {
+            $table->dropColumn('bot_num');
+        });
     }
 }

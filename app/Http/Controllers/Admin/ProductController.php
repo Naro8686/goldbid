@@ -16,7 +16,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Throwable;
@@ -123,7 +122,7 @@ class ProductController extends Controller
      * @return Factory|View
      * @throws Throwable
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         $product = Product::query()->findOrFail($id);
         $companies = Company::all();

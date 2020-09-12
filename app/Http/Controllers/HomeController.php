@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\BotBidJob;
 use App\Mail\FeedbackSendMail;
 use App\Models\Auction\Auction;
+use App\Models\Bots\AuctionBot;
 use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
 use App\Models\Pages\Package;
@@ -12,8 +14,10 @@ use App\Models\Pages\Question;
 use App\Models\Pages\Review;
 use App\Settings\Setting;
 use App\Models\Pages\Slider;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 

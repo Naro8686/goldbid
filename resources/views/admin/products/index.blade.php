@@ -28,19 +28,20 @@
                             <th>ID</th>
                             <th>Фото</th>
                             <th>Наименование</th>
-                            <th>Производитель</th>
+                            <th>Пояснение</th>
+{{--                            <th>Производитель</th>--}}
                             <th>Группа товара</th>
-                            <th>Стартовая цена (руб)</th>
-                            <th>Полная цена (руб)</th>
-                            <th>Отключения бота 1 (кол)</th>
-                            <th>Отключения бота 2,3 (руб)</th>
-                            <th>Таймер (сек)</th>
-                            <th>Шаг (кол)</th>
-                            <th>Автозапуск (мин)</th>
-                            <th>Обмен на ставки</th>
-                            <th>Купить сейчас</th>
+{{--                            <th>Стартовая цена (руб)</th>--}}
+                            <th>Цена (руб)</th>
+                            <th>Бот 1 (ход)</th>
+                            <th>Боты 2,3 (руб)</th>
+{{--                            <th>Таймер (сек)</th>--}}
+{{--                            <th>Шаг (кол)</th>--}}
+                            <th>Старт (мин)</th>
+                            <th>Обмен</th>
+                            <th>Выкуп</th>
                             <th>Топ</th>
-                            <th>Выводит на сайт</th>
+                            <th>Пуск</th>
                             <th>Действие</th>
                         </tr>
                         </thead>
@@ -54,6 +55,10 @@
         <script>
             $(function () {
                 $('#product_table').DataTable({
+                    aLengthMenu: [
+                        [100, -1],
+                        [100,"Все"]
+                    ],
                     processing: true,
                     serverSide: true,
                     ajax: '{{ route('admin.products.index') }}',
@@ -64,14 +69,15 @@
                         {data: 'id', name: 'id'},
                         {data: 'img_1', name: 'img_1'},
                         {data: 'title', name: 'title'},
-                        {data: 'company', name: 'company'},
+                        {data: 'short_desc', name: 'short_desc'},
+                        // {data: 'company', name: 'company'},
                         {data: 'category', name: 'category'},
-                        {data: 'start_price', name: 'start_price'},
+                        //{data: 'start_price', name: 'start_price'},
                         {data: 'full_price', name: 'full_price'},
                         {data: 'bot_shutdown_count', name: 'bot_shutdown_count'},
                         {data: 'bot_shutdown_price', name: 'bot_shutdown_price'},
-                        {data: 'step_time', name: 'step_time'},
-                        {data: 'step_price', name: 'step_price'},
+                        //{data: 'step_time', name: 'step_time'},
+                        //{data: 'step_price', name: 'step_price'},
                         {data: 'to_start', name: 'to_start'},
                         {data: 'exchange', name: 'exchange'},
                         {data: 'buy_now', name: 'buy_now'},

@@ -40,10 +40,10 @@ class Mailing extends Model
     protected $fillable = ['type', 'title', 'subject', 'text', 'visibly'];
     protected $casts = ['visibly' => 'boolean', 'type' => 'integer'];
 
-    public static function ads()
+    public static function ads($select = ['id', 'type', 'title', 'subject', 'text'])
     {
         return self::query()->where('type', self::ADS)
-            ->get(['id', 'type', 'title', 'subject', 'text']);
+            ->get($select);
     }
 
     public static function no_ads(int $type = null)

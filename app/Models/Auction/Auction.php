@@ -2,6 +2,7 @@
 
 namespace App\Models\Auction;
 
+use App\Models\Bots\AuctionBot;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -86,10 +87,13 @@ use Throwable;
  * @method static \Illuminate\Database\Eloquent\Builder|Auction whereTop($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Auction whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|AuctionBot[] $bots
+ * @property-read int|null $bots_count
  */
 class Auction extends Model
 {
     const BET_RUB = 0.1;
+
     public const STATUS_PENDING = 1;
     public const STATUS_ACTIVE = 2;
     public const STATUS_FINISHED = 3;
@@ -125,15 +129,11 @@ class Auction extends Model
     public function type()
     {
         $type = null;
-        if ((bool)$this->buy_now)
-            $type = 'product';
+        if ((bool)$this->buy_now) $type = 'product';
         else {
-            if ((bool)$this->exchange)
-                $type = 'money';
-            else
-                $type = 'bet';
+            if ((bool)$this->exchange) $type = 'money';
+            else $type = 'bet';
         }
-
         return $type;
     }
 
@@ -145,6 +145,18 @@ class Auction extends Model
     public function autoBid()
     {
         return $this->hasMany(AutoBid::class);
+    }
+
+    public function bots()
+    {
+        return $this->hasMany(AuctionBot::class);
+    }
+
+    public function botNum(int $num)
+    {
+        return $this->bots()->whereHas('bot', function ($query) use ($num) {
+            $query->where('number', '=', $num);
+        })->first();
     }
 
     public function bid()
@@ -219,8 +231,9 @@ class Auction extends Model
     {
         if ($this->full_price <= 0) return 0;
         $user_bet = $this->bid()->where('user_id', $user_id)->sum('bet');
-        $new_price = ($this->full_price - ($user_bet * self::BET_RUB));
-        return ($new_price <= 0) ? 1 : number_format($new_price, 1);
+        $new_price = ($this->full_price - ($user_bet / self::BET_RUB));
+        return ($new_price <= 0) ? 1 : $new_price;
+            //number_format($new_price, 1);
     }
 
     public static function data()
@@ -302,10 +315,13 @@ class Auction extends Model
 
     public static function auctionsForHomePage()
     {
-        $data = self::query()->where('active', true)->orderBy('id', 'desc')->get();
+        $data = self::query()->where('active', true)
+            ->orderBy('start')
+            ->orderBy('step_time')
+            ->orderBy('id', 'desc')
+            ->get();
         $auctions = new Collection;
         $user = Auth::user();
-        /** @var Auction $auction */
         foreach ($data as $auction) {
             $images = $auction->images();
             $favorite = $user ? $auction
@@ -335,7 +351,7 @@ class Auction extends Model
                 'start_price' => $auction->start_price(),
                 'exchange' => $auction->exchange,
                 'buy_now' => (bool)$auction->buy_now,
-                'full_price' => $auction->full_price(Auth::id()),
+                'full_price' => number_format($auction->full_price(Auth::id()),1),
                 'exchangeBetBonus' => $auction->exchangeBetBonus(Auth::id()),
                 'bid_seconds' => $auction->bid_seconds,
                 'step_time' => $auction->step_time ? $auction->step_time() : null,
@@ -353,14 +369,9 @@ class Auction extends Model
             $top = (int)$auction['top'];
             $favorite = (int)$auction['favorite'];
             $my_win = $auction['ordered'] ? 0 : (int)$auction['my_win'];
-            if ($auction['status'] === Auction::STATUS_ACTIVE)
-                $status = 2;
-            elseif ($auction['status'] === Auction::STATUS_PENDING)
-                $status = 1;
-            elseif ($auction['status'] === Auction::STATUS_FINISHED)
-                $status = 0;
+            if ($auction['status'] === Auction::STATUS_ACTIVE) $status = 2;
+            elseif ($auction['status'] === Auction::STATUS_PENDING) $status = 1;
             else $status = 0;
-
             return "{$my_win}{$top}{$favorite}{$status}";
         });
     }
@@ -402,7 +413,7 @@ class Auction extends Model
                 $data['user']['bonus'] = $balance->bonus;
                 $data['user']['auction_bet'] = $bid->sum('bet');
                 $data['user']['auction_bonus'] = $bid->sum('bonus');
-                $data['user']['full_price'] = $this->full_price($user->id) . ' руб';
+                $data['user']['full_price'] = number_format($this->full_price($user->id),1) . ' руб';
                 $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
             }
             $data['auction']['id'] = $last->auction_id;

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Events\BetEvent;
 use App\Models\Auction\Auction;
+use App\Models\Auction\Order;
 use App\Models\Balance;
 use App\Models\User;
 use Carbon\Carbon;
@@ -34,19 +35,25 @@ class BidJob
      * @var Auction
      */
     public $auction;
+    /**
+     * @var int|null
+     */
+    private $botNum;
 
     /**
      * Create a new job instance.
      *
      * @param Auction $auction
+     * @param string $nickname
      * @param User|null $user
-     * @param $nickname
+     * @param int|null $botNum
      */
-    public function __construct(Auction $auction, string $nickname, User $user = null)
+    public function __construct(Auction $auction, string $nickname, User $user = null, int $botNum = null)
     {
         $this->user = $user;
         $this->auction = $auction;
         $this->nickname = $nickname;
+        $this->botNum = $botNum;
     }
 
     /**
@@ -59,7 +66,6 @@ class BidJob
     {
         $update = false;
         try {
-            DB::beginTransaction();
             if ($this->auction->winner()->nickname !== $this->nickname) {
                 $data = [
                     'price' => $this->auction->new_price(),
@@ -68,9 +74,15 @@ class BidJob
                     'is_bot' => is_null($this->user),
                     'user_id' => (is_null($this->user) ? null : $this->user->id)
                 ];
+                DB::beginTransaction();
                 if (!$data['is_bot']) {
-                    $balance = $this->user->balance();
-                    if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT) {
+                    $user = $this->user;
+                    $balance = $user->balance();
+                    $ordered = $user->auctionOrder()
+                        ->where('orders.auction_id', '=', $this->auction->id)
+                        ->where('orders.status', '=', Order::SUCCESS)
+                        ->doesntExist();
+                    if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($this->auction->full_price($user->id) > 1)) {
                         $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
                         $data[$this->bid_type] = self::BID_COUNT;
                         $this->user->balanceHistory()->create([
@@ -81,13 +93,15 @@ class BidJob
                     }
                 } elseif ($data['is_bot']) {
                     $data[$this->bid_type] = self::BID_COUNT;
+                    $data['bot_num'] = $this->botNum;
                     $update = true;
                 }
                 if ($update && $this->auction->update(['step_time' => Carbon::now()->addSeconds($this->auction->bid_seconds)])) {
-                    $this->auction->bid()->create($data);
+                    $this->auction->bid()->firstOrCreate($data);
                 }
+                DB::commit();
             }
-            DB::commit();
+
         } catch (Throwable $exception) {
             Log::error('Bid Job ' . $exception->getMessage());
             DB::rollBack();

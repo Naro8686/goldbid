@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://goldbid.loc'),
+    'url' => env('APP_URL', 'https://goldbid.ru'),
 
     'asset_url' => env('ASSET_URL', null),
 

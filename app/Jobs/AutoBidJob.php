@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Auction\AutoBid;
+use App\Models\Auction\Bid;
+use App\Models\Auction\Order;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,10 +41,20 @@ class AutoBidJob implements ShouldQueue
         if ($autoBid = $this->autoBid) {
             try {
                 DB::transaction(function () use ($autoBid) {
-                    $autoBid->update(['status' => AutoBid::PENDING, 'bid_time' => Carbon::now()->timezone("Europe/Moscow")]);
+                    $autoBid->update(['bid_time' => Carbon::now("Europe/Moscow")]);
                     $user = $autoBid->user;
                     $auction = $autoBid->auction;
-                    if ($auction->winner()->nickname !== $user->nickname) $autoBid->minus();
+                    $auction->autoBid()->where('status', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
+                    $balance = $user->balance();
+                    $ordered = $user->auctionOrder()
+                        ->where('orders.auction_id', '=', $auction->id)
+                        ->where('orders.status', '=', Order::SUCCESS)
+                        ->doesntExist();
+                    if (($balance->bet + $balance->bonus) >= Bid::COUNT
+                        && $ordered
+                        && $auction->winner()->nickname !== $user->nickname
+                        && ($auction->full_price($user->id) > 1))
+                        $autoBid->minus();
                     BidJob::dispatch($auction, $user->nickname, $user);
                 });
             } catch (Throwable $exception) {

@@ -17,7 +17,6 @@ class BotController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
@@ -72,26 +71,26 @@ class BotController extends Controller
                 }],
                 'change_name' => ['sometimes', 'required', function ($attribute, $value, $fail) {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
-                    if (is_null($min) || is_null($max) || $min > $max)
+                    if (is_null($min) || is_null($max) || $min > $max || $min < 1)
                         $fail('заполните поля правильно');
                 }],
                 'num_moves' => ['sometimes', 'required', function ($attribute, $value, $fail) {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
-                    if (is_null($min) || is_null($max) || $min > $max)
+                    if (is_null($min) || is_null($max) || $min > $max || $min < 1)
                         $fail('заполните поля правильно');
                 }],
                 'num_moves_other_bot' => ['sometimes', 'required', function ($attribute, $value, $fail) {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $value)), 2, null);
-                    if (is_null($min) || is_null($max) || $min > $max)
+                    if (is_null($min) || is_null($max) || $min > $max || $min < 1)
                         $fail('заполните поля правильно');
                 }],
-            ],[
+            ], [
                 'time_to_bet.required' => 'Это поле обезательно для заполнения ',
                 'change_name.required' => 'Это поле обезательно для заполнения ',
                 'num_moves.required' => 'Это поле обезательно для заполнения ',
                 'num_moves_other_bot.required' => 'Это поле обезательно для заполнения ',
             ]);
-            $bot->update($request->only(['time_to_bet','change_name','num_moves','num_moves_other_bot']));
+            $bot->update($request->only(['time_to_bet', 'change_name', 'num_moves', 'num_moves_other_bot']));
         }
         return redirect()->route('admin.bots.index')->with('status', 'успешные дествия !');
     }

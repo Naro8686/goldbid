@@ -5,18 +5,18 @@ namespace App\Jobs;
 use App\Events\StatusChangeEvent;
 use App\Models\Auction\Auction;
 use App\Models\Auction\Product;
+use App\Models\Bots\Bot;
+use App\Models\Bots\BotName;
 use App\Models\Pages\Page;
 use App\Settings\ImageTrait;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
-class CreateAuctionJob implements ShouldQueue
+class  CreateAuctionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ImageTrait;
 
@@ -51,6 +51,10 @@ class CreateAuctionJob implements ShouldQueue
         $img_3 = $this->imageCopy($this->product->img_3, 'site/img/product', $path);
         $img_4 = $this->imageCopy($this->product->img_4, 'site/img/product', $path);
 
+        list($min_price, $max_price) = array_pad(str_replace(' ', '', explode('-', $this->product->bot_shutdown_price)), 2, null);
+        $bot_shutdown_price = rand($min_price, $max_price);
+        list($min_count, $max_count) = array_pad(str_replace(' ', '', explode('-', $this->product->bot_shutdown_count)), 2, null);
+        $bot_shutdown_count = rand($min_count, $max_count);
         $data = [
             'title' => $this->product->title,
             'short_desc' => $this->product->short_desc,
@@ -67,8 +71,8 @@ class CreateAuctionJob implements ShouldQueue
             'alt_4' => $this->product->alt_4,
             'start_price' => $this->product->start_price,
             'full_price' => $this->product->full_price,
-            'bot_shutdown_price' => $this->product->bot_shutdown_price,
-            'bot_shutdown_count' => $this->product->bot_shutdown_count,
+            'bot_shutdown_price' => $bot_shutdown_price,
+            'bot_shutdown_count' => $bot_shutdown_count,
             'bid_seconds' => $this->product->step_time,
             'top' => $this->product->top,
             'step_price' => $this->product->step_price,
@@ -83,6 +87,34 @@ class CreateAuctionJob implements ShouldQueue
             'slug' => $new->id,
             'title' => $new->title,
         ]);
-        event(new StatusChangeEvent(['status_change' => true]));
+        $bots = Bot::query()->where('is_active', true)->get();
+
+        foreach ($bots as $bot) {
+            $names = [];
+            foreach ($new->bots()->get(['name']) as $name) $names[] = $name->name;
+            $random = BotName::query()->whereNotIn('name', $names)->inRandomOrder()->first();
+            if (!is_null($bot->change_name)) {
+                list($min, $max) = array_pad(str_replace(' ', '', explode('-', $bot->change_name)), 2, null);
+                $bot->change_name = rand($min, $max);
+            }
+            if (!is_null($bot->num_moves)) {
+                list($min, $max) = array_pad(str_replace(' ', '', explode('-', $bot->num_moves)), 2, null);
+                $bot->num_moves = rand($min, $max);
+            }
+            if (!is_null($bot->num_moves_other_bot)) {
+                list($min, $max) = array_pad(str_replace(' ', '', explode('-', $bot->num_moves_other_bot)), 2, null);
+                $bot->num_moves_other_bot = rand($min, $max);
+            }
+            $new->bots()->create([
+                'bot_id' => $bot->id,
+                'name' => $random->name,
+                'time_to_bet' => $bot->time_to_bet,
+                'change_name' => $bot->change_name,
+                'num_moves' => $bot->num_moves,
+                'num_moves_other_bot' => $bot->num_moves_other_bot,
+                'bid_time' => (Carbon::now()->timezone("Europe/Moscow")),
+            ]);
+        }
+        //event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $new->id]));
     }
 }

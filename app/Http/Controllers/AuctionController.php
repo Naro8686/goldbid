@@ -6,13 +6,16 @@ use App\Events\BetEvent;
 use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
+use App\Models\User;
 use App\Settings\Setting;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use function GuzzleHttp\Promise\queue;
 
 
 class AuctionController extends Controller
@@ -36,8 +39,6 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
-//        $auc =Auction::query()->with('bid')->find(92);
-//        dd($auc->bid()->where('bids.created_at','>',$auc->end)->get()->groupBy('bids.user_id'));
         if (Auth::check()) {
             $closeAuction = Auction::query()
                 ->whereHas('bid', function ($query) {
@@ -94,8 +95,10 @@ class AuctionController extends Controller
         try {
             DB::beginTransaction();
             if ($first = $auto_bid->where('user_id', $user->id)->first()) {
-                if ($count === 0) $first->delete();
-                else $first->update(['count' => $count]);
+                if ($count === 0) {
+                    $first->delete();
+                    event(new BetEvent($auction));
+                } else $first->update(['count' => $count]);
             } elseif ((bool)$count) {
                 $run = ($auto_bid->where('auto_bids.status', AutoBid::WORKED)->count() === 0);
                 $bid = $auto_bid->create([
@@ -115,29 +118,31 @@ class AuctionController extends Controller
     }
 
     /**
-     * @param int|null $id
+     * @param null $id
      * @param array $html
      * @return \Illuminate\Http\JsonResponse
      */
     public function changeStatus($id = null, $html = [])
     {
         try {
-            $auctions = Auction::auctionsForHomePage();
-            $html['home_page'] = view('site.include.auctions', compact('auctions'))->render();
             if (!is_null($id)) {
-                $auction = Auction::auctionPage($id);
-                unset($auction['images']);
-                unset($auction['desc']);
-                unset($auction['specify']);
-                unset($auction['terms']);
-                $html['auction_page'] = view('site.include.info', compact('auction'))->render();
+                $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id);
+                $html['home_page'] = view('site.include.auction', ['auction' => $auctionForHomePage])->render();
+                $auctionPage = Auction::auctionPage($id);
+                unset($auctionPage['images']);
+                unset($auctionPage['desc']);
+                unset($auctionPage['specify']);
+                unset($auctionPage['terms']);
+                $html['auction_page'] = view('site.include.info', ['auction' => $auctionPage])->render();
+            } else {
+                $auctions = Auction::auctionsForHomePage();
+                $html['home_page'] = view('site.include.auctions', ['auctions' => $auctions])->render();
             }
+            return response()->json($html);
         } catch (Throwable $e) {
-
             if ($e->getCode() !== 0)
                 Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
         }
-        return response()->json($html);
     }
 
 

@@ -64,6 +64,10 @@
         <script>
             $(function () {
                 $('#product_table').DataTable({
+                    aLengthMenu: [
+                        [100, -1],
+                        [100,"Все"]
+                    ],
                     processing: true,
                     serverSide: true,
                     ajax: '{{ route('admin.dashboard') }}',
@@ -104,6 +108,7 @@
                                 modal.find('.modal-body').html(data.html);
                                 modal.find('#cardModalLabel').text(data.title);
                                 $('#auction_card').DataTable({
+                                    paging: false,
                                     "language": {
                                         "url": "{{url('/datatables/lang/Russian.json')}}"
                                     },

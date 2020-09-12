@@ -105,7 +105,7 @@ class ProfileController extends Controller
             ]);
             $this->user->update($request->only([
                 'lname', 'fname', 'mname', 'gender',
-                'birthday', 'postcode', 'region', 'city','country',
+                'birthday', 'postcode', 'region', 'city', 'country',
                 'street', 'email', 'payment_type', 'ccnum'
             ]));
             return redirect()->back()->with('status', 'Изменения успешно сохранились ');
@@ -151,10 +151,7 @@ class ProfileController extends Controller
             'subscribe' => ['required', 'boolean']
         ]);
         $subscribe = $this->user->subscribe();
-        if ($subscribe->where('id', $id)->exists())
-            $subscribe->detach($id);
-        else
-            $subscribe->attach($id);
+        $subscribe->toggle([$id]);
     }
 
     public function favorite(Request $request, int $id)
@@ -171,6 +168,7 @@ class ProfileController extends Controller
 
     public function codeEmailConfirm(Request $request)
     {
+
         $text = 'Код отправлен на Ваш е-майл !';
         $status = 'status';
         if ($request->isMethod('POST')) {
@@ -183,16 +181,23 @@ class ProfileController extends Controller
             if ($this->user->update(['email_code_verified' => now()]))
                 $text = 'Спасибо за подтверждение майла !';
         } else {
+            if ($request->ajax()) {
+                $request->validate([
+                    'email' => ['email', 'max:100', 'unique:users,email,' . $this->user->id],
+                ]);
+                $this->user->update(['email' => $request['email']]);
+            }
             if (!empty($this->user->email)) {
                 try {
-                    $request['theme'] = Setting::feedbackTheme($request['theme']);
-                    Mail::to($this->user->email)->later(5, new MailingSendMail(Mailing::MAIL_CONFIRM, [], $this->user));
+                    //$request['theme'] = Setting::feedbackTheme($request['theme']);
+                    Mail::to($this->user->email)->queue(new MailingSendMail(Mailing::MAIL_CONFIRM, [], $this->user));
                 } catch (Exception $exception) {
                     $text = 'что то пошло не так !';
                     $status = 'error';
                     Log::error($exception->getMessage());
                 }
             }
+            if ($request->ajax()) return response()->json(['message' => $text, 'errors' => ['email' => [$text]]], $status === 'status' ? 200 : 422);
         }
         return redirect()->back()->with($status, $text);
     }

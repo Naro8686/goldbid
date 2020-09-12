@@ -24,6 +24,48 @@
             @csrf
             <div class="personal-info">
                 <div class="personal-desc">
+                    <p>Электронная почта *</p>
+                </div>
+                <div class="personal-edit">
+                    @if($user->email_code_verified && $user->email)
+                        <label class="personal-item">
+                            <span class="personal-item-title"></span>
+                            <span>{{$user->email}}</span>
+                        </label>
+                    @else
+
+                        <p>
+                            Подтверждение электронной почты
+                        </p>
+
+                        <label class="personal-item" for="email">
+                            <span class="personal-item-title">Введите адрес:</span>
+                            <input type="email" class="@error('email')is-invalid @enderror"
+                                   name="email" id="email"
+                                   placeholder="Pochta@gmail.com"
+                                   value="{{old('email')??$user->email}}">
+                        </label>
+                        <div>
+                            <p>На этот адрес мы отправим код</p>
+                            <a id="get_code" href="{{route('profile.email_code_confirm')}}" class="button__app">Получить
+                                код</a>
+                        </div>
+                        <p style="color: #1B8BCB" class="w-100">если письмо не пришло , проверьте папку спам </p>
+                        <label class="personal-item" for="code">
+                            <span class="personal-item-title">Введите код:</span>
+                            <input type="text" class="@error('code')is-invalid @enderror"
+                                   value="{{old('code')}}"
+                                   id="code">
+                            <button class="button__app" id="check__code" type="button">Подтвердить</button>
+                        </label>
+
+                    @endif
+
+
+                </div>
+            </div>
+            <div class="personal-info">
+                <div class="personal-desc">
                     <p>Персональная информация *</p>
                 </div>
                 <div class="personal-edit">
@@ -105,57 +147,13 @@
                     </label>
                 </div>
             </div>
-            <div class="personal-info">
-                <div class="personal-desc">
-                    <p>Электронная почта *</p>
-                </div>
-                <div class="personal-edit">
-                    @if($user->email_code_verified && $user->email)
-                        <label class="personal-item">
-                            <span class="personal-item-title"></span>
-                            <span>{{$user->email}}</span>
-                        </label>
-                    @else
-                        @if($user->email && !$user->email_code_verified)
-                            <p>
-                                Подтверждение электронной почты
-                            </p>
-                        @endif
-                        <label class="personal-item" for="email">
-                            <span class="personal-item-title">Введите адрес:</span>
-                            <input type="email" class="@error('email')is-invalid @enderror"
-                                   name="email" id="email"
-                                   placeholder="Pochta@gmail.com"
-                                   value="{{old('email')??$user->email}}">
-                        </label>
-                        @if($user->email && !$user->email_code_verified)
-                            <div>
-                                <p>На этот адрес мы отправим код</p>
-                                <a href="{{route('profile.email_code_confirm')}}" class="button__app">Получить код:</a>
-                            </div>
-                            <p style="color: #1B8BCB" class="w-100">если письмо не пришло , проверьте папку спам </p>
-                            <label class="personal-item" for="code">
-                                <span class="personal-item-title">Введите код:</span>
-                                <input type="text" class="@error('code')is-invalid @enderror"
-                                       value="{{old('code')}}"
-                                       id="code">
-                                <button class="button__app" id="check__code" type="button">Подтвердить</button>
-                            </label>
-                        @endif
-                    @endif
 
-
-                </div>
-            </div>
             <div class="personal-info">
                 <div class="personal-desc">
                     <p>Платежные реквизиты для получения денежных переводов <br><small
                             style="color: #757575;font-weight: normal">(Можно заполнить позже )</small></p>
                 </div>
                 <div class="personal-edit">
-                    <p>
-                        Подтверждение электронной почты
-                    </p>
                     <label class="personal-item" for="payment_type">
                         <span class="personal-item-title">Платежная система:</span>
                         <select name="payment_type" id="payment_type">
@@ -192,4 +190,47 @@
         </form>
     </div>
 @endsection
+@push('js')
+    <script>
+        $(document).on('click', 'a#get_code', function (e) {
+            e.preventDefault();
+            $('div.alert.alert-danger').empty();
+            $('b[style="color: green"]').remove();
+            let button = $(this);
+            let input = button.closest('.personal-edit').find('input#email');
+            let form = button.closest('form');
+            if (input.length) {
+                let email = input.val();
+                if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+                    let url = button.attr('href');
+                    input.removeClass('is-invalid');
+                    if (!button.hasClass('disabled')) {
+                        button.addClass('disabled');
+                        $.get(url, {email: email}, (e) => {
+                        }).done(function (data) {
+                            if (data.message) {
+                                input.attr('disabled', 'disabled');
+                                form.before(`<b style="color: green">${data.message}</b>`);
+                            }
+                        }).fail(function (data) {
+                            let errors = data.responseJSON;
+                            let errorsHtml = '<div class="alert alert-danger"><ul>';
+                            $.each(errors.errors, function (key, value) {
+                                errorsHtml += '<li>' + value[0] + '</li>'; //showing only the first error.
+                            });
+                            errorsHtml += '</ul></div>';
+                            form.before(errorsHtml);
+                        }).always(function (e) {
+                            setTimeout(function (){
+                                button.removeClass('disabled');
+                            },5000)
+                        });
+                    }
+
+                } else input.addClass('is-invalid');
+            }
+
+        })
+    </script>
+@endpush
 

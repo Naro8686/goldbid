@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|AutoBid whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AutoBid whereUserId($value)
  * @mixin \Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder|AutoBid whereStatus($value)
  */
 class AutoBid extends Model
 {

@@ -310,7 +310,7 @@ class User extends Authenticatable
     public function bid_price($auction_id = null)
     {
         $user_bet = $this->bid()->where('auction_id', $auction_id)->sum('bet');
-        return ($user_bet * self::BET_RUB);
+        return ($user_bet / self::BET_RUB);
     }
 
     /**

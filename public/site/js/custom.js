@@ -60,7 +60,7 @@ $(document).on('click', '.my___win', function (e) {
     });
 });
 
-$(document).on('click', '.favorites', function (e) {
+$(document).on('click', '.favorites', function () {
     if ($(this).hasClass('top')) return false;
     let favorite = $(this).children();
     let auction_id = favorite.closest('.card').attr('data-auction-id');
@@ -68,8 +68,8 @@ $(document).on('click', '.favorites', function (e) {
 
     $.post(`${URL}/${auction_id}/add-favorite`, function (data) {
         favorite.toggleClass('active');
-        home_page.empty().html(data);
-        countdown(home_page);
+        //home_page.empty().html(data);
+        //countdown(home_page);
     });
 });
 
@@ -136,8 +136,9 @@ function copyToClipboard(elem) {
 }
 
 function countdown(element, timer = null) {
+
     element.find('[data-countdown]').each(function (e, v) {
-        let $this = $(this), seconds = (timer !== null) ? timer : $(this).data('countdown');
+        let $this = $(this), seconds = (timer !== null) ? timer : $this.data('countdown');
         let time = new Date();
         let countdown = time.setSeconds(time.getSeconds() + seconds);
         $this.countdown(countdown)
@@ -149,8 +150,9 @@ function countdown(element, timer = null) {
                 else
                     $this.html(event.strftime('%M:%S'));
             })
-            .on('finish.countdown', (event) => {
-                $this.html('...');
+            .on('finish.countdown', () => {
+                if ($this.hasClass('to__start')) $this.html('00:00:00');
+                else $this.html('00:00');
             });
     });
 }
@@ -158,15 +160,25 @@ function countdown(element, timer = null) {
 function ChangeStatus(id = null) {
     let url = ((id !== null) ? `${URL}/change-status/${id}` : `${URL}/change-status`);
     let home_page = $('#home_page');
-    let auction_page = $('#auction_page[data-auction-id="' + id + '"]');
+    let auction_page = $(`#auction_page[data-auction-id="${id}"]`);
+    let auction = home_page.find(`div.card[data-auction-id="${id}"]`);
     $.post(url, function (data) {
-        if (data.home_page) {
-            home_page.html(data.home_page);
-            countdown(home_page);
-        }
-        if (data.auction_page) {
-            auction_page.html(data.auction_page);
-            countdown(auction_page);
+        if (Object.keys(data).length) {
+            if (data.home_page && home_page.length) {
+                let html = $(data.home_page);
+                if (id !== null) {
+                    if (auction.length) auction.replaceWith(html);
+                    //else home_page.append(html);
+                } else home_page.html(html);
+                let sec = html.find('[data-countdown]').data('countdown');
+                sec ? countdown(html, sec) : false;
+            }
+            if (data.auction_page && auction_page.length) {
+                let html = $(data.auction_page);
+                auction_page.html(html);
+                let sec = html.find('[data-countdown]').data('countdown');
+                countdown(html, (sec ?? null));
+            }
         }
     });
 }

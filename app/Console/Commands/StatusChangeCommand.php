@@ -3,17 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Events\StatusChangeEvent;
-use App\Jobs\CreateAuctionJob;
-use App\Jobs\DeleteAuctionInNotWinner;
-use App\Mail\MailingSendMail;
 use App\Models\Auction\Auction;
-use App\Models\Mailing;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class StatusChangeCommand extends Command
@@ -50,86 +44,83 @@ class StatusChangeCommand extends Command
     public function handle()
     {
         while (true) {
-            $this->statusChange();
+            $this->statusChange(Carbon::now());
             sleep(1);
         }
     }
 
-    public function statusChange()
+    /**
+     * @param Carbon $current
+     * @return mixed|void
+     */
+    public function statusChange(Carbon $current)
     {
         try {
-            $current = Carbon::now();
-            $pending = DB::table('auctions')->where([
-                ['active', '=', true],
-                ['status', '=', Auction::STATUS_PENDING],
-                ['start', '<=', $current]
-            ])->first();
-            $active = DB::table('auctions')->where([
-                ['active', '=', true],
-                ['status', '=', Auction::STATUS_ACTIVE],
-                ['step_time', '<', $current]
-            ])->first();
-            if (isset($pending))
-                $this->pending($pending, $current);
-            if (isset($active))
-                $this->active($active, $current);
+            $pending = DB::table('auctions')
+                ->select(['id'])
+                ->where([
+                    ['active', '=', true],
+                    ['status', '=', Auction::STATUS_PENDING],
+                    ['step_time', '=', null],
+                    ['start', '<=', $current]
+                ]);
+            if ($pending->exists()) $this->pending($pending);
+
+            $active = DB::table('auctions')
+                ->select(['id'])
+                ->where([
+                    ['active', '=', true],
+                    ['status', '=', Auction::STATUS_ACTIVE],
+                    ['step_time', '<>', null],
+                    ['step_time', '<=', $current]
+                ]);
+            if ($active->exists()) $this->active($active);
         } catch (Throwable $throwable) {
             Log::error('error statusChange ' . $throwable->getMessage());
         }
     }
 
+
     /**
      * @param $auction
-     * @param $now
-     * @throws Throwable
      */
-    public function pending($auction, $now)
+    private function pending($auction)
     {
         try {
-            DB::beginTransaction();
-            if ($pending = Auction::find($auction->id)) {
-                $pending->update([
-                    'status' => Auction::STATUS_ACTIVE,
-                    'step_time' => $now->addSeconds($auction->bid_seconds)
-                ]);
+            $ids = $auction->pluck('id');
+            $update = $auction->update([
+                'status' => Auction::STATUS_ACTIVE,
+                'step_time' => DB::raw('NOW() + INTERVAL bid_seconds SECOND')
+            ]);
+            if ($update) {
+                foreach ($ids as $id) {
+                    event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $id]));
+                }
             }
-            DB::commit();
         } catch (Throwable $e) {
-            DB::rollBack();
-            Log::error('status_change_pending' . $e->getMessage());
+            Log::error('status_change_pending ' . $e->getMessage());
         }
-        event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
     }
 
     /**
      * @param $auction
-     * @param $end
-     * @throws Throwable
      */
-    public function active($auction, $end)
+    private function active($auction)
     {
         try {
-            DB::beginTransaction();
-            if ($finished = Auction::find($auction->id)) {
-                if ($finished->update(['status' => Auction::STATUS_FINISHED, 'end' => $end, 'top' => false])) {
-                    CreateAuctionJob::dispatchIf((isset($finished->product) && $finished->product->visibly), $finished->product);
-                }
-                if ($bid = $finished->bid->last()) {
-                    $bid->win = true;
-                    $bid->save(['timestamp' => false]);
-                    if (!$bid->is_bot && isset($bid->user_id) && $user = User::query()->find($bid->user_id)) {
-                        if ($user->email)
-                            Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
-                    }
-                } else {
-                    DeleteAuctionInNotWinner::dispatchIf(isset($finished), $finished)->delay(now()->addSeconds(5));
+            $ids = $auction->pluck('id');
+            $update = $auction->update([
+                'status' => Auction::STATUS_FINISHED,
+                'end' => DB::raw('NOW()'),
+                'top' => false
+            ]);
+            if ($update) {
+                foreach ($ids as $id) {
+                    event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $id]));
                 }
             }
-            DB::commit();
         } catch (Throwable $e) {
-            Log::error('status_change_active' . $e->getMessage());
-            DB::rollBack();
+            Log::error('status_change_active_command ' . $e->getMessage());
         }
-        event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
     }
 }

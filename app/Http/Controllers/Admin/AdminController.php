@@ -92,11 +92,11 @@ class AdminController extends Controller
     {
         $site = Setting::siteConfig();
         if ($request->isMethod('POST')) {
-            $request['phone_number'] = User::unsetPhoneMask($request['phone_number']);
+            //$request['phone_number'] = User::unsetPhoneMask($request['phone_number']);
             $request->validate([
                 'storage_period_month' => ['nullable', 'integer', 'max:12'],
                 'email' => ['nullable', 'email'],
-                'phone_number' => ['nullable', 'numeric', 'digits:11'],
+                //'phone_number' => ['nullable', 'numeric'],
                 'site_enabled' => ['sometimes', 'required', 'boolean'],
             ]);
             if ($request->has('site_enabled')) {

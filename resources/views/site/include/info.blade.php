@@ -20,7 +20,7 @@
     @if($auction['buy_now'])
         <div class="circl">
             <a @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif data-id="{{$auction['id']}}" href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}">
-                <img title="Купить сейчас за {{$auction['full_price']}} руб"
+                <img style="padding-left: 2px" title="Купить сейчас за {{$auction['full_price']}} руб"
                      src="{{asset('site/img/korzina-white.png')}}"
                      alt="">
             </a>
