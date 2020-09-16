@@ -76,10 +76,10 @@ class BotBidJob implements ShouldQueue
         $run = false;
         if ($first) {
             if ($auctionBot->auction->bid()->doesntExist()) {
-                $run = $auctionBot->update(['change_name' => DB::raw('change_name - 1')]);
+                $run = $auctionBot->where('change_name', '>', 0)->update(['change_name' => DB::raw('change_name - 1')]);
             }
         } else {
-            $run = $auctionBot->update(['change_name' => DB::raw('change_name - 1')]);
+            $run = $auctionBot->where('change_name', '>', 0)->update(['change_name' => DB::raw('change_name - 1')]);
         }
         if ($run) $run = $auctionBot->auction->update(['bot_shutdown_count' => DB::raw('bot_shutdown_count - 1')]);
         return $run;
@@ -91,8 +91,10 @@ class BotBidJob implements ShouldQueue
         try {
             if ($auctionBot->num_moves + $auctionBot->num_moves_other_bot > 0) {
                 $key = $auctionBot->num_moves > 0 ? 'num_moves' : 'num_moves_other_bot';
-                $auctionBot->$key = $auctionBot->$key - 1;
-                $run = $auctionBot->save();
+                if ($auctionBot->$key > 0) {
+                    $auctionBot->$key = $auctionBot->$key - 1;
+                    $run = $auctionBot->save();
+                }
             }
         } catch (Exception $e) {
             Log::error($e->getMessage());

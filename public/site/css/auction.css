@@ -478,6 +478,17 @@ button {
     padding: 5px 0;
 }
 
+#auction_page .error-box {
+    padding: 10px !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100% !important;
+    justify-content: space-around !important;
+}
+
 .main .container .card .dashboard .hr {
     width: 70%;
     border: 0.5px solid #095785;
@@ -834,9 +845,11 @@ table.scrolldown tbody {
 .mt-80 {
     margin-top: 80px;
 }
+
 .mt-90 {
     margin-top: 90px;
 }
+
 .mt-100 {
     margin-top: 100px;
 }
@@ -951,10 +964,12 @@ tbody td {
     height: fit-content !important;
     /*display: flex;*/
 }
-.card .left .slider-nav>.slick-list{
+
+.card .left .slider-nav > .slick-list {
     height: 115px !important;
 }
-.card .left .slider-nav>.slick-list * {
+
+.card .left .slider-nav > .slick-list * {
     height: 100% !important;
     box-sizing: border-box !important;
     object-fit: contain !important;
@@ -1189,7 +1204,6 @@ tbody td {
     /*.main .container .card .dashboard .log-bid table {*/
     /*    font-size: 0.7em;*/
     /*}*/
-
     .main .container .card .autobid {
         top: 790px;
         right: calc(50% - 113px);

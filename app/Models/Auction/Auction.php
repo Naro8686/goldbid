@@ -159,6 +159,23 @@ class Auction extends Model
         })->first();
     }
 
+    public function shutdownBots()
+    {
+        $count = 0;
+        $stopBotOne = (int)$this->bot_shutdown_count;
+        $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
+        if ($this->bid->isNotEmpty()){
+            if (!is_null($this->botNum(1))) {
+                $count = $count + $stopBotOne;
+            }
+            if (!is_null($this->botNum(2)) || !is_null($this->botNum(3))) {
+                $sumBids = $this->bid->sum('bet') / self::BET_RUB;
+            }
+        }
+
+        return $count < 1 && $sumBids >= $stopBotTwoThree;
+    }
+
     public function bid()
     {
         return $this->hasMany(Bid::class);
@@ -189,8 +206,9 @@ class Auction extends Model
         $winner = ($this->winner()->is_bot) ? 'бот' : 'игрок';
         if ((int)$this->status === self::STATUS_ACTIVE) $text = 'Активный';
         if ((int)$this->status === self::STATUS_PENDING) $text = 'Скоро начало';
-        if ((int)$this->status === self::STATUS_FINISHED) $text = "Победил {$winner}";
         if ((int)$this->status === self::STATUS_ERROR) $text = 'Ошибка';
+        if ((int)$this->status === self::STATUS_FINISHED && !is_null($this->winner()->id)) $text = "Победил {$winner}";
+        if ((int)$this->status === self::STATUS_FINISHED && is_null($this->winner()->id)) $text = "Не состоялся";
         return $text ?? '';
     }
 
@@ -210,7 +228,7 @@ class Auction extends Model
 
     public function countBid()
     {
-        $price = is_null($this->bid)
+        $price = $this->bid->isEmpty()
             ? $this->start_price
             : ($this->step_price / 100);
         return round($price / Auction::BET_RUB);
@@ -233,7 +251,7 @@ class Auction extends Model
         $user_bet = $this->bid()->where('user_id', $user_id)->sum('bet');
         $new_price = ($this->full_price - ($user_bet / self::BET_RUB));
         return ($new_price <= 0) ? 1 : $new_price;
-            //number_format($new_price, 1);
+        //number_format($new_price, 1);
     }
 
     public static function data()
@@ -351,13 +369,16 @@ class Auction extends Model
                 'start_price' => $auction->start_price(),
                 'exchange' => $auction->exchange,
                 'buy_now' => (bool)$auction->buy_now,
-                'full_price' => number_format($auction->full_price(Auth::id()),1),
+                'full_price' => number_format($auction->full_price(Auth::id()), 1),
                 'exchangeBetBonus' => $auction->exchangeBetBonus(Auth::id()),
                 'bid_seconds' => $auction->bid_seconds,
                 'step_time' => $auction->step_time ? $auction->step_time() : null,
                 'start' => $auction->start(),
                 'winner' => $winner->nickname,
-                'my_win' => (isset($user) && $auction->status === Auction::STATUS_FINISHED)
+                'my_win' => (isset($user) && ($auction->status === Auction::STATUS_FINISHED || $auction->status === Auction::STATUS_ERROR))
+                    ? $winner->nickname === $user->nickname
+                    : false,
+                'error' => (isset($user) && $auction->status === Auction::STATUS_ERROR)
                     ? $winner->nickname === $user->nickname
                     : false,
                 'ordered' => $ordered,
@@ -413,7 +434,7 @@ class Auction extends Model
                 $data['user']['bonus'] = $balance->bonus;
                 $data['user']['auction_bet'] = $bid->sum('bet');
                 $data['user']['auction_bonus'] = $bid->sum('bonus');
-                $data['user']['full_price'] = number_format($this->full_price($user->id),1) . ' руб';
+                $data['user']['full_price'] = number_format($this->full_price($user->id), 1) . ' руб';
                 $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
             }
             $data['auction']['id'] = $last->auction_id;

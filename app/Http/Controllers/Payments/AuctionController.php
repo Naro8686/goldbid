@@ -37,7 +37,7 @@ class AuctionController extends Controller
         $data = [];
         $user = User::query()->findOrFail(Auth::id());
         $auction = Auction::auctionPage($id);
-        if (!$auction['my_win']) return abort(403);
+        if (!$auction['my_win'] || $auction['error']) return abort(403);
         $data['id'] = $auction['id'];
         $data['image'] = $auction['images'][0]['img'];
         $data['alt'] = $auction['images'][0]['alt'];
@@ -90,8 +90,13 @@ class AuctionController extends Controller
         /** @var Auction $auction */
         /** @var User $user */
         /** @var Order $order */
-        $auction = Auction::query()->where('active', true)->findOrFail($id);
-        $user = User::query()->findOrFail(Auth::id());
+        $auction = Auction::query()
+            ->where('active', true)
+            ->where('status', '<>', Auction::STATUS_ERROR)
+            ->findOrFail($id);
+        $user = User::query()
+            ->where('has_ban', false)
+            ->findOrFail(Auth::id());
 
         $request->validate([
             'step' => ['required', 'integer', 'between:1,3']

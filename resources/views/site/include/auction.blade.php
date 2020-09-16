@@ -6,9 +6,15 @@
         </div>
     @endif
     <a href="{{route('auction.index',$auction['id'])}}">
-        <img class="product-img"
-             src="{{$auction['images'][0]['img']}}"
-             alt="{{$auction['images'][0]['alt']}}">
+        @if($auction['my_win'] && $auction['status'] === \App\Models\Auction\Auction::STATUS_ERROR)
+            <img class="product-img"
+                 src="{{asset('site/img/settings/error.jpg')}}"
+                 alt="error">
+        @else
+            <img class="product-img"
+                 src="{{$auction['images'][0]['img']}}"
+                 alt="{{$auction['images'][0]['alt']}}">
+        @endif
     </a>
     <div class="name">
         <a title="{{$auction['title']}}" href="{{route('auction.index',$auction['id'])}}">{{$auction['title']}}</a>
@@ -85,7 +91,7 @@
             <button class="@if((bool)$auction['autoBid']) disabled @endif">Ставка</button>
         </div>
     @endif
-    @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
+    @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED || $auction['status'] === \App\Models\Auction\Auction::STATUS_ERROR)
         @if(is_null($auction['winner']))
             <div class="lenta not__win">Не состоялся</div>
             <div class="inf"></div>
@@ -95,8 +101,10 @@
             </div>
         @else
             <div class="inf">
-                <p class="winner">{{$auction['winner']}}</p>
-                <p class="price">{{$auction['price']}} руб</p>
+                @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
+                    <p class="winner">{{$auction['winner']}}</p>
+                    <p class="price">{{$auction['price']}} руб</p>
+                @endif
             </div>
             @if(!$auction['my_win'] || $auction['ordered'])
                 <div class="lenta close">ЗАВЕРШЕН</div>
@@ -105,12 +113,18 @@
                     <button>Аукцион закрыт</button>
                 </div>
             @else
-                <div class="btn win">
-                    <span class="price">{{$auction['price']}} руб</span>
-                    <a data-id="{{$auction['id']}}"
-                       href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}"
-                       @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif>Оформить заказ</a>
-                </div>
+                @if($auction['status'] === \App\Models\Auction\Auction::STATUS_ERROR)
+                    <div class="btn error">
+                        <button>ОШИБКА</button>
+                    </div>
+                @else
+                    <div class="btn win">
+                        <span class="price">{{$auction['price']}} руб</span>
+                        <a data-id="{{$auction['id']}}"
+                           href="{{route('payment.auction.order',['id'=>$auction['id'],'step'=>'1'])}}"
+                           @if($auction['my_win'] && $auction['exchange']) class="my___win" @endif>Оформить заказ</a>
+                    </div>
+                @endif
             @endif
         @endif
     @endif

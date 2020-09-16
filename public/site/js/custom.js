@@ -136,9 +136,8 @@ function copyToClipboard(elem) {
 }
 
 function countdown(element, timer = null) {
-
     element.find('[data-countdown]').each(function (e, v) {
-        let $this = $(this), seconds = (timer !== null) ? timer : $this.data('countdown');
+        let $this = $(this), seconds = ((timer !== null) ? timer : $this.data('countdown')) + 1;
         let time = new Date();
         let countdown = time.setSeconds(time.getSeconds() + seconds);
         $this.countdown(countdown)
@@ -164,20 +163,18 @@ function ChangeStatus(id = null) {
     let auction = home_page.find(`div.card[data-auction-id="${id}"]`);
     $.post(url, function (data) {
         if (Object.keys(data).length) {
-            if (data.home_page && home_page.length) {
+            if (home_page.length && data.home_page) {
                 let html = $(data.home_page);
                 if (id !== null) {
                     if (auction.length) auction.replaceWith(html);
                     //else home_page.append(html);
                 } else home_page.html(html);
-                let sec = html.find('[data-countdown]').data('countdown');
-                sec ? countdown(html, sec) : false;
+                countdown(html);
             }
-            if (data.auction_page && auction_page.length) {
+            if (auction_page.length && data.auction_page) {
                 let html = $(data.auction_page);
                 auction_page.html(html);
-                let sec = html.find('[data-countdown]').data('countdown');
-                countdown(html, (sec ?? null));
+                countdown(html);
             }
         }
     });

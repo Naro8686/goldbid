@@ -2,6 +2,7 @@
 
 namespace App\Models\Auction;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -48,4 +49,10 @@ class Bid extends Model
         'is_bot' => 'boolean',
         'win' => 'boolean'
     ];
+    public function user(){
+        return $this->belongsTo(User::class,'user_id');
+    }
+    public function auction(){
+        return $this->belongsTo(Auction::class,'auction_id');
+    }
 }

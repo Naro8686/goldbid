@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 class StatusChangeEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
     public $data;
 
     /**
@@ -23,6 +24,16 @@ class StatusChangeEvent implements ShouldBroadcastNow
     {
         $this->data = $data;
     }
+
+    public function broadcastWhen()
+    {
+        return (!empty($this->data) && $this->data['status_change'] && isset($this->data['auction_id']));
+    }
+
+//    public function broadcastWith()
+//    {
+//        return ['ok'];
+//    }
 
     /**
      * Get the channels the event should broadcast on.

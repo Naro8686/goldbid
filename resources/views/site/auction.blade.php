@@ -10,22 +10,30 @@
         <div class="container">
             <div class="card">
                 <div class="left" style="overflow: hidden;">
-                    <div class="slider-for">
-                        @foreach($auction['images'] as $image)
-                            <div>
-                                <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="slider-nav">
-                        @foreach($auction['images'] as $image)
-                            <div>
-                                <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
-                            </div>
-                        @endforeach
-                    </div>
+                    @if($auction['error'])
+                        <div>
+                            <img src="{{asset('site/img/settings/error.jpg')}}" width="100%" alt="error">
+                        </div>
+                    @else
+                        <div class="slider-for">
+                            @foreach($auction['images'] as $image)
+                                <div>
+                                    <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="slider-nav">
+                            @foreach($auction['images'] as $image)
+                                <div>
+                                    <img src="{{asset($image['img'])}}" class="slide-img" alt="{{$image['alt']}}">
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
                 </div>
-                <div id="auction_page" data-auction-id="{{$auction['id']}}" class="dashboard">
+                <div id="auction_page" data-auction-id="{{$auction['id']}}" class="dashboard"
+                     @if($auction['error']) style="background-color: #FF001A" @endif>
                     @include('site.include.info')
                 </div>
             </div>

@@ -857,7 +857,6 @@ input[type="checkbox"].fail {
     color: #827b77;
 }
 
-
 .auction .card .btn {
     width: 85%;
     border-radius: 50px;
@@ -874,6 +873,9 @@ input[type="checkbox"].fail {
 
 .auction .card .btn.close {
     border-color: #FF3249;
+}
+.auction .card .btn.error {
+    border-color: #FF002B;
 }
 
 .auction .card .btn.not__win {
@@ -915,7 +917,11 @@ input[type="checkbox"].fail {
     background-color: #FF3249;
     border-radius: 50px;
 }
-
+.auction .card .btn.error button {
+    width: 100%;
+    background-color: #FF002B;
+    border-radius: 50px;
+}
 .auction .card .btn.win form {
     width: 100%;
 }

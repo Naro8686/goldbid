@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Auction\Auction;
 use App\Models\Auction\Order;
 use App\Models\User;
 use Closure;

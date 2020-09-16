@@ -8,6 +8,7 @@ use App\Jobs\CreateAuctionJob;
 use App\Jobs\DeleteAuctionInNotWinner;
 use App\Mail\MailingSendMail;
 use App\Models\Auction\Auction;
+use App\Models\Balance;
 use App\Models\Bots\AuctionBot;
 use App\Models\Mailing;
 use App\Models\User;
@@ -65,19 +66,37 @@ class StatusChangeListener implements ShouldQueue
     private function finish(Auction $auction)
     {
         CreateAuctionJob::dispatchIf((isset($auction->product) && $auction->product->visibly), $auction->product);
-        if ($bid = $auction->bid->last()) {
+        $this->fixAfterBid($auction);
+        if ($auction->bid->isNotEmpty()) {
+            $bid = $auction->bid->last();
             $bid->win = true;
             $bid->save(['timestamp' => false]);
-            if (!$bid->is_bot && isset($bid->user_id) && $user = User::query()->find($bid->user_id)) {
-                if ($user->email) {
-                    try {
-                        Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
-                    } catch (Exception $e) {
-                        Log::error('auction finish send mail to winner ' . $e->getMessage());
+            if (!$bid->is_bot && isset($bid->user_id)) {
+                $user = User::query()->find($bid->user_id);
+                if ($auction->shutdownBots()) {
+                    if (!is_null($user) && $user->email) {
+                        try {
+                            Mail::to($user->email)->queue(new MailingSendMail(Mailing::VICTORY, ['auction' => $bid->auction_id]));
+                        } catch (Exception $e) {
+                            Log::error('auction finish send mail to winner ' . $e->getMessage());
+                        }
                     }
+                } else {
+                    $auction->update(['status' => Auction::STATUS_ERROR]);
+                    $count = $auction->bid()->where('user_id', $bid->user_id);
+                    $bet = $count->sum('bet');
+                    $bonus = $count->sum('bonus');
+                    $user->balanceHistory()->create([
+                        'reason' => Balance::RETURN_REASON,
+                        'type' => Balance::PLUS,
+                        'bet' => $bet,
+                        'bonus' => $bonus,
+                    ]);
+                    event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
+                    //DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(5));
                 }
             }
-        } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction);
+        } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(3));
     }
 
     private function active(Auction $auction)
@@ -93,5 +112,31 @@ class StatusChangeListener implements ShouldQueue
             Log::error($exception->getMessage());
         }
 
+    }
+
+    private function fixAfterBid(Auction $auction)
+    {
+        try {
+            $bids = $auction->bid()->where('bids.created_at', '>', $auction->end)->get();
+            foreach ($bids as $item) {
+                if (!is_null($item->user)) {
+                    /** @var User $user */
+                    $user = $item->user;
+                    $user->balanceHistory()
+                        ->create([
+                            'type' => Balance::PLUS,
+                            'bet' => $item->bet,
+                            'bonus' => $item->bonus,
+                        ]);
+                    if ($autoBid = $user->autoBid->where('auction_id',$item->auction_id)->first()){
+                        $autoBid->count += 1;
+                        $autoBid->save();
+                    }
+                    $item->delete();
+                }
+            }
+        }catch (Exception $exception){
+            Log::error('fixAfterBid '.$exception->getMessage());
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\BetEvent;
 use App\Jobs\BotBidJob;
+use App\Jobs\DuplicateBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Balance;
 use App\Models\Bots\AuctionBot;
@@ -53,7 +54,7 @@ class BetListener implements ShouldQueue
                     BotBidJob::dispatch($bot)->delay($delay);
                 }
             }
-            $this->duplicate($auction);
+            DuplicateBidJob::dispatchNow($auction);
         }
 
         return $event;
@@ -72,7 +73,7 @@ class BetListener implements ShouldQueue
 
             $stopBotOne = (int)$auction->bot_shutdown_count;
             $stopBotTwoThree = (int)$auction->bot_shutdown_price;
-            $sumBids = $auction->bid->sum('bet') / Auction::BET_RUB;
+            $sumBids = (int)$auction->bid->sum('bet') / Auction::BET_RUB;
             $bidBot = DB::table('bids')->where([
                 ['auction_id', '=', $auction->id],
                 ['is_bot', '=', true],
@@ -129,45 +130,6 @@ class BetListener implements ShouldQueue
             Log::error('select bot ' . $exception->getMessage());
         }
         return $bot;
-    }
-
-    private function duplicate(Auction $auction)
-    {
-        try {
-            $duplicate = null;
-            foreach ($auction->bid->pluck('price') as $price) {
-                $bids = $auction->bid->where('price', $price);
-                if ($bids->count() > 1) {
-                    $duplicate = $bids;
-                    break;
-                }
-            }
-            if (!is_null($duplicate)) {
-                $last = $duplicate->last();
-                if ($last->is_bot) {
-                    if ($last->bot_num === 1) {
-                        $auction->bot_shutdown_count += 1;
-                    } else {
-                        $auction->bot_shutdown_price += 10;
-                    }
-                    $auction->save(['timestamp' => false]);
-                } else {
-                    $user = User::find($last->user_id);
-                    $type = $last->bonus ? 'bonus' : 'bet';
-                    $user->balanceHistory()->create([
-                        $type => 1,
-                        'type' => Balance::PLUS
-                    ]);
-                    if ($user->autoBid()->exists()) {
-                        $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)
-                            ->update(['auto_bids.count' => DB::raw('auto_bids.count + 1')]);
-                    }
-                }
-                $last->delete();
-            }
-        } catch (Exception $exception) {
-            Log::warning('Bet duplicate delete ' . $exception->getMessage());
-        }
     }
 
 }

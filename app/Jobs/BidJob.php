@@ -66,7 +66,8 @@ class BidJob
     {
         $update = false;
         try {
-            if ($this->auction->winner()->nickname !== $this->nickname) {
+
+            if ($this->auction->winner()->nickname !== $this->nickname && $this->auction->bid->where('price',$this->auction->new_price())->isEmpty()) {
                 $data = [
                     'price' => $this->auction->new_price(),
                     'title' => $this->auction->title,

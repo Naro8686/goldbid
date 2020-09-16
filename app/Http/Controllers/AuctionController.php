@@ -6,6 +6,7 @@ use App\Events\BetEvent;
 use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
+use App\Models\Balance;
 use App\Models\User;
 use App\Settings\Setting;
 use Carbon\Carbon;
@@ -122,8 +123,9 @@ class AuctionController extends Controller
      * @param array $html
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changeStatus($id = null, $html = [])
+    public function changeStatus($id = null)
     {
+        $html = [];
         try {
             if (!is_null($id)) {
                 $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id);
@@ -138,11 +140,11 @@ class AuctionController extends Controller
                 $auctions = Auction::auctionsForHomePage();
                 $html['home_page'] = view('site.include.auctions', ['auctions' => $auctions])->render();
             }
-            return response()->json($html);
         } catch (Throwable $e) {
             if ($e->getCode() !== 0)
                 Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
         }
+        return response()->json($html);
     }
 
 
