@@ -64,48 +64,45 @@ class BidJob
      */
     public function handle()
     {
-        $update = false;
         try {
-
-            if ($this->auction->winner()->nickname !== $this->nickname && $this->auction->bid->where('price',$this->auction->new_price())->isEmpty()) {
-                $data = [
-                    'price' => $this->auction->new_price(),
-                    'title' => $this->auction->title,
-                    'nickname' => $this->nickname,
-                    'is_bot' => is_null($this->user),
-                    'user_id' => (is_null($this->user) ? null : $this->user->id)
-                ];
-                DB::beginTransaction();
-                if (!$data['is_bot']) {
-                    $user = $this->user;
-                    $balance = $user->balance();
-                    $ordered = $user->auctionOrder()
-                        ->where('orders.auction_id', '=', $this->auction->id)
-                        ->where('orders.status', '=', Order::SUCCESS)
-                        ->doesntExist();
-                    if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($this->auction->full_price($user->id) > 1)) {
-                        $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
+            DB::transaction(function () {
+                $update = false;
+                if ($this->auction->winner()->nickname !== $this->nickname && $this->auction->bid->where('price', $this->auction->new_price())->isEmpty()) {
+                    $data = [
+                        'price' => $this->auction->new_price(),
+                        'title' => $this->auction->title,
+                        'nickname' => $this->nickname,
+                        'is_bot' => is_null($this->user),
+                        'user_id' => (is_null($this->user) ? null : $this->user->id)
+                    ];
+                    if (!$data['is_bot']) {
+                        $user = $this->user;
+                        $balance = $user->balance();
+                        $ordered = $user->auctionOrder()
+                            ->where('orders.auction_id', '=', $this->auction->id)
+                            ->where('orders.status', '=', Order::SUCCESS)
+                            ->doesntExist();
+                        if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($this->auction->full_price($user->id) > 1)) {
+                            $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
+                            $data[$this->bid_type] = self::BID_COUNT;
+                            $this->user->balanceHistory()->create([
+                                $this->bid_type => self::BID_COUNT,
+                                'type' => Balance::MINUS
+                            ]);
+                            $update = true;
+                        }
+                    } elseif ($data['is_bot']) {
                         $data[$this->bid_type] = self::BID_COUNT;
-                        $this->user->balanceHistory()->create([
-                            $this->bid_type => self::BID_COUNT,
-                            'type' => Balance::MINUS
-                        ]);
+                        $data['bot_num'] = $this->botNum;
                         $update = true;
                     }
-                } elseif ($data['is_bot']) {
-                    $data[$this->bid_type] = self::BID_COUNT;
-                    $data['bot_num'] = $this->botNum;
-                    $update = true;
+                    if ($update && $this->auction->update(['step_time' => Carbon::now()->addSeconds($this->auction->bid_seconds)])) {
+                        $this->auction->bid()->create($data);
+                    }
                 }
-                if ($update && $this->auction->update(['step_time' => Carbon::now()->addSeconds($this->auction->bid_seconds)])) {
-                    $this->auction->bid()->firstOrCreate($data);
-                }
-                DB::commit();
-            }
-
+            });
         } catch (Throwable $exception) {
             Log::error('Bid Job ' . $exception->getMessage());
-            DB::rollBack();
         }
         event(new BetEvent($this->auction));
     }

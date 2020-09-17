@@ -126,15 +126,18 @@ class AuctionController extends Controller
     public function changeStatus($id = null)
     {
         $html = [];
+        $status = 200;
         try {
             if (!is_null($id)) {
                 $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id);
                 $html['home_page'] = view('site.include.auction', ['auction' => $auctionForHomePage])->render();
                 $auctionPage = Auction::auctionPage($id);
+                if ($auctionPage['error']) $status = 403;
                 unset($auctionPage['images']);
                 unset($auctionPage['desc']);
                 unset($auctionPage['specify']);
                 unset($auctionPage['terms']);
+
                 $html['auction_page'] = view('site.include.info', ['auction' => $auctionPage])->render();
             } else {
                 $auctions = Auction::auctionsForHomePage();
@@ -144,7 +147,7 @@ class AuctionController extends Controller
             if ($e->getCode() !== 0)
                 Log::error('status_change.' . $e->getMessage() . ' code ' . $e->getCode());
         }
-        return response()->json($html);
+        return response()->json($html, $status);
     }
 
 

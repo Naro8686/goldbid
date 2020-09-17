@@ -49,7 +49,7 @@ class DeleteAuctionInNotWinner implements ShouldQueue
             Page::query()->where('slug', $this->auction->id)->delete();
             $this->auction->delete();
         } catch (Exception $e) {
-            Log::info('delete_auction_job' . $e->getMessage());
+            Log::error('delete_auction_job' . $e->getMessage());
         }
     }
 }

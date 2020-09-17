@@ -221,7 +221,7 @@ class User extends Authenticatable
 
         return collect([
             'count' => $users->count(),
-            'active' => Bid::query()->whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
+            'active' => Bid::whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
             'banned' => $users->where('has_ban', true)->count(),
             'online' => $users->where('is_online', '>=', now())->count()
         ]);

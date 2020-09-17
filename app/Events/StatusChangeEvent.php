@@ -25,14 +25,9 @@ class StatusChangeEvent implements ShouldBroadcastNow
         $this->data = $data;
     }
 
-    public function broadcastWhen()
-    {
-        return (!empty($this->data) && $this->data['status_change'] && isset($this->data['auction_id']));
-    }
-
-//    public function broadcastWith()
+//    public function broadcastWhen()
 //    {
-//        return ['ok'];
+//        return (!empty($this->data) && $this->data['status_change'] && isset($this->data['auction_id']));
 //    }
 
     /**

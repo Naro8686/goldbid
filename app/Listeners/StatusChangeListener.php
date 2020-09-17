@@ -41,7 +41,7 @@ class StatusChangeListener implements ShouldQueue
     {
         if (!empty($event->data) && $event->data['status_change'] && isset($event->data['auction_id'])) {
             try {
-                $auction = Auction::where('id', '=', $event->data['auction_id'])->first();
+                $auction = Auction::find($event->data['auction_id']);
                 if (!is_null($auction)) {
                     switch ($auction->status) {
                         case Auction::STATUS_ACTIVE:
@@ -50,7 +50,8 @@ class StatusChangeListener implements ShouldQueue
                         case Auction::STATUS_FINISHED:
                             $this->finish($auction);
                             break;
-
+                        default:
+                            break;
                     }
                 }
             } catch (Exception $e) {
@@ -93,10 +94,10 @@ class StatusChangeListener implements ShouldQueue
                         'bonus' => $bonus,
                     ]);
                     event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
-                    //DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(5));
+                    DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(5));
                 }
             }
-        } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(3));
+        } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(1));
     }
 
     private function active(Auction $auction)
@@ -128,15 +129,11 @@ class StatusChangeListener implements ShouldQueue
                             'bet' => $item->bet,
                             'bonus' => $item->bonus,
                         ]);
-                    if ($autoBid = $user->autoBid->where('auction_id',$item->auction_id)->first()){
-                        $autoBid->count += 1;
-                        $autoBid->save();
-                    }
                     $item->delete();
                 }
             }
-        }catch (Exception $exception){
-            Log::error('fixAfterBid '.$exception->getMessage());
+        } catch (Exception $exception) {
+            Log::error('fixAfterBid ' . $exception->getMessage());
         }
     }
 }

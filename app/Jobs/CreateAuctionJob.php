@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\StatusChangeEvent;
 use App\Models\Auction\Auction;
 use App\Models\Auction\Product;
 use App\Models\Bots\Bot;

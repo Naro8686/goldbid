@@ -92,19 +92,23 @@ class AuctionBot extends Model
 
     public function botRefresh()
     {
-        $names = $this->auction->bots->pluck('name');
-        $random = BotName::whereNotIn('name', $names)->inRandomOrder()->first(['name']);
-        $data['name'] = $random->name;
-        if ($this->number(1)) {
-            list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->change_name)), 2, null);
-            $data['change_name'] = rand($min, $max);
-        } else {
-            list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves)), 2, null);
-            $data['num_moves'] = rand($min, $max);
-            list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves_other_bot)), 2, null);
-            $data['num_moves_other_bot'] = rand($min, $max);
+        if ($this->auction->bots->isNotEmpty()){
+            $names = $this->auction->bots->pluck('name');
+            $random = BotName::whereNotIn('name', $names)->inRandomOrder()->first(['name']);
+            if ($random){
+                $data['name'] = $random->name;
+                if ($this->number(1)) {
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->change_name)), 2, null);
+                    $data['change_name'] = rand($min, $max);
+                } else {
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves)), 2, null);
+                    $data['num_moves'] = rand($min, $max);
+                    list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves_other_bot)), 2, null);
+                    $data['num_moves_other_bot'] = rand($min, $max);
+                }
+                $this->update($data);
+            }
         }
-        $this->update($data);
         return $this;
     }
 }

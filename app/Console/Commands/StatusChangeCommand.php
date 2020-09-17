@@ -91,12 +91,12 @@ class StatusChangeCommand extends Command
     {
         try {
             $ids = $auction->pluck('id');
-            $update = $auction->update([
+            $auction->update([
                 'status' => Auction::STATUS_ACTIVE,
                 'step_time' => DB::raw('NOW() + INTERVAL bid_seconds SECOND')
             ]);
             foreach ($ids as $id) event(new StatusChangeEvent([
-                'status_change' => (bool)$update,
+                'status_change' => true,
                 'auction_id' => $id
             ]));
 
@@ -112,13 +112,13 @@ class StatusChangeCommand extends Command
     {
         try {
             $ids = $auction->pluck('id');
-            $update = $auction->update([
+            $auction->update([
                 'status' => Auction::STATUS_FINISHED,
                 'end' => DB::raw('NOW()'),
                 'top' => false
             ]);
             foreach ($ids as $id) event(new StatusChangeEvent([
-                'status_change' => (bool)$update,
+                'status_change' => true,
                 'auction_id' => $id
             ]));
         } catch (Throwable $e) {

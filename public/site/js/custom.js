@@ -161,7 +161,7 @@ function ChangeStatus(id = null) {
     let home_page = $('#home_page');
     let auction_page = $(`#auction_page[data-auction-id="${id}"]`);
     let auction = home_page.find(`div.card[data-auction-id="${id}"]`);
-    $.post(url, function (data) {
+    $.post(url).done(function (data) {
         if (Object.keys(data).length) {
             if (home_page.length && data.home_page) {
                 let html = $(data.home_page);
@@ -177,6 +177,22 @@ function ChangeStatus(id = null) {
                 countdown(html);
             }
         }
+    }).fail(function (xhr) {
+        let data = xhr.responseJSON;
+        if (xhr.status === 403 && Object.keys(data).length) {
+            if (auction_page.length && data.auction_page) {
+                let parent = auction_page.closest('div.card');
+                parent.find('.slider-nav').remove();
+                parent.find('.slider-for').html("<img src='/site/img/settings/error.jpg' width='100%' alt='error'>");
+                auction_page.css("background-color", "#FF001A");
+                let html = $(data.auction_page);
+                auction_page.html(html);
+            }
+            if (home_page.length && data.home_page) {
+                let html = $(data.home_page);
+                if (id !== null && auction.length) auction.replaceWith(html);
+                else home_page.html(html);
+            }
+        }
     });
 }
-

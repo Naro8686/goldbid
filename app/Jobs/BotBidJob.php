@@ -2,15 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Events\BetEvent;
 use App\Models\Bots\AuctionBot;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -57,7 +56,7 @@ class BotBidJob implements ShouldQueue
 
     public function action(AuctionBot $auctionBot, $first)
     {
-        if ($auctionBot->auction->winner()->nickname === $auctionBot->name) return true;
+        if ($auctionBot->auction->winner()->nickname === $auctionBot->name) event(new BetEvent($auctionBot->auction));
         $run = false;
         switch ($auctionBot->number()) {
             case 1:
@@ -74,15 +73,24 @@ class BotBidJob implements ShouldQueue
     public function botOne(AuctionBot $auctionBot, $first)
     {
         $run = false;
-        if ($first) {
-            if ($auctionBot->auction->bid()->doesntExist()) {
-                $run = $auctionBot->where('change_name', '>', 0)->update(['change_name' => DB::raw('change_name - 1')]);
+        try {
+            if ($auctionBot->auction && (int)$auctionBot->change_name > 0 && (int)$auctionBot->auction->bot_shutdown_count > 0) {
+                if ($first) {
+                    if ($auctionBot->auction->bid()->doesntExist()) {
+                        $run = $auctionBot->decrement('change_name');
+                    }
+                } else {
+                    $run = $auctionBot->decrement('change_name');
+                }
+                if ($run) {
+                    $auctionBot->auction->decrement('bot_shutdown_count');
+                }
             }
-        } else {
-            $run = $auctionBot->where('change_name', '>', 0)->update(['change_name' => DB::raw('change_name - 1')]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
         }
-        if ($run) $run = $auctionBot->auction->update(['bot_shutdown_count' => DB::raw('bot_shutdown_count - 1')]);
-        return $run;
+
+        return (bool)$run;
     }
 
     public function botTwoThree(AuctionBot $auctionBot)
@@ -99,6 +107,6 @@ class BotBidJob implements ShouldQueue
         } catch (Exception $e) {
             Log::error($e->getMessage());
         }
-        return $run;
+        return (bool)$run;
     }
 }

@@ -117,6 +117,7 @@ class ProfileController extends Controller
     {
         $balance = $this->user->balanceHistory()
             ->where('type', Balance::PLUS)
+            ->whereIn('reason',Balance::reasonArray())
             ->paginate(14);
         return view('user.balance', compact('balance'));
     }

@@ -36,6 +36,10 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Bid whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bid whereWin($value)
  * @mixin \Eloquent
+ * @property int|null $bot_num
+ * @property-read \App\Models\Auction\Auction|null $auction
+ * @property-read User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Bid whereBotNum($value)
  */
 class Bid extends Model
 {

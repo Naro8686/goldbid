@@ -61,4 +61,23 @@ class Balance extends Model
         ];
         return $bonus[$key] ?? 0;
     }
+
+    /**
+     * @return string[]
+     */
+    public static function reasonArray():array
+    {
+        return [
+            self::PURCHASE_REASON,
+            self::WIN_REASON,
+            self::EXCHANGE_REASON,
+            self::PRIZE_REASON,
+            self::RETURN_REASON,
+            self::PURCHASE_BONUS_REASON,
+            self::EXCHANGE_BONUS_REASON,
+            self::REGISTRATION_BONUS_REASON,
+            self::REFERRAL_BONUS_REASON,
+            self::ADMIN,
+            ];
+    }
 }

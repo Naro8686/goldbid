@@ -41,7 +41,7 @@ class AutoBidJob implements ShouldQueue
         if ($autoBid = $this->autoBid) {
             try {
                 DB::transaction(function () use ($autoBid) {
-                    $autoBid->update(['bid_time' => Carbon::now("Europe/Moscow")]);
+                    $autoBid->bid_time = Carbon::now("Europe/Moscow");
                     $user = $autoBid->user;
                     $auction = $autoBid->auction;
                     $auction->autoBid()->where('status', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
@@ -53,10 +53,13 @@ class AutoBidJob implements ShouldQueue
                     if (($balance->bet + $balance->bonus) >= Bid::COUNT
                         && $ordered
                         && $auction->winner()->nickname !== $user->nickname
-                        && ($auction->full_price($user->id) > 1))
-                        $autoBid->minus();
-                    BidJob::dispatch($auction, $user->nickname, $user);
+                        && ($auction->full_price($user->id) > 1)) {
+                        $autoBid->count -= 1;
+                    }
+                    $autoBid->save(['timestamp' => false]);
+                    BidJob::dispatch($autoBid->auction, $autoBid->user->nickname, $autoBid->user);;
                 });
+
             } catch (Throwable $exception) {
                 Log::error('AutoBidJob ' . $exception->getMessage());
             }

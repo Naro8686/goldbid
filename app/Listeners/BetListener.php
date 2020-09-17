@@ -6,11 +6,9 @@ use App\Events\BetEvent;
 use App\Jobs\BotBidJob;
 use App\Jobs\DuplicateBidJob;
 use App\Models\Auction\Auction;
-use App\Models\Balance;
+use App\Models\Auction\AutoBid;
 use App\Models\Bots\AuctionBot;
-use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
@@ -41,6 +39,7 @@ class BetListener implements ShouldQueue
     public function handle(BetEvent $event)
     {
         $auction = $event->auction;
+        DuplicateBidJob::dispatchIf(($auction && $auction->bid()->exists()), $auction);
         if ($auction && $auction->bid()->exists() && $auction->bots()->exists() && $auction->status === Auction::STATUS_ACTIVE) {
             $run = DB::table('auction_bots')->where([
                 ['auction_id', '=', $auction->id],
@@ -54,9 +53,7 @@ class BetListener implements ShouldQueue
                     BotBidJob::dispatch($bot)->delay($delay);
                 }
             }
-            DuplicateBidJob::dispatchNow($auction);
         }
-
         return $event;
     }
 
@@ -131,5 +128,4 @@ class BetListener implements ShouldQueue
         }
         return $bot;
     }
-
 }
