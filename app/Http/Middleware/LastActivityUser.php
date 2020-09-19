@@ -19,7 +19,7 @@ class LastActivityUser
     {
         if (Auth::check()) {
             $user = Auth::user();
-            $user->is_online = Carbon::now()->addMinutes(10);
+            $user->is_online = Carbon::now("Europe/Moscow")->addMinutes(10);
             $user->timestamps = false;
             $user->save();
         }

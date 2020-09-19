@@ -179,7 +179,7 @@ class ProfileController extends Controller
                         $fail('код не правильный !');
                 }],
             ]);
-            if ($this->user->update(['email_code_verified' => now()]))
+            if ($this->user->update(['email_code_verified' => now("Europe/Moscow")]))
                 $text = 'Спасибо за подтверждение майла !';
         } else {
             if ($request->ajax()) {

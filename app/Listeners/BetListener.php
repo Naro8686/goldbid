@@ -49,7 +49,7 @@ class BetListener implements ShouldQueue
                 $bot = $this->select($auction);
                 if (!is_null($bot)) {
                     $bot->update(['status' => AuctionBot::WORKED]);
-                    $delay = Carbon::now()->addSeconds($bot->timeToBet());
+                    $delay = Carbon::now("Europe/Moscow")->addSeconds($bot->timeToBet());
                     BotBidJob::dispatch($bot)->delay($delay);
                 }
             }

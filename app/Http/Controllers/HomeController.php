@@ -118,7 +118,7 @@ class HomeController extends Controller
 
     public function cookieAgree(Request $request)
     {
-        $time = ($agree = (bool)$request['agree']) ? now()->addMonth() : now()->addDay();
+        $time = ($agree = (bool)$request['agree']) ? now("Europe/Moscow")->addMonth() : now()->addDay();
         $cookie = cookie('cookiesPolicy', $time, $time->diffInMinutes());
         return response(['agree' => $agree])->cookie($cookie);
     }

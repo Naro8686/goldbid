@@ -36,7 +36,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_code_verified')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->timestamp('is_online')->default(now());
+            $table->timestamp('is_online')->default(now("Europe/Moscow"));
             $table->unsignedTinyInteger('payment_type')->nullable();
             $table->unsignedInteger('ccnum')->nullable();
             $table->rememberToken();

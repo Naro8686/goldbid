@@ -318,8 +318,8 @@ class ProductController extends Controller
         $new->img_2 = $this->imageCopy($old->img_2);
         $new->img_3 = $this->imageCopy($old->img_3);
         $new->img_4 = $this->imageCopy($old->img_4);
-        $new->created_at = now();
-        $new->updated_at = now();
+        $new->created_at = now("Europe/Moscow");
+        $new->updated_at = now("Europe/Moscow");
         $new->save();
         if ($new->visibly === true) {
             /** @var Product $new */

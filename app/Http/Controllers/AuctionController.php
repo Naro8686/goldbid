@@ -89,7 +89,7 @@ class AuctionController extends Controller
         $balance = $user->balance();
         $max_count = ($balance->bet + $balance->bonus);
         $request->validate(['count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']]);
-        $time = Carbon::now()->timezone("Europe/Moscow");
+        $time = Carbon::now("Europe/Moscow");
         $auction = Auction::query()->where('status', Auction::STATUS_ACTIVE)->findOrFail($id);
         $auto_bid = $auction->autoBid();
         $count = (int)$request['count'];

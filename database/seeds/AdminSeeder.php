@@ -26,7 +26,7 @@ class AdminSeeder extends Seeder
             'email' => 'GoldBid24@gmail.com',
             'password' => Hash::make('secret'),
             'email_code' => Config::emailRandomCode(),
-            'email_code_verified' => now(),
+            'email_code_verified' => now("Europe/Moscow"),
             'remember_token' => Str::random(10),
         ]);
         $admin->balanceHistory()->create(['type' => Balance::PLUS, 'bet' => 100, 'bonus' => 100]);

@@ -96,10 +96,10 @@ class StatusChangeListener implements ShouldQueue
                             'bonus' => $bonus,
                         ]);
                         event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $auction->id]));
-                        DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(5));
+                        DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now("Europe/Moscow")->addSeconds(5));
                     }
                 }
-            } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now()->addSeconds(1));
+            } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now("Europe/Moscow")->addSeconds(1));
         } catch (Exception $exception) {
             Log::error('StatusChangeListener finish ' . $exception->getMessage());
         }
@@ -109,7 +109,7 @@ class StatusChangeListener implements ShouldQueue
     {
         try {
             /** @var AuctionBot $bot */
-            $delay = Carbon::now()->addSeconds($auction->step_time() - 1);
+            $delay = Carbon::now("Europe/Moscow")->addSeconds($auction->step_time() - 1);
             $bot = $auction->botNum(1);
             if (!is_null($bot)) {
                 dispatch(new BotBidJob($bot, true))->delay($delay);

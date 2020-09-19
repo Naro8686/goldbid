@@ -155,13 +155,13 @@ class Setting
 
     public static function orderNumCoupon(int $num)
     {
-        $data_format = now()->format('ymd-His');
+        $data_format = now("Europe/Moscow")->format('ymd-His');
         return "{$data_format}-{$num}";
     }
 
     public static function orderNumAuction(int $user_id)
     {
-        $data_format = now()->format('ymd-His');
+        $data_format = now("Europe/Moscow")->format('ymd-His');
         return "{$data_format}-{$user_id}";
     }
 

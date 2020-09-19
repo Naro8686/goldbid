@@ -176,7 +176,7 @@ class User extends Authenticatable
      */
     public function isActive(): bool
     {
-        return $this->is_online >= Carbon::now();
+        return $this->is_online >= Carbon::now("Europe/Moscow");
     }
 
     /**
@@ -223,7 +223,7 @@ class User extends Authenticatable
             'count' => $users->count(),
             'active' => Bid::whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
             'banned' => $users->where('has_ban', true)->count(),
-            'online' => $users->where('is_online', '>=', now())->count()
+            'online' => $users->where('is_online', '>=', now("Europe/Moscow"))->count()
         ]);
     }
 

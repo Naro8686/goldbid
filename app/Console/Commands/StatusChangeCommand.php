@@ -44,7 +44,7 @@ class StatusChangeCommand extends Command
     public function handle()
     {
         while (true) {
-            $this->statusChange(Carbon::now());
+            $this->statusChange(Carbon::now("Europe/Moscow"));
             sleep(1);
         }
     }

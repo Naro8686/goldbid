@@ -69,7 +69,7 @@ class AutoBidListener
         try {
             $next->update(['status' => AutoBid::WORKED]);
             $rand = rand(0, ($next->auction->step_time() - 1));
-            $delay = Carbon::now()->addSeconds((int)(($rand === 0 && $next->auction->step_time() > 1) ? 1 : $rand));
+            $delay = Carbon::now("Europe/Moscow")->addSeconds((int)(($rand === 0 && $next->auction->step_time() > 1) ? 1 : $rand));
             AutoBidJob::dispatchIf($next->status === AutoBid::WORKED, $next)->delay($delay);
         } catch (Throwable $exception) {
             Log::error('autobid listener ' . $exception->getMessage());

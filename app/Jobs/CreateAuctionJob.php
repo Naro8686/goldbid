@@ -78,7 +78,7 @@ class  CreateAuctionJob implements ShouldQueue
                 'bid_seconds' => $this->product->step_time,
                 'top' => $this->product->top,
                 'step_price' => $this->product->step_price,
-                'start' => Carbon::now()->addMinutes((int)$this->product->to_start),
+                'start' => Carbon::now("Europe/Moscow")->addMinutes((int)$this->product->to_start),
                 'exchange' => (bool)$this->product->exchange,
                 'buy_now' => (bool)$this->product->buy_now,
                 'status' => ((int)$this->product->to_start === 0) ? Auction::STATUS_ACTIVE : Auction::STATUS_PENDING,

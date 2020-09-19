@@ -298,7 +298,7 @@ class Auction extends Model
 
     public function start()
     {
-        return !Carbon::now()->diff($this->start)->invert
+        return !Carbon::now("Europe/Moscow")->diff($this->start)->invert
             ? $this->start->diffInSeconds()
             : 0;
     }
@@ -316,7 +316,7 @@ class Auction extends Model
 
     public function step_time()
     {
-        return !Carbon::now()->diff($this->step_time)->invert
+        return !Carbon::now("Europe/Moscow")->diff($this->step_time)->invert
             ? $this->step_time->diffInSeconds()
             : 0;
     }
@@ -336,7 +336,6 @@ class Auction extends Model
         $data = self::where('active', true)
             ->orderByRaw('(CASE WHEN `status` = 1 THEN `start` END) ASC,
                               (CASE WHEN `status` = 2 THEN `start` END) DESC')
-            ->orderBy('id', 'desc')
             ->get();
         $auctions = new Collection;
         $user = Auth::user();

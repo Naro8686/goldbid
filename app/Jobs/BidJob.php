@@ -96,7 +96,7 @@ class BidJob
                         $data['bot_num'] = $this->botNum;
                         $update = true;
                     }
-                    if ($update && $this->auction->update(['step_time' => Carbon::now()->addSeconds($this->auction->bid_seconds)])) {
+                    if ($update && $this->auction->update(['step_time' => Carbon::now("Europe/Moscow")->addSeconds($this->auction->bid_seconds)])) {
                         $this->auction->bid()->create($data);
                     }
                 }
