@@ -56,27 +56,27 @@ class StatusChangeCommand extends Command
     public function statusChange(Carbon $current)
     {
         try {
-            DB::transaction(function () use ($current) {
-                $pending = DB::table('auctions')
-                    ->select(['id', 'bid_seconds'])
-                    ->where([
-                        ['active', '=', true],
-                        ['status', '=', Auction::STATUS_PENDING],
-                        ['step_time', '=', null],
-                        ['start', '<=', $current]
-                    ])->lockForUpdate();
-                if ($pending->exists()) $this->pending($pending);
+            //    DB::transaction(function () use ($current) {
+            $pending = DB::table('auctions')
+                ->select(['id', 'bid_seconds'])
+                ->where([
+                    ['active', '=', true],
+                    ['status', '=', Auction::STATUS_PENDING],
+                    ['step_time', '=', null],
+                    ['start', '<=', $current]
+                ]);
+            if ($pending->exists()) $this->pending($pending);
 
-                $active = DB::table('auctions')
-                    ->select(['id'])
-                    ->where([
-                        ['active', '=', true],
-                        ['status', '=', Auction::STATUS_ACTIVE],
-                        ['step_time', '<>', null],
-                        ['step_time', '<', $current]
-                    ])->lockForUpdate();
-                if ($active->exists()) $this->active($active);
-            });
+            $active = DB::table('auctions')
+                ->select(['id'])
+                ->where([
+                    ['active', '=', true],
+                    ['status', '=', Auction::STATUS_ACTIVE],
+                    ['step_time', '<>', null],
+                    ['step_time', '<=', $current]
+                ])->lockForUpdate();
+            if ($active->exists()) $this->active($active);
+            //  });
 
         } catch (Throwable $throwable) {
             Log::error('error statusChange ' . $throwable->getMessage());
@@ -84,43 +84,38 @@ class StatusChangeCommand extends Command
     }
 
 
-    /**
-     * @param $auction
-     */
-    private function pending($auction)
+    private function pending($auctions)
     {
         try {
-            $ids = $auction->pluck('id');
-            $auction->update([
+            $ids = $auctions->get()->pluck('id');
+
+            $auctions->update([
                 'status' => Auction::STATUS_ACTIVE,
                 'step_time' => DB::raw('NOW() + INTERVAL bid_seconds SECOND')
             ]);
-            foreach ($ids as $id) event(new StatusChangeEvent([
-                'status_change' => true,
-                'auction_id' => $id
-            ]));
 
+            $ids->map(function ($id) {
+                event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $id]));
+            });
         } catch (Throwable $e) {
             Log::error('status_change_pending ' . $e->getMessage());
         }
     }
 
-    /**
-     * @param $auction
-     */
-    private function active($auction)
+    private function active($auctions)
     {
         try {
-            $ids = $auction->pluck('id');
-            $auction->update([
-                'status' => Auction::STATUS_FINISHED,
-                'end' => DB::raw('NOW()'),
-                'top' => false
-            ]);
-            foreach ($ids as $id) event(new StatusChangeEvent([
-                'status_change' => true,
-                'auction_id' => $id
-            ]));
+            $ids = $auctions->get()->pluck('id');
+            DB::transaction(function () use ($auctions) {
+                $auctions->update([
+                    'status' => Auction::STATUS_FINISHED,
+                    'end' => DB::raw('NOW()'),
+                    'top' => false
+                ]);
+            });
+            $ids->map(function ($id) {
+                event((new StatusChangeEvent(['status_change' => true, 'auction_id' => $id])));
+            });
         } catch (Throwable $e) {
             Log::error('status_change_active_command ' . $e->getMessage());
         }

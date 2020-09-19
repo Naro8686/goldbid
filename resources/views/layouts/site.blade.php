@@ -8,15 +8,12 @@
     <title>{{isset($page) ? $page->meta->title() : 'GoldBid'}}</title>
     <meta name="keywords" content="{{$page->meta->keywords ?? ''}}">
     <meta name="description" content="{{$page->meta->description ?? ''}}">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     @stack('css')
     <link href="{{asset('site/css/humburger.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/modal.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/agree_cookie.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/custom.css')}}" rel="stylesheet">
     <link href="{{asset('site/css/media.css')}}" rel="stylesheet">
-    <script src="{{asset('js/app.js')}}"></script>
-    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
 </head>
 
 <body>
@@ -325,10 +322,11 @@
         </div>
     </div>
 @endif
+<script src="{{asset('js/app.js')}}"></script>
 <script src="{{asset('site/js/jquery.js')}}"></script>
-<script src="{{asset('site/js/slick.js')}}"></script>
 <script src="{{asset('site/js/jquery.countdown.min.js')}}"></script>
-
+<script src="{{asset('site/js/events.js')}}"></script>
+<script src="{{asset('site/js/slick.js')}}"></script>
 <script src="{{asset('site/js/prefixfree.min.js')}}" async></script>
 <script src="{{asset('site/js/jquery.cookie.js')}}"></script>
 <script src="{{asset('site/js/imask.js')}}"></script>
@@ -336,7 +334,8 @@
 <script src="{{asset('site/js/humburger.js')}}"></script>
 <script src="{{asset('site/js/modal.js')}}"></script>
 <script src="{{asset('site/js/custom.js')}}"></script>
-<script src="{{asset('site/js/events.js')}}"></script>
+
+<script src='https://www.google.com/recaptcha/api.js' async defer></script>
 @stack('js')
 </body>
 </html>

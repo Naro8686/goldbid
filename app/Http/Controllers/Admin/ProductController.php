@@ -302,9 +302,9 @@ class ProductController extends Controller
     {
         try {
             $auction = $product->auction();
-            CreateAuctionJob::dispatchIf(!$auction
+            CreateAuctionJob::dispatchIf($auction
                 ->whereIn('status', [Auction::STATUS_ACTIVE, Auction::STATUS_PENDING])
-                ->exists(), $product);
+                ->doesntExist(), $product);
         }catch (Throwable $exception){
             Log::error($exception->getMessage());
         }

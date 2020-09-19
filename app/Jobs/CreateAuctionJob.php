@@ -90,7 +90,6 @@ class  CreateAuctionJob implements ShouldQueue
                 'title' => $new->title,
             ]);
             $this->createBots($new);
-            //event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $new->id]));
         } catch (Exception $exception) {
             Log::error('CreateAuctionJob ' . $exception->getMessage());
         }

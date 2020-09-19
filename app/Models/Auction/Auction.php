@@ -164,7 +164,7 @@ class Auction extends Model
         $count = 0;
         $stopBotOne = (int)$this->bot_shutdown_count;
         $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
-        if ($this->bid->isNotEmpty()){
+        if ($this->bid->isNotEmpty()) {
             if (!is_null($this->botNum(1))) {
                 $count = $count + $stopBotOne;
             }
@@ -333,9 +333,9 @@ class Auction extends Model
 
     public static function auctionsForHomePage()
     {
-        $data = self::query()->where('active', true)
-            ->orderBy('start')
-            ->orderBy('step_time')
+        $data = self::where('active', true)
+            ->orderByRaw('(CASE WHEN `status` = 1 THEN `start` END) ASC,
+                              (CASE WHEN `status` = 2 THEN `start` END) DESC')
             ->orderBy('id', 'desc')
             ->get();
         $auctions = new Collection;
