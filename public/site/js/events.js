@@ -14,7 +14,22 @@ function countdown(element, timer = null) {
             })
             .on('finish.countdown', () => {
                 if ($this.hasClass('to__start')) $this.html('00:00:00');
-                else $this.html('00:00');
+                else {
+                    let card = $this.closest('.card');
+                    let winner = card.find('p.winner');
+                    if (winner.text()===''){
+                        let info = card.find('div.info');
+                        let favorites  = card.find('div.favorites ');
+                        let div = card.find('div.btn.active');
+                        let btn = div.children('button');
+                        let text = btn.prev().text();
+                        $('<div class="lenta not__win">Не состоялся</div>').insertAfter(info);
+                        div.removeClass('active').addClass('not__win');
+                        btn.text(text)
+                        favorites.remove();
+                        $this.remove();
+                    }
+                }
             });
     });
 }
@@ -30,7 +45,7 @@ function ChangeStatus(id = null) {
             if (home_page.length && data.home_page) {
                 let html = $(data.home_page);
                 if (id !== null) {
-                    if (auction.length) auction.replaceWith(html);
+                    //if (auction.length) auction.replaceWith(html);
                     //else home_page.append(html);
                 } else home_page.html(html);
                 countdown(html);
