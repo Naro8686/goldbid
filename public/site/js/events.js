@@ -17,9 +17,9 @@ function countdown(element, timer = null) {
                 else {
                     let card = $this.closest('.card');
                     let winner = card.find('p.winner');
-                    if (winner.text()===''){
+                    if (winner.text() === '') {
                         let info = card.find('div.info');
-                        let favorites  = card.find('div.favorites ');
+                        let favorites = card.find('div.favorites ');
                         let div = card.find('div.btn.active');
                         let btn = div.children('button');
                         let text = btn.prev().text();
@@ -45,7 +45,7 @@ function ChangeStatus(id = null) {
             if (home_page.length && data.home_page) {
                 let html = $(data.home_page);
                 if (id !== null) {
-                    //if (auction.length) auction.replaceWith(html);
+                    if (auction.length) auction.replaceWith(html);
                     //else home_page.append(html);
                 } else home_page.html(html);
                 countdown(html);
