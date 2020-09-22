@@ -1,5 +1,5 @@
 @if($auction['error'])
-    <h1>
+    <h1 style="text-align: center">
         АУКЦИОН ЗАБЛОКИРОВАН
     </h1>
     <div class="error-box">

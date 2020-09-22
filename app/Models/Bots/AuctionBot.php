@@ -87,15 +87,15 @@ class AuctionBot extends Model
             if ($max >= $stepTime) $max = $stepTime - 1;
         }
         $rand = rand($min, $max);
-        return (($rand === 0 && $stepTime > 1) ? 1 : $rand);
+        return ($stepTime > $rand ? ($stepTime - $rand) : ($stepTime - 1));
     }
 
     public function botRefresh()
     {
-        if ($this->auction->bots->isNotEmpty()){
+        if ($this->auction->bots->isNotEmpty()) {
             $names = $this->auction->bots->pluck('name');
             $random = BotName::whereNotIn('name', $names)->inRandomOrder()->first(['name']);
-            if ($random){
+            if ($random) {
                 $data['name'] = $random->name;
                 if ($this->number(1)) {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->change_name)), 2, null);
@@ -110,5 +110,26 @@ class AuctionBot extends Model
             }
         }
         return $this;
+    }
+
+
+    /**
+     * @param string $column
+     * @param int $count
+     * @return int
+     */
+    public function minus(string $column, int $count = 1)
+    {
+        return $this->decrement($column, $count);
+    }
+
+    /**
+     * @param string $column
+     * @param int $count
+     * @return int
+     */
+    public function plus(string $column, int $count = 1)
+    {
+        return $this->increment($column, $count);
     }
 }

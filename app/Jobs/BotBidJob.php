@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Events\BetEvent;
+use App\Models\Auction\Auction;
 use App\Models\Bots\AuctionBot;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,10 +44,11 @@ class BotBidJob implements ShouldQueue
     {
         if ($auctionBot = $this->auctionBot) {
             try {
-                $auction = $auctionBot->auction;
+                $auction = Auction::find($auctionBot->auction->id);
                 $auction->bots()->where('status', AuctionBot::WORKED)->update(['status' => AuctionBot::PENDING]);
                 if ($this->action($auctionBot, $this->first))
                     BidJob::dispatch($auction, $auctionBot->name, null, $auctionBot->number());
+                else event(new BetEvent($auction));
             } catch (Throwable $exception) {
                 Log::error('auctionBotJob ' . $exception->getMessage());
             }
@@ -75,21 +76,19 @@ class BotBidJob implements ShouldQueue
         $run = false;
         try {
             if ($auctionBot->auction && (int)$auctionBot->change_name > 0 && (int)$auctionBot->auction->bot_shutdown_count > 0) {
-                if ($first) {
-                    if ($auctionBot->auction->bid()->doesntExist()) {
-                        $run = $auctionBot->decrement('change_name');
-                    }
-                } else {
-                    $run = $auctionBot->decrement('change_name');
+                if (!$first) {
+                    $run = $auctionBot->minus('change_name');
+                }
+                if ($first && $auctionBot->auction->bid()->doesntExist()) {
+                    $run = $auctionBot->minus('change_name');
                 }
                 if ($run) {
                     $auctionBot->auction->decrement('bot_shutdown_count');
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Log::error($e->getMessage());
         }
-
         return (bool)$run;
     }
 
@@ -98,13 +97,13 @@ class BotBidJob implements ShouldQueue
         $run = false;
         try {
             if ($auctionBot->num_moves + $auctionBot->num_moves_other_bot > 0) {
-                $key = $auctionBot->num_moves > 0 ? 'num_moves' : 'num_moves_other_bot';
+                $key = $auctionBot->num_moves > 0 ? "num_moves" : "num_moves_other_bot";
                 if ($auctionBot->$key > 0) {
                     $auctionBot->$key = $auctionBot->$key - 1;
                     $run = $auctionBot->save();
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             Log::error($e->getMessage());
         }
         return (bool)$run;

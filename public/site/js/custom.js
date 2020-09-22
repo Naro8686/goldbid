@@ -68,8 +68,6 @@ $(document).on('click', '.favorites', function () {
 
     $.post(`${URL}/${auction_id}/add-favorite`, function (data) {
         favorite.toggleClass('active');
-        //home_page.empty().html(data);
-        //countdown(home_page);
     });
 });
 
@@ -135,23 +133,3 @@ function copyToClipboard(elem) {
     return succeed;
 }
 
-function countdown(element, timer = null) {
-    element.find('[data-countdown]').each(function (e, v) {
-        let $this = $(this), seconds = ((timer !== null) ? timer : $this.data('countdown')) + 1;
-        let time = new Date();
-        let countdown = time.setSeconds(time.getSeconds() + seconds);
-        $this.countdown(countdown)
-            .on('update.countdown', (event) => {
-                let H = (event.offset.totalDays * 24 + event.offset.hours);
-                if (H < 10) H = `0${H}`;
-                if ($this.hasClass('to__start'))
-                    $this.html(event.strftime(`${H}:%M:%S`));
-                else
-                    $this.html(event.strftime('%M:%S'));
-            })
-            .on('finish.countdown', () => {
-                if ($this.hasClass('to__start')) $this.html('00:00:00');
-                else $this.html('00:00');
-            });
-    });
-}

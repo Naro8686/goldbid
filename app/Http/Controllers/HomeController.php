@@ -40,8 +40,19 @@ class HomeController extends Controller
 
     public function index()
     {
+        $auctions = collect();
+        $ids = [];
         $sliders = Slider::all();
-        $auctions = Auction::auctionsForHomePage();
+        $wins = Auction::auctionsForHomePage()->where('ordered', false)->where('my_win', true);
+        $tops = Auction::auctionsForHomePage()->where('top', true);
+        $favorites = Auction::auctionsForHomePage()->where('favorite', true);
+        foreach ($wins->pluck('id')->toArray() as $id) $ids[] = $id;
+        foreach ($tops->pluck('id')->toArray() as $id) $ids[] = $id;
+        foreach ($favorites->pluck('id')->toArray() as $id) $ids[] = $id;
+        $all = Auction::auctionsForHomePage()
+            ->whereNotIn('id', $ids);
+        foreach ([$wins, $tops, $favorites, $all] as $key => $value)
+            foreach ($value as $item) $auctions->push($item);
         return view(self::DIR . 'index', compact('sliders', 'auctions'));
     }
 

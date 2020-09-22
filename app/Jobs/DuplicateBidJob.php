@@ -46,31 +46,17 @@ class DuplicateBidJob implements ShouldQueue
                     ->latest()->first();
                 if ($duplicates) {
                     $bid = Bid::find($duplicates->id);
-                    if ($bid->is_bot) {
-                        if ($bid->bot_num === 1) {
-                            $auction->increment('bot_shutdown_count');
-                        } else {
-                            $auction->increment('bot_shutdown_price', 10);
-                        }
-                    } else {
-                        if ($user = $bid->user) {
-                            $user->balanceHistory()->create([
-                                'bet' => $bid->bet,
-                                'bonus' => $bid->bonus,
-                                'type' => Balance::PLUS
-                            ]);
-                            if ($user->autoBid->isNotEmpty()) {
-                                $user->autoBid()
-                                    ->where('auto_bids.auction_id', $bid->auction_id)
-                                    ->increment('auto_bids.count');
-                            }
-                        }
+                    if ($user = $bid->user) {
+                        $user->balanceHistory()->create([
+                            'bet' => $bid->bet,
+                            'bonus' => $bid->bonus,
+                            'type' => Balance::PLUS
+                        ]);
                     }
                     $bid->delete();
                 }
                 DB::commit();
             }
-
         } catch (Throwable $exception) {
             Log::warning('Bet duplicate delete ' . $exception->getMessage());
             DB::rollBack();

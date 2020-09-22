@@ -11,7 +11,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -40,26 +39,23 @@ class AutoBidJob implements ShouldQueue
     {
         if ($autoBid = $this->autoBid) {
             try {
-                DB::transaction(function () use ($autoBid) {
-                    $autoBid->bid_time = Carbon::now("Europe/Moscow");
-                    $user = $autoBid->user;
-                    $auction = $autoBid->auction;
-                    $auction->autoBid()->where('status', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
-                    $balance = $user->balance();
-                    $ordered = $user->auctionOrder()
-                        ->where('orders.auction_id', '=', $auction->id)
-                        ->where('orders.status', '=', Order::SUCCESS)
-                        ->doesntExist();
-                    if (($balance->bet + $balance->bonus) >= Bid::COUNT
-                        && $ordered
-                        && $auction->winner()->nickname !== $user->nickname
-                        && ($auction->full_price($user->id) > 1)) {
-                        $autoBid->count -= 1;
-                    }
-                    $autoBid->save(['timestamp' => false]);
-                    BidJob::dispatch($autoBid->auction, $autoBid->user->nickname, $autoBid->user);;
-                });
-
+                $autoBid->bid_time = Carbon::now("Europe/Moscow");
+                $user = $autoBid->user;
+                $auction = $autoBid->auction;
+                $auction->autoBid()->where('status', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
+                $balance = $user->balance();
+                $ordered = $user->auctionOrder()
+                    ->where('orders.auction_id', '=', $auction->id)
+                    ->where('orders.status', '=', Order::SUCCESS)
+                    ->doesntExist();
+                if (($balance->bet + $balance->bonus) >= Bid::COUNT
+                    && $ordered
+                    && $auction->winner()->nickname !== $user->nickname
+                    && ($auction->full_price($user->id) > 1)) {
+                    $autoBid->count -= 1;
+                }
+                $autoBid->save(['timestamp' => false]);
+                BidJob::dispatch($autoBid->auction, $autoBid->user->nickname, $autoBid->user);
             } catch (Throwable $exception) {
                 Log::error('AutoBidJob ' . $exception->getMessage());
             }

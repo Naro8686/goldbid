@@ -99,7 +99,7 @@ class StatusChangeListener implements ShouldQueue
                         DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now("Europe/Moscow")->addSeconds(5));
                     }
                 }
-            } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction)->delay(Carbon::now("Europe/Moscow")->addSeconds(1));
+            } else DeleteAuctionInNotWinner::dispatchIf(isset($auction), $auction);
         } catch (Exception $exception) {
             Log::error('StatusChangeListener finish ' . $exception->getMessage());
         }

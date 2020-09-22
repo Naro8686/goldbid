@@ -91,7 +91,7 @@ class StatusChangeCommand extends Command
 
             $auctions->update([
                 'status' => Auction::STATUS_ACTIVE,
-                'step_time' => DB::raw('NOW() + INTERVAL bid_seconds SECOND')
+                'step_time' => DB::raw('NOW() + INTERVAL (`bid_seconds` + 1) SECOND')
             ]);
 
             $ids->map(function ($id) {
@@ -109,7 +109,7 @@ class StatusChangeCommand extends Command
             DB::transaction(function () use ($auctions) {
                 $auctions->update([
                     'status' => Auction::STATUS_FINISHED,
-                    'end' => DB::raw('NOW()'),
+                    'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
                     'top' => false
                 ]);
             });

@@ -92,7 +92,7 @@ use Throwable;
  */
 class Auction extends Model
 {
-    const BET_RUB = 0.1;
+    const BET_RUB = 10;
 
     public const STATUS_PENDING = 1;
     public const STATUS_ACTIVE = 2;
@@ -120,6 +120,16 @@ class Auction extends Model
         'top' => 'boolean',
         'active' => 'boolean',
     ];
+
+    /**
+     * @return bool
+     */
+    public function jobExists()
+    {
+        $botJob = $this->bots->where('status', AuctionBot::WORKED)->isNotEmpty();
+        $autoBidJob = $this->autoBid->where('status', AutoBid::WORKED)->isNotEmpty();
+        return ($botJob || $autoBidJob);
+    }
 
     public function product()
     {
@@ -169,7 +179,7 @@ class Auction extends Model
                 $count = $count + $stopBotOne;
             }
             if (!is_null($this->botNum(2)) || !is_null($this->botNum(3))) {
-                $sumBids = $this->bid->sum('bet') / self::BET_RUB;
+                $sumBids = $this->bid->sum('bet') * self::BET_RUB;
             }
         }
 
@@ -231,7 +241,7 @@ class Auction extends Model
         $price = $this->bid->isEmpty()
             ? $this->start_price
             : ($this->step_price / 100);
-        return round($price / Auction::BET_RUB);
+        return round($price * Auction::BET_RUB);
     }
 
     public function step_price()
@@ -248,8 +258,8 @@ class Auction extends Model
     public function full_price($user_id = null)
     {
         if ($this->full_price <= 0) return 0;
-        $user_bet = $this->bid()->where('user_id', $user_id)->sum('bet');
-        $new_price = ($this->full_price - ($user_bet / self::BET_RUB));
+        $user_bet = !is_null($user_id) ? $this->bid()->where('user_id', $user_id)->sum('bet') : 0;
+        $new_price = ((int)$this->full_price - ($user_bet * self::BET_RUB));
         return ($new_price <= 0) ? 1 : $new_price;
         //number_format($new_price, 1);
     }
@@ -307,8 +317,7 @@ class Auction extends Model
     {
         $bet = $bonus = 0;
         if (isset($this->bid) && $this->status === self::STATUS_FINISHED && !is_null($user_id)) {
-            $new_price = $this->full_price;
-            $bet = (int)round($new_price / 10);
+            $bet = (int)round($this->full_price() / self::BET_RUB);
             $bonus = (int)round($bet / 2);
         }
         return ['bet' => $bet, 'bonus' => $bonus];
@@ -333,67 +342,64 @@ class Auction extends Model
 
     public static function auctionsForHomePage()
     {
-        $data = self::where('active', true)
+        $auctions = new Collection();
+        $user = Auth::user();
+        $userID = $user ? $user->id : null;
+        self::where('active', true)
+            ->orderByRaw('(CASE WHEN `status` = 2 THEN `status` END) DESC,
+                              (CASE WHEN `status` = 1 THEN `status` END) DESC,
+                              (CASE WHEN `status` = 3 THEN `status` END) ASC,
+                              (CASE WHEN `status` = 4 THEN `status` END) ASC')
             ->orderByRaw('(CASE WHEN `status` = 1 THEN `start` END) ASC,
                               (CASE WHEN `status` = 2 THEN `start` END) DESC')
-            ->get();
-        $auctions = new Collection;
-        $user = Auth::user();
-        foreach ($data as $auction) {
-            $images = $auction->images();
-            $favorite = $user ? $auction
-                ->userFavorites()
-                ->where('id', $user->id)
-                ->exists() : false;
-            $autoBid = $user ? $auction
-                ->autoBid()
-                ->where('auto_bids.user_id', $user->id)
-                ->first() : false;
-            $winner = $auction->winner();
-            $ordered = $user ? $user->auctionOrder()
-                ->where('auction_id', $auction->id)
-                ->where('status', Order::SUCCESS)
-                ->exists() : false;
-            $auctions->push([
-                'id' => $auction->id,
-                'top' => $auction->top,
-                'favorite' => $favorite,
-                'autoBid' => $autoBid ? $autoBid->count : null,
-                'short_desc' => $auction->short_desc,
-                'status' => $auction->status,
-                'images' => $images,
-                'title' => $auction->title,
-                'step_price' => $auction->step_price(),
-                'step_price_info' => $auction->step_price,
-                'start_price' => $auction->start_price(),
-                'exchange' => $auction->exchange,
-                'buy_now' => (bool)$auction->buy_now,
-                'full_price' => number_format($auction->full_price(Auth::id()), 1),
-                'exchangeBetBonus' => $auction->exchangeBetBonus(Auth::id()),
-                'bid_seconds' => $auction->bid_seconds,
-                'step_time' => $auction->step_time ? $auction->step_time() : null,
-                'start' => $auction->start(),
-                'winner' => $winner->nickname,
-                'my_win' => (isset($user) && ($auction->status === Auction::STATUS_FINISHED || $auction->status === Auction::STATUS_ERROR))
-                    ? $winner->nickname === $user->nickname
-                    : false,
-                'error' => (isset($user) && $auction->status === Auction::STATUS_ERROR)
-                    ? $winner->nickname === $user->nickname
-                    : false,
-                'ordered' => $ordered,
-                'price' => $auction->price(),
-                'end' => $auction->end ? $auction->end->format('Y-m-d H:i:s') : null,
-            ]);
-        }
-        return $auctions->sortByDesc(function ($auction) {
-            $top = (int)$auction['top'];
-            $favorite = (int)$auction['favorite'];
-            $my_win = $auction['ordered'] ? 0 : (int)$auction['my_win'];
-            if ($auction['status'] === Auction::STATUS_ACTIVE) $status = 2;
-            elseif ($auction['status'] === Auction::STATUS_PENDING) $status = 1;
-            else $status = 0;
-            return "{$my_win}{$top}{$favorite}{$status}";
-        });
+            ->get()
+            ->map(function ($auction) use ($auctions, $user, $userID) {
+                $images = $auction->images();
+                $favorite = $user ? $auction
+                    ->userFavorites()
+                    ->where('id', $user->id)
+                    ->exists() : false;
+                $autoBid = $user ? $auction
+                    ->autoBid()
+                    ->where('auto_bids.user_id', $user->id)
+                    ->first() : false;
+                $winner = $auction->winner();
+                $ordered = $user ? $user->auctionOrder()
+                    ->where('auction_id', $auction->id)
+                    ->where('status', Order::SUCCESS)
+                    ->exists() : false;
+                $auctions->push([
+                    'id' => $auction->id,
+                    'top' => $auction->top,
+                    'favorite' => $favorite,
+                    'autoBid' => $autoBid ? $autoBid->count : null,
+                    'short_desc' => $auction->short_desc,
+                    'status' => $auction->status,
+                    'images' => $images,
+                    'title' => $auction->title,
+                    'step_price' => $auction->step_price(),
+                    'step_price_info' => $auction->step_price,
+                    'start_price' => $auction->start_price(),
+                    'exchange' => $auction->exchange,
+                    'buy_now' => (bool)$auction->buy_now,
+                    'full_price' => number_format($auction->full_price($userID), 1),
+                    'exchangeBetBonus' => $auction->exchangeBetBonus($userID),
+                    'bid_seconds' => $auction->bid_seconds,
+                    'step_time' => $auction->step_time ? $auction->step_time() : null,
+                    'start' => $auction->start(),
+                    'winner' => $winner->nickname,
+                    'my_win' => (isset($user) && ($auction->status === Auction::STATUS_FINISHED || $auction->status === Auction::STATUS_ERROR))
+                        ? $winner->nickname === $user->nickname
+                        : false,
+                    'error' => (isset($user) && $auction->status === Auction::STATUS_ERROR)
+                        ? $winner->nickname === $user->nickname
+                        : false,
+                    'ordered' => $ordered,
+                    'price' => $auction->price(),
+                    'end' => $auction->end ? $auction->end->format('Y-m-d H:i:s') : null,
+                ]);
+            });
+        return $auctions;
     }
 
     public static function auctionPage($id)
@@ -422,9 +428,10 @@ class Auction extends Model
         $data['user'] = [];
         $data['auction'] = [];
         try {
+            /** @var Bid $last */
             $last = $this->bid()->orderBy('bids.id', 'desc')
                 ->first(['bids.user_id', 'bids.auction_id', 'bids.nickname', 'bids.price']);
-            if (!is_null($last) && $user = User::query()->find($last->user_id)) {
+            if (!is_null($last) && $user = User::find($last->user_id)) {
                 $balance = $user->balance();
                 $bid = $user->bid->where('auction_id', $last->auction_id);
                 $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first();
@@ -436,10 +443,12 @@ class Auction extends Model
                 $data['user']['full_price'] = number_format($this->full_price($user->id), 1) . ' руб';
                 $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
             }
-            $data['auction']['id'] = $last->auction_id;
-            $data['auction']['step_time'] = $this->step_time();
-            $data['auction']['nickname'] = $last->nickname;
-            $data['auction']['price'] = $last->price . ' руб';
+            if (!is_null($last)) {
+                $data['auction']['id'] = $last->auction_id;
+                $data['auction']['step_time'] = $this->step_time();
+                $data['auction']['nickname'] = $last->nickname;
+                $data['auction']['price'] = $last->price . ' руб';
+            }
             $data['auction']['tr'] = $this->bidTable();
         } catch (Throwable $throwable) {
             Log::error('bidDataForUser - ' . $throwable->getMessage());
