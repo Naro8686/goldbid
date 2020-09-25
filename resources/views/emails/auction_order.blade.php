@@ -7,7 +7,7 @@
             href="{{route('auction.index',$auction_order->auction_id)}}">{{$auction_order->auction->title}}</a>
     </p>
     <p>
-        <b>Сумма оплаты :</b> {{$auction_order->price}} руб.
+        <b>Сумма оплаты :</b> {{$auction_order->price()}} руб.
     </p>
 
     <hr>

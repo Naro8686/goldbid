@@ -120,7 +120,7 @@
             <tbody>
             @foreach($auction['bids'] as $bid)
                 <tr>
-                    <td>{{$bid['price']}} руб.</td>
+                    <td>{{\App\Models\Auction\Auction::moneyFormat($bid['price'],true)}}</td>
                     <td>{{$bid['nickname']}}</td>
                     <td>{{$bid['created_at']->format('H:i:s')}}</td>
                 </tr>

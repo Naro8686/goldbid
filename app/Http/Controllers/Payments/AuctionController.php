@@ -85,11 +85,18 @@ class AuctionController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View|void
+     * @throws Throwable
+     */
     public function order($id, Request $request)
     {
         /** @var Auction $auction */
         /** @var User $user */
         /** @var Order $order */
+
         $auction = Auction::query()
             ->where('active', true)
             ->where('status', '<>', Auction::STATUS_ERROR)
@@ -105,18 +112,25 @@ class AuctionController extends Controller
         $winner = ($auction->status === Auction::STATUS_FINISHED)
             ? ($auction->winner()->nickname === $user->nickname)
             : false;
-        $order = $user->auctionOrder()->where('auction_id', '=', $auction->id)->first();
-        if (is_null($order)) {
-            $order = $user
-                ->auctionOrder()
-                ->create([
-                    'order_num' => Setting::orderNumAuction($user->id),
-                    'status' => Order::PENDING,
-                    'exchanged' => false,
-                    'auction_id' => $auction->id
-                ]);
-        } else {
-            $order->update(['exchanged' => false]);
+        try {
+            DB::beginTransaction();
+            $order = $user->auctionOrder()->where('auction_id', '=', $auction->id)->first();
+            if (is_null($order)) {
+                $order = $user
+                    ->auctionOrder()
+                    ->create([
+                        'order_num' => Setting::orderNumAuction($user->id),
+                        'status' => Order::PENDING,
+                        'exchanged' => false,
+                        'auction_id' => $auction->id
+                    ]);
+            } else {
+                $order->update(['exchanged' => false]);
+            }
+            DB::commit();
+        } catch (Throwable $exception) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $exception->getMessage());
         }
         $type = $auction->type();
         if ($type !== Step::PRODUCT && !$winner) return abort(404);
@@ -141,13 +155,13 @@ class AuctionController extends Controller
         $data['order_num'] = $order->order_num;
         $data['winner'] = $winner;
         if (!$winner) {
-            $data['full_price'] = number_format($auction->full_price, 1);
-            $data['bid_price'] = number_format($user->bid_price($auction->id), 1);
-            $data['total_price'] = $auction->full_price($user->id);
-            $order->update(['price' => $data['total_price'], 'timestamp' => false]);
+            $data['full_price'] = $auction::moneyFormat($auction->full_price());
+            $data['bid_price'] = $auction::moneyFormat($user->bid_price($auction->id));
+            $data['total_price'] = $auction::moneyFormat($auction->full_price($user->id));
+            $order->update(['price' => $auction->full_price($user->id), 'timestamp' => false]);
         } else {
-            $data['auction_price'] = $auction->price();
-            $order->update(['price' => $data['auction_price'], 'timestamp' => false]);
+            $data['auction_price'] = $auction::moneyFormat($auction->price());
+            $order->update(['price' => $auction->price(), 'timestamp' => false]);
         }
         return view('site.order.step_1', compact('data'));
     }
@@ -204,7 +218,7 @@ class AuctionController extends Controller
         $data['title'] = $auction->title;
         $data['email'] = $user->email;
         $data['order_num'] = $order->order_num;
-        $data['price'] = $order->price;
+        $data['price'] = $auction::moneyFormat($order->price);
         $payments = Setting::paymentCoupon(null);
         return view('site.order.step_3', compact('data', 'payments'));
     }
@@ -240,6 +254,7 @@ class AuctionController extends Controller
             ]);
         }
         try {
+            /** @var Order $order */
             Mail::to(config('mail.from.address'))->later(2, new AuctionOrderSendMail($order));
             Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, ['order_num' => $order->order_num]));
         } catch (\Exception $e) {

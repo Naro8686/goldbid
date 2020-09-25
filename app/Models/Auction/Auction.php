@@ -28,8 +28,8 @@ use Throwable;
  * @property string|null $alt_2
  * @property string|null $alt_3
  * @property string|null $alt_4
- * @property string $start_price
- * @property string $full_price
+ * @property int $start_price
+ * @property int $full_price
  * @property string|null $bot_shutdown_count
  * @property string|null $bot_shutdown_price
  * @property int $bid_seconds
@@ -112,6 +112,8 @@ class Auction extends Model
         'start' => 'datetime',
         'end' => 'datetime',
         'status' => 'integer',
+        'start_price' => 'integer',
+        'full_price' => 'integer',
         'step_price' => 'integer',
         'bid_seconds' => 'integer',
         'step_time' => 'datetime',
@@ -191,12 +193,21 @@ class Auction extends Model
         return $this->hasMany(Bid::class);
     }
 
+    public static function moneyFormat($price, $optional = false, $text = ' руб')
+    {
+        //dd($price);
+        $text = $optional ? $text : '';
+        $format = number_format($price, 1, ',', ' ');
+        return "{$format}{$text}";
+    }
+
     public function bidTable()
     {
         $tr = "";
         foreach ($this->bid()->orderBy('id', 'desc')->take(5)->get() as $bid) {
+            $price = self::moneyFormat($bid->price, true);
             $tr .= "<tr>
-                      <td>{$bid->price} руб</td>
+                      <td>{$price}</td>
                       <td>{$bid->nickname}</td>
                       <td>{$bid->created_at->format('H:i:s')}</td>
                     </tr>";
@@ -225,7 +236,7 @@ class Auction extends Model
     public function price()
     {
         return is_null($this->winner()->price)
-            ? $this->start_price()
+            ? $this->start_price
             : $this->winner()->price;
     }
 
@@ -246,13 +257,12 @@ class Auction extends Model
 
     public function step_price()
     {
-        $price = ($this->step_price / 100);
-        return number_format($price, 1);
+        return ($this->step_price / 100);
     }
 
     public function start_price()
     {
-        return number_format($this->start_price, 1);
+        return self::moneyFormat($this->start_price);
     }
 
     public function full_price($user_id = null)
@@ -261,7 +271,6 @@ class Auction extends Model
         $user_bet = !is_null($user_id) ? $this->bid()->where('user_id', $user_id)->sum('bet') : 0;
         $new_price = ((int)$this->full_price - ($user_bet * self::BET_RUB));
         return ($new_price <= 0) ? 1 : $new_price;
-        //number_format($new_price, 1);
     }
 
     public static function data()
@@ -342,6 +351,7 @@ class Auction extends Model
 
     public static function auctionsForHomePage()
     {
+
         $auctions = new Collection();
         $user = Auth::user();
         $userID = $user ? $user->id : null;
@@ -354,6 +364,7 @@ class Auction extends Model
                               (CASE WHEN `status` = 2 THEN `start` END) DESC')
             ->get()
             ->map(function ($auction) use ($auctions, $user, $userID) {
+                /* @var Auction $auction */
                 $images = $auction->images();
                 $favorite = $user ? $auction
                     ->userFavorites()
@@ -382,7 +393,7 @@ class Auction extends Model
                     'start_price' => $auction->start_price(),
                     'exchange' => $auction->exchange,
                     'buy_now' => (bool)$auction->buy_now,
-                    'full_price' => number_format($auction->full_price($userID), 1),
+                    'full_price' => self::moneyFormat($auction->full_price($userID)),
                     'exchangeBetBonus' => $auction->exchangeBetBonus($userID),
                     'bid_seconds' => $auction->bid_seconds,
                     'step_time' => $auction->step_time ? $auction->step_time() : null,
@@ -395,7 +406,7 @@ class Auction extends Model
                         ? $winner->nickname === $user->nickname
                         : false,
                     'ordered' => $ordered,
-                    'price' => $auction->price(),
+                    'price' => self::moneyFormat($auction->price()),
                     'end' => $auction->end ? $auction->end->format('Y-m-d H:i:s') : null,
                 ]);
             });
@@ -440,14 +451,14 @@ class Auction extends Model
                 $data['user']['bonus'] = $balance->bonus;
                 $data['user']['auction_bet'] = $bid->sum('bet');
                 $data['user']['auction_bonus'] = $bid->sum('bonus');
-                $data['user']['full_price'] = number_format($this->full_price($user->id), 1) . ' руб';
+                $data['user']['full_price'] = self::moneyFormat($this->full_price($user->id),true);
                 $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
             }
             if (!is_null($last)) {
                 $data['auction']['id'] = $last->auction_id;
                 $data['auction']['step_time'] = $this->step_time();
                 $data['auction']['nickname'] = $last->nickname;
-                $data['auction']['price'] = $last->price . ' руб';
+                $data['auction']['price'] = self::moneyFormat($last->price, true);
             }
             $data['auction']['tr'] = $this->bidTable();
         } catch (Throwable $throwable) {

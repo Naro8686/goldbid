@@ -21,7 +21,7 @@ class BetController extends Controller
             ['user_id', '=', $user->id],
             ['count', '>', 0],
         ])->doesntExist();
-        $price = ($auction->full_price($user->id) !== 1);
+        $price = ($auction->full_price($user->id) > 1);
         $run = ($price && $autobid && $auction->winner()->nickname !== $user->nickname);
         BidJob::dispatchIf($run, $auction, $user->nickname, $user);
     }

@@ -16,8 +16,9 @@ function countdown(element, timer = null) {
                 if ($this.hasClass('to__start')) $this.html('00:00:00');
                 else {
                     let card = $this.closest('.card');
+                    let homePage = card.closest('#home_page').length
                     let winner = card.find('p.winner');
-                    if (winner.text() === '') {
+                    if (homePage && winner.text().length===0) {
                         let info = card.find('div.info');
                         let favorites = card.find('div.favorites ');
                         let div = card.find('div.btn.active');
@@ -27,8 +28,10 @@ function countdown(element, timer = null) {
                         div.removeClass('active').addClass('not__win');
                         btn.text(text)
                         favorites.remove();
+                        card.removeClass('active');
                         $this.remove();
                     }
+                    $this.html('00:00')
                 }
             });
     });
@@ -39,15 +42,17 @@ function ChangeStatus(id = null) {
     let url = ((id !== null) ? `${host}/change-status/${id}` : `${host}/change-status`);
     let home_page = $('#home_page');
     let auction_page = $(`#auction_page[data-auction-id="${id}"]`);
-    let auction = home_page.find(`div.card[data-auction-id="${id}"]`);
     $.post(url).done(function (data) {
         if (Object.keys(data).length) {
             if (home_page.length && data.home_page) {
                 let html = $(data.home_page);
-                if (id !== null) {
-                    if (auction.length) auction.replaceWith(html);
-                    //else home_page.append(html);
-                } else home_page.html(html);
+                let auction = home_page.find(`[data-auction-id="${id}"]`);
+                auction.replaceWith(html);
+                //if (id !== null) {
+                //if (auction.length)
+                //auction.replaceWith(html);
+                //else home_page.append(html);
+                //} else home_page.html(html);
                 countdown(html);
             }
             if (auction_page.length && data.auction_page) {

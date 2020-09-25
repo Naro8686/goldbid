@@ -40,7 +40,7 @@ class Order extends Model
     const PENDING = '0';
     const SUCCESS = '1';
     const DECLINED = '2';
-    protected $fillable = ['order_num', 'payment_type','price' ,'status', 'exchanged', 'user_id', 'auction_id'];
+    protected $fillable = ['order_num', 'payment_type', 'price', 'status', 'exchanged', 'user_id', 'auction_id'];
     protected $casts = ['status' => 'integer', 'exchanged' => 'boolean'];
 
     public function auction()
@@ -51,5 +51,10 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function price()
+    {
+        return Auction::moneyFormat($this->price);
     }
 }

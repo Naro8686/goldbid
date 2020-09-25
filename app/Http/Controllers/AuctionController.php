@@ -6,17 +6,13 @@ use App\Events\BetEvent;
 use App\Jobs\AutoBidJob;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
-use App\Models\Balance;
-use App\Models\User;
 use App\Settings\Setting;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-use function GuzzleHttp\Promise\queue;
 
 
 class AuctionController extends Controller
@@ -128,9 +124,9 @@ class AuctionController extends Controller
         $html = [];
         $status = 200;
         try {
-            if (!is_null($id)) {
-                $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id);
-                $html['home_page'] = view('site.include.auction', ['auction' => $auctionForHomePage])->render();
+            if (!is_null($id) && $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id)) {
+                if (!($auctionForHomePage['status'] === Auction::STATUS_FINISHED && is_null($auctionForHomePage['winner'])))
+                    $html['home_page'] = view('site.include.auction', ['auction' => $auctionForHomePage])->render();
                 $auctionPage = Auction::auctionPage($id);
                 if ($auctionPage['error']) $status = 403;
                 unset($auctionPage['images']);
