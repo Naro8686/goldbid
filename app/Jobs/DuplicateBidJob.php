@@ -6,6 +6,7 @@ namespace App\Jobs;
 use App\Models\Auction\Auction;
 use App\Models\Auction\Bid;
 use App\Models\Balance;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -46,7 +47,7 @@ class DuplicateBidJob implements ShouldQueue
                     ->latest()->first();
                 if ($duplicates) {
                     $bid = Bid::find($duplicates->id);
-                    if ($user = $bid->user) {
+                    if ($user = User::find($bid->user_id)) {
                         $user->balanceHistory()->create([
                             'bet' => $bid->bet,
                             'bonus' => $bid->bonus,

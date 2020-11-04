@@ -66,7 +66,7 @@
                 $('#product_table').DataTable({
                     aLengthMenu: [
                         [100, -1],
-                        [100,"Все"]
+                        [100, "Все"]
                     ],
                     processing: true,
                     serverSide: true,
@@ -76,12 +76,12 @@
                     },
                     columns: [
                         {data: 'id', name: 'id'},
-                        {data: 'img_1', name: 'img_1'},
+                        {data: 'img_1', name: 'img_1', orderable: false, searchable: false},
                         {data: 'title', name: 'title'},
                         {data: 'status', name: 'status'},
-                        {data: 'bet', name: 'bet'},
-                        {data: 'bonus', name: 'bonus'},
-                        {data: 'bot', name: 'bot'},
+                        {data: 'bet', name: 'bidResults.bet'},
+                        {data: 'bonus', name: 'bidResults.bonus'},
+                        {data: 'bot', name: 'bidResults.bot'},
                         {data: 'start', name: 'start'},
                         {data: 'end', name: 'end'},
                         {data: 'active', name: 'active'},

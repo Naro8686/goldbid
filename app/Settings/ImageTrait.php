@@ -55,15 +55,15 @@ trait ImageTrait
         return ['uploaded' => $success, 'fileName' => $image_name, 'url' => $urlPath . '/' . $image_name];
     }
 
-    public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0)
+    public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0, bool $rename = true)
     {
-        $image_name = md5(rand(1, time())) . '.' . $image->getClientOriginalExtension();
+        $image_name = $rename ? md5(rand(1, time())) . '.' . $image->getClientOriginalExtension() : $image->getClientOriginalName();
         if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
                 $constraint->aspectRatio();
-            })->save(public_path($path) . '/' . $image_name);
+            })->save((public_path($path) . '/' . $image_name));
         } else {
             $image->move(public_path($path), $image_name);
         }

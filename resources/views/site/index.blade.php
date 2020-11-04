@@ -24,8 +24,15 @@
 @endsection
 @push('js')
     <script>
-        $(document).ready(function () {
-            countdown($('#home_page'));
-        });
+        // $(document).ready(function () {
+        //     $.get('/').done(function (data) {
+        //         //if (data.error !==null){
+        //         let html = $(data.html);
+        //         $('#home_page').html(html);
+        //         // }
+        //         countdown(html);
+        //     })
+        //     //countdown($('#home_page'));
+        // });
     </script>
 @endpush

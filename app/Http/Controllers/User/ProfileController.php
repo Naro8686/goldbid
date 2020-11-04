@@ -6,14 +6,17 @@ use App\Helpers\General\CollectionHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\MailingSendMail;
 use App\Models\Auction\Auction;
+use App\Models\Auction\Bid;
 use App\Models\Balance;
 use App\Models\Mailing;
 use App\Models\User;
 use App\Rules\OldPasswordRule;
 use App\Settings\ImageTrait;
 use App\Settings\Setting;
+use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -101,7 +104,7 @@ class ProfileController extends Controller
                 'street' => ['nullable', 'string', 'min:3', 'max:50'],
                 'email' => ['nullable', 'email', 'max:100', 'unique:users,email,' . $this->user->id],
                 'payment_type' => ['nullable', 'integer', 'min:' . min($payments)['id'], 'max:' . max($payments)['id']],
-                'ccnum' => ['nullable', 'digits_between:8,16'],
+                'ccnum' => ['nullable', 'regex:/^\+?[0-9]{8,20}$/u'],
             ]);
             $this->user->update($request->only([
                 'lname', 'fname', 'mname', 'gender',
@@ -117,7 +120,7 @@ class ProfileController extends Controller
     {
         $balance = $this->user->balanceHistory()
             ->where('type', Balance::PLUS)
-            ->whereIn('reason',Balance::reasonArray())
+            ->whereIn('reason', Balance::reasonArray())
             ->paginate(14);
         return view('user.balance', compact('balance'));
     }
@@ -125,18 +128,15 @@ class ProfileController extends Controller
     public function auctionsHistory()
     {
         $bids = $this->user->bid()
-            ->get()
-            ->groupBy('auction_id')
-            ->map(function ($item) {
-                return collect([
-                    'bonus' => $item->sum('bonus'),
-                    'bet' => $item->sum('bet'),
-                    'win' => (bool)$item->where('win', true)->count(),
-                    'title' => $item->sortDesc()->first()->title,
-                    'end' => $item->sortDesc()->first()->created_at->format('Y-m-d H:i:s')
-                ]);
-            });
-        $bids = CollectionHelper::paginate($bids, 14);
+            ->groupBy('bids.auction_id')
+            ->select([
+                'bids.auction_id',
+                'bids.title',
+                DB::raw('SUM(bids.bet) AS bet'),
+                DB::raw('SUM(bids.bonus) AS bonus'),
+                DB::raw('SUM(bids.win) AS wins'),
+                DB::raw('MAX(bids.created_at) AS end'),
+            ])->paginate(14);
         return view('user.auctions_history', compact('bids'));
     }
 

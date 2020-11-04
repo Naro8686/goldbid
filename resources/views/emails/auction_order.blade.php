@@ -16,7 +16,7 @@
     </p>
     <p>
         <b>ФИО
-            :</b> {{$auction_order->user->fname ?? ''}} {{$auction_order->user->fname ?? ''}} {{$auction_order->user->mname ?? ''}}
+            :</b> {{$auction_order->user->lname ?? ''}} {{$auction_order->user->fname ?? ''}} {{$auction_order->user->mname ?? ''}}
     </p>
     <p>
         <b>Страна :</b> {{$auction_order->user->country ?? ''}}

@@ -145,7 +145,7 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
         'has_ban' => 'boolean',
     ];
-    protected $with = ['balanceHistory'];
+    //protected $with = ['balanceHistory'];
     /**
      * @var int
      */
@@ -194,7 +194,7 @@ class User extends Authenticatable
      */
     public static function setPhoneMask(string $phone)
     {
-        return preg_replace('/^[7]{1}([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4', $phone);
+        return preg_replace('/^[7]([\d]{3})([\d]{3})([\d]{2})([\d]{2})$/', '+7($1)$2-$3-$4', $phone);
     }
 
     /**
@@ -217,8 +217,7 @@ class User extends Authenticatable
 
     public static function info()
     {
-        $users = User::all()->where('is_admin', false);
-
+        $users = User::where('is_admin', false);
         return collect([
             'count' => $users->count(),
             'active' => Bid::whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
@@ -282,8 +281,9 @@ class User extends Authenticatable
      */
     public function balance()
     {
-        $this->bet = (int)($this->balanceHistory->where('type', Balance::PLUS)->sum('bet') - $this->balanceHistory->where('type', Balance::MINUS)->sum('bet'));
-        $this->bonus = (int)($this->balanceHistory->where('type', Balance::PLUS)->sum('bonus') - $this->balanceHistory->where('type', Balance::MINUS)->sum('bonus'));
+        $balanceHistory = $this->balanceHistory;
+        $this->bet = (int)($balanceHistory->where('type', Balance::PLUS)->sum('bet') - $balanceHistory->where('type', Balance::MINUS)->sum('bet'));
+        $this->bonus = (int)($balanceHistory->where('type', Balance::PLUS)->sum('bonus') - $balanceHistory->where('type', Balance::MINUS)->sum('bonus'));
         return $this;
     }
 

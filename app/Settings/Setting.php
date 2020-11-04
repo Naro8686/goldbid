@@ -167,12 +167,12 @@ class Setting
 
     public static function mailConfig()
     {
-        return Mail::query()->first() ?? Mail::query()->create(['driver' => null]);
+        return Mail::first() ?? Mail::create(['driver' => null]);
     }
 
     public static function siteConfig()
     {
-        return ConfigSite::query()->first() ?? ConfigSite::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
+        return ConfigSite::first() ?? ConfigSite::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
     }
 
     public static function emailRandomCode()

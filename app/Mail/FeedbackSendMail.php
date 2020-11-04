@@ -32,12 +32,11 @@ class FeedbackSendMail extends Mailable implements ShouldQueue
         $data = $this->data;
         $mail = $this->view('emails.feedback', compact('data'))
             ->subject($data['theme']);
-        if (isset($data['file'])) {
-            $mail->attach($data['file']->getRealPath(),
-                [
-                    'as' => $data['file']->getClientOriginalName(),
-                    'mime' => $data['file']->getClientMimeType(),
-                ]);
+        if ($data['upload']) {
+            $mail->attach($data['upload']['path'], [
+                'as' => $data['upload']['as'],
+                'mime' => $data['upload']['mime'],
+            ]);
         }
         return $mail;
     }

@@ -27,22 +27,21 @@ class MailConfigServiceProvider extends ServiceProvider
     public function boot()
     {
         if (Schema::hasTable('mails')) {
-            if ($mail = Mail::query()->first()) {
-                $config = [
+            if ($mail = Mail::first()) {
+                Config::set('mail', [
                     'driver' => $mail->driver ?? 'smtp',
-                    'host' => $mail->host ?? env('MAIL_HOST', 'smtp.mailgun.org'),
-                    'port' => $mail->port ?? env('MAIL_PORT', 587),
-                    'from' => [
-                        'address' => $mail->from_address ?? env('MAIL_FROM_ADDRESS','goldbid24@gmail.com'),
-                        'name' => $mail->from_name??env('MAIL_FROM_NAME','GoldBid')
-                    ],
-                    'encryption' => $mail->encryption ?? env('MAIL_ENCRYPTION', 'tls'),
-                    'username' => $mail->username ?? env('MAIL_USERNAME'),
-                    'password' => $mail->getPassword() ?? env('MAIL_PASSWORD'),
+                    'host' => $mail->host ?? 'smtp.mailgun.org',
+                    'port' => $mail->port ?? 465,
+                    'encryption' => $mail->encryption ?? 'tls',
+                    'username' => $mail->username,
+                    'password' => $mail->getPassword(),
                     'sendmail' => '/usr/sbin/sendmail -bs',
+                    'from' => [
+                        'address' => $mail->from_address,
+                        'name' => $mail->from_name
+                    ],
                     'pretend' => false,
-                ];
-                Config::set('mail', $config);
+                ]);
             }
         }
     }

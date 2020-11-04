@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Auction\Auction;
 use App\Models\Mailing;
 use App\Models\User;
-use App\Notifications\AccountApproved;
 use App\Rules\OldPasswordRule;
 use App\Settings\Setting;
 use Exception;
@@ -38,15 +37,25 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
+        $auctions = Auction::groupBy('auctions.id')
+            ->leftJoinSub("SELECT `bids`.`auction_id`, SUM(IF(`bids`.`is_bot` = 1, 1, 0)) AS bot, SUM(IF(`bids`.`is_bot` = 0,`bids`.`bet`,0)) AS 'bet', SUM(IF(`bids`.`is_bot` = 0,`bids`.`bonus`,0)) AS 'bonus' FROM `bids` GROUP BY `bids`.auction_id", 'bidResults', 'auctions.id', '=', 'bidResults.auction_id')
+            ->selectRaw('auctions.*, IFNULL(bidResults.bet,0) AS bet, IFNULL(bidResults.bonus,0) AS bonus, IFNULL(bidResults.bot,0) AS bot');
         if ($request->ajax()) {
             try {
-                $auctions = Auction::data();
                 return datatables()->of($auctions)->editColumn('img_1', function ($auction) {
                     $img = asset($auction['img_1']);
-                    return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";
+                    return "<img style='min-width: 70px' class='w-100 img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";
                 })->editColumn('title', function ($auction) {
                     $link = route('auction.index', $auction['id']);
                     return "<a href='{$link}'>{$auction['title']}</a>";
+                })->editColumn('status', function ($auction) {
+                    return $auction->status();
+                })->editColumn('start', function ($auction) {
+                    return $auction->start->format('Y-m-d H:i:s');
+                })->editColumn('end', function ($auction) {
+                    return $auction->end ? $auction->end->format('Y-m-d H:i:s') : null;
+                })->editColumn('active', function ($auction) {
+                    return $auction->active ? 'да' : 'нет';
                 })->addColumn('action', function ($auction) {
                     $linkShow = route('admin.auctions.show', $auction['id']);
                     $linkDelete = route('admin.auctions.destroy', $auction['id']);
@@ -64,7 +73,7 @@ class AdminController extends Controller
                                                     удалить
                                         </button>
                                     </div>";
-                })->rawColumns(['img_1','title', 'action'])->make(true);
+                })->rawColumns(['img_1', 'title', 'action'])->make(true);
             } catch (Exception $e) {
                 dd($e->getMessage());
             }

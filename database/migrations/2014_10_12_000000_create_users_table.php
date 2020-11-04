@@ -38,7 +38,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->timestamp('is_online')->default(now("Europe/Moscow"));
             $table->unsignedTinyInteger('payment_type')->nullable();
-            $table->unsignedInteger('ccnum')->nullable();
+            $table->string('ccnum')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

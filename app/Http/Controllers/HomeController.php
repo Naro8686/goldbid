@@ -2,28 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\BotBidJob;
 use App\Mail\FeedbackSendMail;
 use App\Models\Auction\Auction;
-use App\Models\Bots\AuctionBot;
 use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
 use App\Models\Pages\Package;
 use App\Models\Pages\Page;
 use App\Models\Pages\Question;
 use App\Models\Pages\Review;
+use App\Settings\ImageTrait;
 use App\Settings\Setting;
 use App\Models\Pages\Slider;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 
 class HomeController extends Controller
 {
+    use ImageTrait;
+
     const DIR = 'site.';
     public $page = null;
 
@@ -38,22 +37,21 @@ class HomeController extends Controller
         view()->share('page', $this->page);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $auctions = collect();
-        $ids = [];
+        $auctions = Auction::auctionsForHomePage();
         $sliders = Slider::all();
-        $wins = Auction::auctionsForHomePage()->where('ordered', false)->where('my_win', true);
-        $tops = Auction::auctionsForHomePage()->where('top', true);
-        $favorites = Auction::auctionsForHomePage()->where('favorite', true);
-        foreach ($wins->pluck('id')->toArray() as $id) $ids[] = $id;
-        foreach ($tops->pluck('id')->toArray() as $id) $ids[] = $id;
-        foreach ($favorites->pluck('id')->toArray() as $id) $ids[] = $id;
-        $all = Auction::auctionsForHomePage()
-            ->whereNotIn('id', $ids);
-        foreach ([$wins, $tops, $favorites, $all] as $key => $value)
-            foreach ($value as $item) $auctions->push($item);
-        return view(self::DIR . 'index', compact('sliders', 'auctions'));
+//        if ($request->ajax()) {
+//            $error = null;
+//            $html = null;
+//            try {
+//                $html = view('site.include.auctions', ['auctions' => $auctions])->render();
+//            } catch (\Throwable $e) {
+//                $error = $e->getMessage();
+//            }
+//            return response()->json(['html' => $html, 'error' => $error], 200);
+//        }
+        return view(self::DIR . 'index', compact('sliders','auctions'));
     }
 
     public function howItWorks()
@@ -66,6 +64,7 @@ class HomeController extends Controller
     public function feedback(Request $request)
     {
         if ($request->isMethod('POST')) {
+            $request['upload'] = null;
             $request->validate([
                 'name' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'email', 'max:150'],
@@ -77,10 +76,18 @@ class HomeController extends Controller
             ]);
             try {
                 $request['theme'] = Setting::feedbackTheme($request['theme']);
-                Mail::to(config('mail.from.address'))->later(5, new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'file'])));
+                if ($request->hasFile('file')) {
+                    $request['upload'] = $request['file']->getError() === 0 ? [
+                        'path' => public_path($this->uploadImage($request['file'], 'site/img/tmp/feedback', 0, 0, false)),
+                        'as' => $request['file']->getClientOriginalName(),
+                        'mime' => $request['file']->getClientMimeType(),
+                    ] : null;
+                }
+                Mail::to(config('mail.from.address'))->later(5, new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'upload'])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }
+            return redirect()->back();
         }
         $themes = Setting::feedbackTheme(null);
         $contact = Setting::siteContacts();
@@ -91,6 +98,7 @@ class HomeController extends Controller
     public function reviews(Request $request)
     {
         if ($request->isMethod('POST')) {
+            $request['upload'] = null;
             $request->validate([
                 'name' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'email', 'max:150'],
@@ -100,10 +108,18 @@ class HomeController extends Controller
                 'personal_data' => ['required'],
             ]);
             try {
-                Mail::to(config('mail.from.address'))->later(5, new ReviewSendMail($request->only(['name', 'email', 'message', 'file'])));
+                if ($request->hasFile('file')) {
+                    $request['upload'] = $request['file']->getError() === 0 ? [
+                        'path' => public_path($this->uploadImage($request['file'], 'site/img/tmp/review', 0, 0, false)),
+                        'as' => $request['file']->getClientOriginalName(),
+                        'mime' => $request['file']->getClientMimeType(),
+                    ] : null;
+                }
+                Mail::to(config('mail.from.address'))->later(5, new ReviewSendMail($request->only(['name', 'email', 'message', 'upload'])));
             } catch (Exception $exception) {
-                Log::error($exception->getMessage());
+                Log::error('reviews send file ' . $exception->getMessage());
             }
+            return redirect()->back();
         }
         $reviews = Review::all();
         return view(self::DIR . 'reviews', compact('reviews'));

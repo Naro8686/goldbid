@@ -10,16 +10,17 @@
                 <th>Бонусы</th>
                 <th>Результат</th>
             </tr>
-            @foreach($bids as $auction_id => $bid)
+            @foreach($bids as $bid)
+                {{$bid['auction_id']}}
                 <tr>
                     <td>
                         <a style="color: #1B8BCB;"
-                           href="{{route('auction.index',$auction_id)}}">{{$bid['title']}}</a>
+                           href="{{route('auction.index',$bid['auction_id'])}}">{{$bid['title']}}</a>
                     </td>
                     <td style="white-space: nowrap;">{{$bid['end']}}</td>
                     <td>{{$bid['bet']}}</td>
                     <td>{{$bid['bonus']}}</td>
-                    <td>{{$bid['win']?'Победа':'Участие '}}</td>
+                    <td>{{((bool)$bid['wins'])?'Победа':'Участие '}}</td>
                 </tr>
             @endforeach
         </table>

@@ -78,6 +78,6 @@ class Balance extends Model
             self::REGISTRATION_BONUS_REASON,
             self::REFERRAL_BONUS_REASON,
             self::ADMIN,
-            ];
+        ];
     }
 }

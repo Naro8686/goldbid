@@ -37,8 +37,7 @@ class AuctionController extends Controller
     public function auction($id)
     {
         if (Auth::check()) {
-            $closeAuction = Auction::query()
-                ->whereHas('bid', function ($query) {
+            $closeAuction = Auction::whereHas('bid', function ($query) {
                     $query->where('bids.user_id', Auth::id());
                 })
                 ->where('auctions.id', $id)
@@ -64,12 +63,6 @@ class AuctionController extends Controller
             $favorite->detach($user_id);
         else
             $favorite->attach($user_id);
-        try {
-            $auctions = Auction::auctionsForHomePage();
-            return view('site.include.auctions', compact('auctions'))->render();
-        } catch (Throwable $e) {
-            Log::error('add favorite ' . $e->getMessage());
-        }
     }
 
     /**
@@ -115,7 +108,7 @@ class AuctionController extends Controller
     }
 
     /**
-     * @param null $id
+     * @param null|int $id
      * @param array $html
      * @return \Illuminate\Http\JsonResponse
      */
@@ -124,16 +117,12 @@ class AuctionController extends Controller
         $html = [];
         $status = 200;
         try {
-            if (!is_null($id) && $auctionForHomePage = Auction::auctionsForHomePage()->firstWhere('id', '=', $id)) {
-                if (!($auctionForHomePage['status'] === Auction::STATUS_FINISHED && is_null($auctionForHomePage['winner'])))
-                    $html['home_page'] = view('site.include.auction', ['auction' => $auctionForHomePage])->render();
-                $auctionPage = Auction::auctionPage($id);
-                if ($auctionPage['error']) $status = 403;
-                unset($auctionPage['images']);
-                unset($auctionPage['desc']);
-                unset($auctionPage['specify']);
-                unset($auctionPage['terms']);
-
+            if (!is_null($id)) {
+                $auction = Auction::auctionPage($id)->except(['desc','specify','terms']);
+                if ($auction['error']) $status = 403;
+                if (!($auction['status'] === Auction::STATUS_FINISHED && is_null($auction['winner'])))
+                    $html['home_page'] = view('site.include.auction', ['auction' => $auction])->render();
+                $auctionPage = $auction->except(['images']);
                 $html['auction_page'] = view('site.include.info', ['auction' => $auctionPage])->render();
             } else {
                 $auctions = Auction::auctionsForHomePage();

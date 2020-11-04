@@ -85,7 +85,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'goldbid24@gmail.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'info@goldbid.ru'),
         'name' => env('MAIL_FROM_NAME', 'GoldBid'),
     ],
 

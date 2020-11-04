@@ -9,7 +9,6 @@ use App\Models\Auction\Auction;
 use App\Models\Auction\Category;
 use App\Models\Auction\Company;
 use App\Models\Auction\Product;
-use App\Models\Pages\Page;
 use App\Settings\ImageTrait;
 use Exception;
 use Illuminate\Contracts\View\Factory;
@@ -32,71 +31,75 @@ class ProductController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $products = Product::data();
-                return datatables()->of($products)->editColumn('exchange', function ($product) {
-                    $class = '';
-                    $active = 'false';
-                    $link = route('admin.products.update', $product['id']);
-                    if ($product['exchange']) {
-                        $class = 'active';
-                        $active = 'true';
-                    }
-                    return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                return datatables()->of(Product::with(['category', 'company']))
+                    ->editColumn('exchange', function ($product) {
+                        $class = '';
+                        $active = 'false';
+                        $link = route('admin.products.update', $product['id']);
+                        if ($product['exchange']) {
+                            $class = 'active';
+                            $active = 'true';
+                        }
+                        return "<button type='button' class='btn btn-sm btn-toggle {$class}'
                                 data-toggle='button'
                                 aria-pressed='{$active}'
                                 onclick='oNoFF(`{$link}`,{exchange:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
-                })->editColumn('buy_now', function ($product) {
-                    $class = '';
-                    $active = 'false';
-                    $link = route('admin.products.update', $product['id']);
-                    if ($product['buy_now']) {
-                        $class = 'active';
-                        $active = 'true';
-                    }
-                    return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                    })->editColumn('buy_now', function ($product) {
+                        $class = '';
+                        $active = 'false';
+                        $link = route('admin.products.update', $product['id']);
+                        if ($product['buy_now']) {
+                            $class = 'active';
+                            $active = 'true';
+                        }
+                        return "<button type='button' class='btn btn-sm btn-toggle {$class}'
                                 data-toggle='button'
                                 aria-pressed='{$active}'
                                 onclick='oNoFF(`{$link}`,{buy_now:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
-                })->editColumn('img_1', function ($product) {
-                    $img = asset($product['img_1']);
-                    return "<img class='img-fluid img-thumbnail' src='{$img}' alt='{$product['alt_1']}'>";
-                })->editColumn('top', function ($product) {
-                    $class = '';
-                    $active = 'false';
-                    $link = route('admin.products.update', $product['id']);
-                    if ($product['top']) {
-                        $class = 'active';
-                        $active = 'true';
-                    }
-                    return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                    })->editColumn('img_1', function ($product) {
+                        $img = asset($product['img_1']);
+                        return "<img style='min-width: 70px' class='img-fluid img-thumbnail' src='{$img}' alt='{$product['alt_1']}'>";
+                    })->editColumn('category', function ($product) {
+                        return $product->category ? $product->category->name : 'Другой';
+                    })->editColumn('company', function ($product) {
+                        return $product->company ? $product->company->name : 'Другой';
+                    })->editColumn('top', function ($product) {
+                        $class = '';
+                        $active = 'false';
+                        $link = route('admin.products.update', $product['id']);
+                        if ($product['top']) {
+                            $class = 'active';
+                            $active = 'true';
+                        }
+                        return "<button type='button' class='btn btn-sm btn-toggle {$class}'
                                 data-toggle='button'
                                 aria-pressed='{$active}'
                                 onclick='oNoFF(`{$link}`,{top:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
-                })->editColumn('visibly', function ($product) {
-                    $class = '';
-                    $active = 'false';
-                    $link = route('admin.products.update', $product['id']);
-                    if ($product['visibly']) {
-                        $class = 'active';
-                        $active = 'true';
-                    }
-                    return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                    })->editColumn('visibly', function ($product) {
+                        $class = '';
+                        $active = 'false';
+                        $link = route('admin.products.update', $product['id']);
+                        if ($product['visibly']) {
+                            $class = 'active';
+                            $active = 'true';
+                        }
+                        return "<button type='button' class='btn btn-sm btn-toggle {$class}'
                                 data-toggle='button'
                                 aria-pressed='{$active}'
                                 onclick='oNoFF(`{$link}`,{visibly:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
-                })->addColumn('action', function ($product) {
-                    $linkDelete = route('admin.products.destroy', $product['id']);
-                    $linkEdit = route('admin.products.edit', $product['id']);
-                    $linkDuplicate = route('admin.products.duplicate', $product['id']);
-                    return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
+                    })->addColumn('action', function ($product) {
+                        $linkDelete = route('admin.products.destroy', $product['id']);
+                        $linkEdit = route('admin.products.edit', $product['id']);
+                        $linkDuplicate = route('admin.products.duplicate', $product['id']);
+                        return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
                                         <a href='{$linkDuplicate}' class='btn btn-secondary'>Дубликат</a>
                                         <a href='{$linkEdit}' class='btn btn-info'>изменить</a>
                                         <button type='button' class='btn btn-danger'
@@ -106,7 +109,7 @@ class ProductController extends Controller
                                                     удалить
                                         </button>
                                     </div>";
-                })->rawColumns(['img_1', 'exchange', 'buy_now', 'top', 'visibly', 'action'])->make(true);
+                    })->rawColumns(['img_1', 'exchange', 'buy_now', 'top', 'visibly', 'action'])->make(true);
             } catch (Exception $e) {
                 dd($e->getMessage());
             }
@@ -124,7 +127,7 @@ class ProductController extends Controller
      */
     public function edit(int $id)
     {
-        $product = Product::query()->findOrFail($id);
+        $product = Product::findOrFail($id);
         $companies = Company::all();
         $categories = Category::all();
         return view(self::DIR . 'edit', compact('product', 'companies', 'categories'));
@@ -305,7 +308,7 @@ class ProductController extends Controller
             CreateAuctionJob::dispatchIf($auction
                 ->whereIn('status', [Auction::STATUS_ACTIVE, Auction::STATUS_PENDING])
                 ->doesntExist(), $product);
-        }catch (Throwable $exception){
+        } catch (Throwable $exception) {
             Log::error($exception->getMessage());
         }
     }

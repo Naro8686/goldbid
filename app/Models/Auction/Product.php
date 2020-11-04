@@ -113,7 +113,7 @@ class Product extends Model
 
     public static function info()
     {
-        $products = self::all();
+        $products = self::query();
         return collect([
             'product_count' => $products->count(),
             'visibly_count' => $products->where('visibly', true)->count()
@@ -122,7 +122,7 @@ class Product extends Model
 
     public static function data()
     {
-        $data = Product::query()->with(['category', 'company', 'auction'])->get();
+        $data = Product::with(['category', 'company', 'auction'])->get();
         $products = new Collection;
         foreach ($data as $product) {
             $products->push([

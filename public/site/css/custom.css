@@ -3,13 +3,20 @@ input[type='button']:focus,
 input[type='submit']:focus {
     outline: 0;
 }
+
 /* pagination */
+.mt-25 {
+    margin-top: 25px !important;
+}
 
 .pagination {
+    display: -ms-flexbox;
+    flex-wrap: wrap;
     display: flex;
     padding-left: 0;
     list-style: none;
     border-radius: 0.25rem;
+    justify-content: center;
 }
 
 .page-link {
@@ -445,9 +452,11 @@ table.personal__info td {
 .is-invalid {
     border-color: red !important;
 }
-.disabled{
+
+.disabled {
     opacity: 0.5;
 }
+
 small.is-invalid {
     color: red !important;
 }

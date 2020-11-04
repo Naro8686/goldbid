@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Balance;
-use App\Models\Mailing;
-use App\Models\User;
-use App\Models\Pages\Slider;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
+use App\Models\Balance;
+use App\Models\User;
+use Exception;
 
 class UserController extends Controller
 {
@@ -17,44 +14,39 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $users = User::where('users.is_admin', false)
+            ->leftJoinSub('SELECT bids.user_id, SUM(IF(bids.win = 1, 1, 0)) AS win, COUNT(DISTINCT(bids.auction_id)) AS participation FROM bids GROUP BY bids.user_id', 'bidsCount', 'users.id', '=', 'bidsCount.user_id')
+            ->leftJoinSub('SELECT balances.user_id, (SUM(IF(type = 1, 0, bet)) - SUM(IF(type = 1, bet, 0))) AS bet, (SUM(IF(type = 1, 0, bonus)) - SUM(IF(type = 1, bonus, 0))) AS bonus FROM balances GROUP BY balances.user_id', 'balance', 'users.id', '=', 'balance.user_id')
+            ->leftJoinSub('SELECT referrals.referred_by, COUNT(referrals.referral_id) AS count_referral FROM referrals GROUP BY referrals.referred_by', 'ref', 'users.id', '=', 'ref.referred_by')
+            ->groupBy('users.id')
+            ->selectRaw('users.*, IFNULL(bidsCount.win, 0) AS win, IFNULL(bidsCount.participation, 0) AS participation, IFNULL(balance.bet,0) AS bet, IFNULL(balance.bonus,0) AS bonus, IFNULL(ref.count_referral,0) AS count_referral');
         if ($request->ajax()) {
             try {
-                $users = new Collection;
-                foreach (User::all()->where('is_admin', false) as $user) {
-                    $users->push([
-                        'id' => $user->id,
-                        'created_at' => $user->created_at->format('Y-m-d'),
-                        'nickname' => $user->nickname,
-                        'lname' => $user->lname,
-                        'birthday' => $user->birthday ? $user->birthday->format('Y-m-d') : '',
-                        'phone' => $user->login(),
-                        'email' => $user->email,
-                        'win' => $user->bid()->where('win',true)->count(),
-                        'participation' => $user->bid()->distinct('auction_id')->count(),
-                        'has_ban' => $user->has_ban,
-                        'bet' => $user->balance()->bet,
-                        'bonus' => $user->balance()->bonus,
-                        'count_referral' => $user->referrals()->count(),
-                    ]);
-                }
                 return datatables()->of($users)
                     ->editColumn('has_ban', function ($user) {
+                        $link = route('admin.users.update', $user->id);
                         $class = '';
                         $active = 'false';
-                        $link = route('admin.users.update', $user['id']);
-                        if ($user['has_ban']) {
+                        if ($user->has_ban) {
                             $class = 'active';
                             $active = 'true';
                         }
-                        return "<button type='button' class='btn btn-sm btn-toggle {$class}'
+                        return "<button type='button'
+                                class='btn btn-sm btn-toggle {$class}'
                                 data-toggle='button'
                                 aria-pressed='{$active}'
                                 onclick='oNoFF(`{$link}`,{has_ban:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
+                    })->editColumn('phone', function ($user){
+                        return $user->login();
+                    })->editColumn('birthday', function ($user){
+                        return $user->birthday ? $user->birthday->format('Y-m-d') : null;
+                    })->editColumn('created_at', function ($user){
+                        return $user->created_at->format('Y-m-d');
                     })->addColumn('action', function ($user) {
-                        $linkDelete = route('admin.users.destroy', $user['id']);
-                        $linkShow = route('admin.users.edit', $user['id']);
+                        $linkDelete = route('admin.users.destroy', $user->id);
+                        $linkShow = route('admin.users.edit', $user->id);
                         return "<div class='btn-group btn-group-sm' role='group' aria-label='Basic example'>
                                         <button data-href='{$linkShow}' type='button'
                                                 data-toggle='modal' data-target='#cardModal'
@@ -65,8 +57,7 @@ class UserController extends Controller
                                                     удалить
                                         </button>
                                     </div>";
-                    })
-                    ->rawColumns(['has_ban', 'action'])
+                    })->rawColumns(['has_ban', 'action'])
                     ->make(true);
             } catch (Exception $e) {
                 dd($e->getMessage());
@@ -83,7 +74,7 @@ class UserController extends Controller
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Throwable
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         if ($user = User::query()->find($id)) {
             $data = $user->userCard();

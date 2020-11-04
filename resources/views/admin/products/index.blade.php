@@ -15,7 +15,8 @@
                                 class="text-dark">{{$productsInfo['visibly_count']}}</span></span>
                     </div>
                     <div class="col-md-4">
-                        <a class="btn btn-sm btn-success float-right" href="{{route('admin.products.create')}}">Добавить</a>
+                        <a class="btn btn-sm btn-success float-right"
+                           href="{{route('admin.products.create')}}">Добавить</a>
                     </div>
                 </div>
             </div>
@@ -29,14 +30,14 @@
                             <th>Фото</th>
                             <th>Наименование</th>
                             <th>Пояснение</th>
-{{--                            <th>Производитель</th>--}}
+                            {{--                            <th>Производитель</th>--}}
                             <th>Группа товара</th>
-{{--                            <th>Стартовая цена (руб)</th>--}}
+                            {{--                            <th>Стартовая цена (руб)</th>--}}
                             <th>Цена (руб)</th>
                             <th>Бот 1 (ход)</th>
                             <th>Боты 2,3 (руб)</th>
-{{--                            <th>Таймер (сек)</th>--}}
-{{--                            <th>Шаг (кол)</th>--}}
+                            {{--                            <th>Таймер (сек)</th>--}}
+                            {{--                            <th>Шаг (кол)</th>--}}
                             <th>Старт (мин)</th>
                             <th>Обмен</th>
                             <th>Выкуп</th>
@@ -57,7 +58,7 @@
                 $('#product_table').DataTable({
                     aLengthMenu: [
                         [100, -1],
-                        [100,"Все"]
+                        [100, "Все"]
                     ],
                     processing: true,
                     serverSide: true,
@@ -67,11 +68,11 @@
                     },
                     columns: [
                         {data: 'id', name: 'id'},
-                        {data: 'img_1', name: 'img_1'},
+                        {data: 'img_1', name: 'img_1', orderable: false, searchable: false},
                         {data: 'title', name: 'title'},
                         {data: 'short_desc', name: 'short_desc'},
                         // {data: 'company', name: 'company'},
-                        {data: 'category', name: 'category'},
+                        {data: 'category', name: 'category.name'},
                         //{data: 'start_price', name: 'start_price'},
                         {data: 'full_price', name: 'full_price'},
                         {data: 'bot_shutdown_count', name: 'bot_shutdown_count'},
