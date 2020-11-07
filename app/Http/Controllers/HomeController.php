@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\FeedbackSendMail;
 use App\Models\Auction\Auction;
+use App\Models\Auction\Order;
 use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
 use App\Models\Pages\Package;
@@ -39,19 +40,19 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        $auctions = Auction::auctionsForHomePage();
         $sliders = Slider::all();
-//        if ($request->ajax()) {
-//            $error = null;
-//            $html = null;
-//            try {
-//                $html = view('site.include.auctions', ['auctions' => $auctions])->render();
-//            } catch (\Throwable $e) {
-//                $error = $e->getMessage();
-//            }
-//            return response()->json(['html' => $html, 'error' => $error], 200);
-//        }
-        return view(self::DIR . 'index', compact('sliders','auctions'));
+        if ($request->ajax()) {
+            $auctions = Auction::auctionsForHomePage();
+            $error = null;
+            $html = null;
+            try {
+                $html = view('site.include.auctions', ['auctions' => $auctions])->render();
+            } catch (\Throwable $e) {
+                $error = $e->getMessage();
+            }
+            return response()->json(['html' => $html, 'error' => $error], 200);
+        }
+        return view(self::DIR . 'index', compact('sliders'));
     }
 
     public function howItWorks()

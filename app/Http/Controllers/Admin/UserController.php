@@ -18,7 +18,7 @@ class UserController extends Controller
             ->leftJoinSub('SELECT bids.user_id, SUM(IF(bids.win = 1, 1, 0)) AS win, COUNT(DISTINCT(bids.auction_id)) AS participation FROM bids GROUP BY bids.user_id', 'bidsCount', 'users.id', '=', 'bidsCount.user_id')
             ->leftJoinSub('SELECT balances.user_id, (SUM(IF(type = 1, 0, bet)) - SUM(IF(type = 1, bet, 0))) AS bet, (SUM(IF(type = 1, 0, bonus)) - SUM(IF(type = 1, bonus, 0))) AS bonus FROM balances GROUP BY balances.user_id', 'balance', 'users.id', '=', 'balance.user_id')
             ->leftJoinSub('SELECT referrals.referred_by, COUNT(referrals.referral_id) AS count_referral FROM referrals GROUP BY referrals.referred_by', 'ref', 'users.id', '=', 'ref.referred_by')
-            ->groupBy('users.id')
+            ->groupBy(['users.id', 'bidsCount.win', 'bidsCount.participation', 'balance.bet', 'balance.bonus', 'ref.count_referral'])
             ->selectRaw('users.*, IFNULL(bidsCount.win, 0) AS win, IFNULL(bidsCount.participation, 0) AS participation, IFNULL(balance.bet,0) AS bet, IFNULL(balance.bonus,0) AS bonus, IFNULL(ref.count_referral,0) AS count_referral');
         if ($request->ajax()) {
             try {
@@ -38,11 +38,11 @@ class UserController extends Controller
                                 onclick='oNoFF(`{$link}`,{has_ban:($(this).attr(`aria-pressed`) === `true` ? 0 : 1)},`PUT`)'>
                                     <span class='handle'></span>
                                 </button>";
-                    })->editColumn('phone', function ($user){
+                    })->editColumn('phone', function ($user) {
                         return $user->login();
-                    })->editColumn('birthday', function ($user){
+                    })->editColumn('birthday', function ($user) {
                         return $user->birthday ? $user->birthday->format('Y-m-d') : null;
-                    })->editColumn('created_at', function ($user){
+                    })->editColumn('created_at', function ($user) {
                         return $user->created_at->format('Y-m-d');
                     })->addColumn('action', function ($user) {
                         $linkDelete = route('admin.users.destroy', $user->id);

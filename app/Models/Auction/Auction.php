@@ -412,25 +412,24 @@ class Auction extends Model
 
     public static function auctionsForHomePageQuery($userID = null)
     {
+        $userID = !is_null($userID) ? $userID : "NULL";
         return self::where('active', '=', true)
-            ->leftJoinSub("SELECT * FROM `favorites` WHERE `user_id` = $userID GROUP BY `favorites`.`auction_id`", 'userFavorites', 'auctions.id', '=', 'userFavorites.auction_id')
-            ->leftJoinSub("SELECT * FROM `orders` WHERE `user_id` = $userID AND `status` = '".Order::SUCCESS."' GROUP BY `orders`.`auction_id`", 'userOrders', 'auctions.id', '=', 'userOrders.auction_id')
-            ->groupBy('auctions.id')
+            ->leftJoinSub("SELECT `favorites`.`auction_id` FROM `favorites` WHERE `user_id` = $userID GROUP BY `favorites`.`auction_id`", 'userFavorites', 'auctions.id', '=', 'userFavorites.auction_id')
+            ->leftJoinSub("SELECT `orders`.`auction_id` FROM `orders` WHERE `orders`.`user_id` = $userID AND `orders`.`status` = '".Order::SUCCESS."' GROUP BY `orders`.`auction_id`", 'userOrders', 'auctions.id', '=', 'userOrders.auction_id')
+            ->orderByRaw("IF((lastBetUserID IS NOT NULL) AND (lastBetUserID = $userID) AND (userOrders.auction_id IS NULL),1,0) DESC")
+            ->orderByDesc('top')
+            ->orderByRaw('IF(userFavorites.auction_id IS NULL, 0, 1) DESC')
             ->orderByRaw('(CASE WHEN `auctions`.`status` = '.self::STATUS_ACTIVE.' THEN `auctions`.`status` END) DESC,
                               (CASE WHEN `auctions`.`status` = '.self::STATUS_PENDING.' THEN `auctions`.`status` END) DESC,
                               (CASE WHEN `auctions`.`status` = '.self::STATUS_FINISHED.' THEN `auctions`.`status` END) ASC,
                               (CASE WHEN `auctions`.`status` = '.self::STATUS_ERROR.' THEN `auctions`.`status` END) ASC')
             ->orderByRaw('(CASE WHEN `auctions`.`status` = '.self::STATUS_PENDING.' THEN `auctions`.`start` END) ASC,
                               (CASE WHEN `auctions`.`status` = '.self::STATUS_ACTIVE.' THEN `auctions`.`start` END) DESC')
-            ->orderByRaw("IF(((auctions.status = ".self::STATUS_FINISHED.") OR (auctions.status = ".self::STATUS_ERROR.")) AND (lastBetUserID IS NOT NULL) AND (lastBetUserID = $userID) AND (ordered = 0),1,0) DESC")
-            ->orderByDesc('top')
-            ->orderByDesc('favorite')
-            ->selectRaw('auctions.*, IF(userFavorites.auction_id IS NULL, 0, 1) as favorite, IF(userOrders.id IS NULL, 0, 1) as ordered, (SELECT bids.user_id FROM bids WHERE bids.auction_id = auctions.id ORDER BY id DESC LIMIT 1) AS lastBetUserID');
+            ->selectRaw('auctions.*, IF(((auctions.status = '.self::STATUS_FINISHED.') OR (auctions.status = '.self::STATUS_ERROR.')),(SELECT bids.user_id FROM bids WHERE bids.auction_id = auctions.id ORDER BY id DESC LIMIT 1),NULL) AS lastBetUserID');
     }
 
     public static function auctionsForHomePage(int $paginate = 25)
     {
-
         $userID = Auth::id();
         $itemsPaginated = self::auctionsForHomePageQuery($userID)->paginate($paginate);
         $itemsTransformed = collect($itemsPaginated->items())->transform(function (Auction $auction) use ($userID) {

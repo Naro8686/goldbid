@@ -64,9 +64,8 @@ $(document).on('click', '.favorites', function () {
     if ($(this).hasClass('top')) return false;
     let favorite = $(this).children();
     let auction_id = favorite.closest('.card').attr('data-auction-id');
-    let home_page = $('#home_page');
-
-    $.post(`${URL}/${auction_id}/add-favorite`, function (data) {
+    //let home_page = $('#home_page');
+    $.post(`${URL}/${auction_id}/add-favorite`, function () {
         favorite.toggleClass('active');
     });
 });
@@ -133,3 +132,21 @@ function copyToClipboard(elem) {
     return succeed;
 }
 
+function loadAuctions(page) {
+    if (isNaN(page) || page <= 0) return false;
+    $.ajax({
+        url: `?page=${page}`,
+        type: "GET",
+        cache:false,
+        datatype: "html"
+    }).done(function (data) {
+        if (!data.error && data.html) {
+            let html = $(data.html);
+            $("#home_page").empty().html(html);
+            location.hash = page;
+            countdown(html);
+        }
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        console.log(jqXHR, ajaxOptions, thrownError);
+    });
+}
