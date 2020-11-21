@@ -41,30 +41,28 @@ class BetListener
         $auction = $event->auction;
         try {
             DB::beginTransaction();
-            if (isset($auction) && !$auction->jobExists() && $auction->status === Auction::STATUS_ACTIVE) {
-                if ($auction->bid()->exists() && $auction->bots()->exists()) {
-                    if ($bot = $this->selectBot($auction)) {
-                        $bot->update(['status' => AuctionBot::WORKED]);
+            if (isset($auction) && !$auction->jobExists() && $auction->status === Auction::STATUS_ACTIVE && !$auction->finished() && $auction->bid()->exists()) {
+                if ($auction->bots()->exists() && $bot = $this->selectBot($auction)) {
+                    if ($bot['model']->update(['status' => AuctionBot::WORKED]))
                         $jobs[] = [
-                            "DB" => $bot,
+                            "DB" => $bot['model'],
+                            "lastBet" => $bot['lastBet'],
                             "job" => "BotBidJob",
-                            "delay" => Carbon::now("Europe/Moscow")->addSeconds($bot->timeToBet())
+                            "delay" => Carbon::now("Europe/Moscow")->addSeconds($bot['model']->timeToBet())
                         ];
-                    }
                 }
-                if ($auction->autoBid()->exists()) {
-                    if ($next = $this->selectAutoBid($auction)) {
-                        $next->update(['status' => AutoBid::WORKED]);
+                if ($auction->autoBid()->exists() && $next = $this->selectAutoBid($auction)) {
+                    if ($next['model']->update(['status' => AutoBid::WORKED]))
                         $jobs[] = [
-                            "DB" => $next,
+                            "DB" => $next['model'],
+                            "lastBet" => $next['lastBet'],
                             "job" => "AutoBidJob",
-                            "delay" => Carbon::now("Europe/Moscow")->addSeconds($next->timeToBet())
+                            "delay" => Carbon::now("Europe/Moscow")->addSeconds($next['model']->timeToBet())
                         ];
-                    }
                 }
                 usort($jobs, function ($a, $b) {
-                    if ($a["delay"] === $b["delay"]) return 0;
-                    return ($a["delay"] < $b["delay"]) ? -1 : 1;
+                    if ($a["lastBet"] === $b["lastBet"]) return 0;
+                    return ($a["lastBet"] < $b["lastBet"]) ? -1 : 1;
                 });
                 if (isset($jobs[1])) $jobs[1]['DB']->update(['status' => AutoBid::PENDING]);
                 if (isset($jobs[0])) {
@@ -84,10 +82,10 @@ class BetListener
         return $event;
     }
 
+
     /**
      * @param Auction $auction
-     * @return AuctionBot|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|object|null
-     * @throws Throwable
+     * @return AuctionBot|array|null
      */
     public function selectBot(Auction $auction)
     {
@@ -101,13 +99,13 @@ class BetListener
         try {
             $stopBotOne = (int)$auction->bot_shutdown_count;
             $stopBotTwoThree = (int)$auction->bot_shutdown_price;
-            $sumBids = (int)($auction->bid->sum('bet') * Auction::BET_RUB);
-            $bidBot = DB::table('bids')->where([
-                ['auction_id', '=', $auction->id],
-                ['is_bot', '=', true],
-            ])->orderBy('id', 'desc')
+            $sumBids = (int)($auction->bid()->sum('bet') * Auction::BET_RUB);
+//            $bids = $auction->bid()->where('bids.is_bot', '=', true);
+            $bidBot = $auction->bid()
+                ->where('bids.is_bot', '=', true)
+                ->orderByDesc('bids.id')
                 //->sharedLock()
-                ->first(['bot_num']);
+                ->first(['bids.bot_num', 'bids.updated_at']);
             $bots = new Collection();
             if ($stopBotOne >= 1) {
                 /** @var AuctionBot $botOne */
@@ -160,39 +158,44 @@ class BetListener
         } catch (Throwable $exception) {
             Log::error('select bot ' . $exception->getMessage());
         }
-        return !is_null($bot) ? AuctionBot::whereId($bot->id)->lockForUpdate()->first() : null;
+        $auctionBot = !is_null($bot) ? AuctionBot::whereId($bot->id)
+            //->lockForUpdate()
+            ->first() : null;
+        return (!is_null($bot) && !is_null($auctionBot)) ? ['model' => $auctionBot, 'lastBet' => $auction->lastBid($auctionBot->name)->timestamp] : null;
     }
+
 
     /**
      * @param Auction $auction
-     * @return AutoBid|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|object|null
+     * @return array|null
      */
     private function selectAutoBid(Auction $auction)
     {
         try {
-            $run = DB::table('auto_bids')->where([
-                ['auction_id', '=', $auction->id],
-                ['status', '=', AutoBid::WORKED],
-            ])->exists();
-            if ($run) return null;
-            foreach ($auction->autoBid as $autoBid) {
+            if ($auction->autoBid()->doesntExist() || $auction->autoBid()->where('auto_bids.status', '=', AutoBid::WORKED)->exists()) return null;
+            foreach ($auction->autoBid()->get() as $autoBid) {
                 $user = $autoBid->user;
                 $balance = $user->balance();
-                $stop = $user->auctionOrder()
-                        ->where('orders.auction_id', '=', $auction->id)
-                        ->where('orders.status', '=', Order::SUCCESS)
-                        ->exists() || ($auction->full_price($user->id) <= 1);
-                if ($autoBid->count <= 0 || ($balance->bet + $balance->bonus) <= 0 || $stop) $autoBid->delete();
+                $ordered = $user->auctionOrder()
+                    ->where('orders.auction_id', '=', $auction->id)
+                    ->where('orders.status', '=', Order::SUCCESS)
+                    ->exists();
+                if ($autoBid->count <= 0 || ($balance->bet + $balance->bonus) <= 0 || $ordered) $autoBid->delete();
             }
         } catch (Throwable $exception) {
-            Log::error('selectAutoBid: ' . $exception->getMessage());
+            Log::error('selectAutoBid: ' . $exception->getLine());
         }
-        return $auction->autoBid()
-            ->where('auto_bids.user_id', '<>', $auction->winner()->user_id)
-            ->where('auto_bids.status', '=', AutoBid::PENDING)
-            ->orderBy('auto_bids.bid_time')
-            ->orderBy('auto_bids.id')
-            ->lockForUpdate()
+        /**
+         * @var AutoBid $autoBet
+         */
+        $autoBet = $auction->autoBid()->where([
+            ['user_id', '<>', $auction->winner()->user_id],
+            ['status', '=', AutoBid::PENDING],
+        ])->orderByRaw('bid_time ASC, id ASC')
+            //->lockForUpdate()
             ->first();
+        return (!is_null($autoBet))
+            ? ['model' => $autoBet, 'lastBet' => $auction->lastBid($autoBet->user()->first(['nickname'])->nickname)->timestamp]
+            : null;
     }
 }

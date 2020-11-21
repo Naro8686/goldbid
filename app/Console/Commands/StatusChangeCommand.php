@@ -74,7 +74,7 @@ class StatusChangeCommand extends Command
                     ['status', '=', Auction::STATUS_ACTIVE],
                     ['step_time', '<>', null],
                     ['step_time', '<=', $current]
-                ])->lockForUpdate();
+                ]);
             if ($active->exists()) $this->active($active);
             //  });
 
@@ -107,6 +107,7 @@ class StatusChangeCommand extends Command
         try {
             $ids = $auctions->get()->pluck('id');
             DB::transaction(function () use ($auctions) {
+                $auctions->lockForUpdate();
                 $auctions->update([
                     'status' => Auction::STATUS_FINISHED,
                     'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),

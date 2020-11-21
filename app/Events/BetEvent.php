@@ -27,9 +27,10 @@ class BetEvent implements ShouldBroadcastNow
     {
         $this->auction = $auction;
     }
+
     public function broadcastWhen()
     {
-        return ($this->auction->status === Auction::STATUS_ACTIVE);
+        return (!is_null($this->auction) && $this->auction->status === Auction::STATUS_ACTIVE && !$this->auction->finished());
     }
 
     public function broadcastWith()

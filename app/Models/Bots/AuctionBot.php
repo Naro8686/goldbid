@@ -120,6 +120,7 @@ class AuctionBot extends Model
      */
     public function minus(string $column, int $count = 1)
     {
+        if ($this->$column < $count) return false;
         return $this->decrement($column, $count);
     }
 

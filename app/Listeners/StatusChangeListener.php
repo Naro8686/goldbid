@@ -41,14 +41,14 @@ class StatusChangeListener implements ShouldQueue
     {
         if (!empty($event->data) && isset($event->data['auction_id'])) {
             try {
-                if ($auction = Auction::where('id', $event->data['auction_id'])->first()) {
+                if ($auction = Auction::find($event->data['auction_id'])) {
                     switch ((int)$auction->status) {
                         case Auction::STATUS_ACTIVE:
                             $this->active($auction);
                             break;
                         case Auction::STATUS_FINISHED:
                             CreateAuctionJob::dispatchIf((isset($auction->product) && $auction->product->visibly), $auction->product)->delay(Carbon::now("Europe/Moscow")->addSeconds(1));
-                            if ($auction->userFavorites->isNotEmpty()) $auction->userFavorites()->detach();
+                            if ($auction->userFavorites()->exists()) $auction->userFavorites()->detach();
                             $this->finish($auction);
                             break;
                         default:
@@ -69,10 +69,10 @@ class StatusChangeListener implements ShouldQueue
     private function finish(Auction $auction)
     {
         try {
-            if ($auction->bid->isNotEmpty()) {
-                $this->fixAfterBid($auction);
-                $bid = $auction->bid->last();
-                if ($bid){
+            if ($auction->bid()->exists()) {
+                //$this->fixAfterBid($auction);
+                $bid = $auction->winner();
+                if (!is_null($bid->nickname)){
                     $bid->win = true;
                     $bid->save(['timestamp' => false]);
                     if (!$bid->is_bot && $bid->user_id) {
@@ -87,9 +87,9 @@ class StatusChangeListener implements ShouldQueue
                             }
                         } else {
                             $auction->update(['status' => Auction::STATUS_ERROR]);
-                            $count = $auction->bid()->where('user_id', $bid->user_id);
-                            $bet = $count->sum('bet');
-                            $bonus = $count->sum('bonus');
+                            $count = $auction->bid()->where('bids.user_id', $bid->user_id);
+                            $bet = $count->sum('bids.bet');
+                            $bonus = $count->sum('bids.bonus');
                             $user->balanceHistory()->create([
                                 'reason' => Balance::RETURN_REASON,
                                 'type' => Balance::PLUS,
@@ -113,7 +113,8 @@ class StatusChangeListener implements ShouldQueue
             /** @var AuctionBot $bot */
             $delay = Carbon::now("Europe/Moscow")->addSeconds($auction->step_time() - 1);
             $bot = $auction->botNum(1);
-            if (!is_null($bot)) {
+            $isFirst = $auction->bid()->doesntExist();
+            if (!is_null($bot) && $isFirst) {
                 dispatch(new BotBidJob($bot, true))->delay($delay);
             }
         } catch (Exception $exception) {
@@ -122,25 +123,25 @@ class StatusChangeListener implements ShouldQueue
 
     }
 
-    private function fixAfterBid(Auction $auction)
-    {
-        try {
-            $bids = $auction->bid()->where('bids.created_at', '>', $auction->end);
-            foreach ($bids->get() as $item) {
-                if (!is_null($item->user_id)) {
-                    /** @var User $user */
-                    $user = User::find($item->user_id);
-                    $user->balanceHistory()
-                        ->create([
-                            'type' => Balance::PLUS,
-                            'bet' => $item->bet,
-                            'bonus' => $item->bonus,
-                        ]);
-                }
-            }
-            $bids->delete();
-        } catch (Exception $exception) {
-            Log::error('fixAfterBid ' . $exception->getMessage());
-        }
-    }
+//    private function fixAfterBid(Auction $auction)
+//    {
+//        try {
+//            $bids = $auction->bid()->where('bids.created_at', '>=', $auction->end);
+//            foreach ($bids->get() as $item) {
+//                if (!is_null($item->user_id)) {
+//                    /** @var User $user */
+//                    $user = User::find($item->user_id);
+//                    $user->balanceHistory()
+//                        ->create([
+//                            'type' => Balance::PLUS,
+//                            'bet' => $item->bet,
+//                            'bonus' => $item->bonus,
+//                        ]);
+//                }
+//            }
+//            $bids->delete();
+//        } catch (Exception $exception) {
+//            Log::error('fixAfterBid ' . $exception->getMessage());
+//        }
+//    }
 }

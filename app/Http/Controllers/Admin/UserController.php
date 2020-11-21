@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         $users = User::where('users.is_admin', false)
             ->leftJoinSub('SELECT bids.user_id, SUM(IF(bids.win = 1, 1, 0)) AS win, COUNT(DISTINCT(bids.auction_id)) AS participation FROM bids GROUP BY bids.user_id', 'bidsCount', 'users.id', '=', 'bidsCount.user_id')
-            ->leftJoinSub('SELECT balances.user_id, (SUM(IF(type = 1, 0, bet)) - SUM(IF(type = 1, bet, 0))) AS bet, (SUM(IF(type = 1, 0, bonus)) - SUM(IF(type = 1, bonus, 0))) AS bonus FROM balances GROUP BY balances.user_id', 'balance', 'users.id', '=', 'balance.user_id')
+            ->leftJoinSub('SELECT balances.user_id, (SUM(IF(type = ' . Balance::MINUS . ', 0, bet)) - SUM(IF(type = ' . Balance::MINUS . ', bet, 0))) AS bet, (SUM(IF(type = ' . Balance::MINUS . ', 0, bonus)) - SUM(IF(type = ' . Balance::MINUS . ', bonus, 0))) AS bonus FROM balances GROUP BY balances.user_id', 'balance', 'users.id', '=', 'balance.user_id')
             ->leftJoinSub('SELECT referrals.referred_by, COUNT(referrals.referral_id) AS count_referral FROM referrals GROUP BY referrals.referred_by', 'ref', 'users.id', '=', 'ref.referred_by')
             ->groupBy(['users.id', 'bidsCount.win', 'bidsCount.participation', 'balance.bet', 'balance.bonus', 'ref.count_referral'])
             ->selectRaw('users.*, IFNULL(bidsCount.win, 0) AS win, IFNULL(bidsCount.participation, 0) AS participation, IFNULL(balance.bet,0) AS bet, IFNULL(balance.bonus,0) AS bonus, IFNULL(ref.count_referral,0) AS count_referral');
@@ -76,7 +76,7 @@ class UserController extends Controller
      */
     public function edit(int $id)
     {
-        if ($user = User::query()->find($id)) {
+        if ($user = User::find($id)) {
             $data = $user->userCard();
             $html = view('admin.users.card', compact('data'))->render();
         } else {
@@ -94,7 +94,8 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::query()->findOrFail($id);
+        $user = User::findOrFail($id);
+        $balance = $user->balance();
         if ($request->ajax()) {
             $request->validate([
                 'has_ban' => ['required', 'boolean'],
@@ -110,32 +111,31 @@ class UserController extends Controller
             'old_bonus' => ['sometimes', 'required', 'integer', 'min:0'],
         ]);
 
-        if ($request['bet'] > 0 || $request['bonus'] > 0)
+        if ((int)$request['old_bet'] !== $balance->bet) {
+            $type = Balance::MINUS;
+            $bet = abs((int)$request['old_bet'] - $balance->bet);
+            if ((int)$request['old_bet'] > $balance->bet) $type = Balance::PLUS;
+            $user->balanceHistory()->create([
+                'type' => $type,
+                'bet' => (int)$bet,
+                'reason' => Balance::ADMIN,
+            ]);
+        }
+
+        if ((int)$request['old_bonus'] !== $balance->bonus) {
+            $type = Balance::MINUS;
+            $bonus = abs((int)$request['old_bonus'] - $balance->bonus);
+            if ((int)$request['old_bonus'] > $balance->bonus) $type = Balance::PLUS;
+            $user->balanceHistory()->create([
+                'type' => $type,
+                'bonus' => (int)$bonus,
+                'reason' => Balance::ADMIN,
+            ]);
+        }
+
+        if ((int)$request['bet'] > 0 || (int)$request['bonus'] > 0)
             $user->balanceHistory()->create($request->only('bet', 'bonus', 'reason'));
 
-        if ((int)$request['old_bet'] !== $user->balance()->bet) {
-            $bet = abs($request['old_bet'] - $user->balance()->bet);
-            if ($request['old_bet'] > $user->balance()->bet)
-                $type = Balance::PLUS;
-            else $type = Balance::MINUS;
-            $user->balanceHistory()->create([
-                'type' => $type,
-                'bet' => $bet,
-                'reason' => Balance::ADMIN,
-            ]);
-        }
-        if ((int)$request['old_bonus'] !== $user->balance()->bonus) {
-            $bonus = abs($request['old_bonus'] - $user->balance()->bonus);
-            if ($request['old_bonus'] > $user->balance()->bonus)
-                $type = Balance::PLUS;
-            else $type = Balance::MINUS;
-
-            $user->balanceHistory()->create([
-                'type' => $type,
-                'bonus' => $bonus,
-                'reason' => Balance::ADMIN,
-            ]);
-        }
         return redirect()->back()->with('status', 'успешные дествия !');
     }
 

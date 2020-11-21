@@ -14,16 +14,8 @@ class AuctionController extends Controller
 {
     private const DIR = 'admin.auctions.';
 
-    public function index(Request $request)
-    {
-
-    }
-
-
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
+     * @param $id
      * @return RedirectResponse
      */
     public function destroy($id)
@@ -36,19 +28,35 @@ class AuctionController extends Controller
         }
         return redirect()->back()->with('status', 'успешные дествия !');
     }
+
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function edit($id)
     {
-        $slug = Auction::query()->findOrFail($id);
+        $slug = Auction::findOrFail($id);
         $meta = (new Setting($slug->id))->mete();
-        return view(self::DIR.'edit', compact('meta'));
+        return view(self::DIR . 'edit', compact('meta'));
     }
-    public function show($id){
-        if ($auction = Auction::query()->find($id)) {
-            $data = $auction->auctionCard();
-            $html = view('admin.auctions.card', compact('data'))->render();
-        } else {
-            $html = "<div class='col-md-12'><h3 class='text-center text-danger'>error</h3></div>";
+
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Throwable
+     */
+    public function show($id)
+    {
+        try {
+            $html = "<div class='col-md-12'><h3 class='text-center text-danger'>нет данных</h3></div>";
+            if ($auction = Auction::find($id)) {
+                $data = $auction->auctionCard();
+                $html = view('admin.auctions.card', compact('data'))->render();
+            }
+        } catch (\Throwable $exception) {
+            $html = "<div class='col-md-12'><h3 class='text-center text-danger'>{$exception->getMessage()}</h3></div>";
         }
+
         return response(['success' => true, 'html' => $html, 'title' => "Аукциона ID: {$id}"]);
     }
 }

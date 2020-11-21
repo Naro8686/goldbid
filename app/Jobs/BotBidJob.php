@@ -87,7 +87,7 @@ class BotBidJob implements ShouldQueue
                 }
             }
         } catch (Throwable $e) {
-            Log::error($e->getMessage());
+            $run = false;
         }
         return (bool)$run;
     }
@@ -104,7 +104,7 @@ class BotBidJob implements ShouldQueue
                 }
             }
         } catch (Throwable $e) {
-            Log::error($e->getMessage());
+            $run = false;
         }
         return (bool)$run;
     }

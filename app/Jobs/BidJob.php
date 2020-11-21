@@ -9,7 +9,8 @@ use App\Models\Balance;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+
+//use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -64,50 +65,52 @@ class BidJob
      */
     public function handle()
     {
-        if (!is_null($this->auction) && $this->auction->status === Auction::STATUS_ACTIVE) {
-            try {
-                DB::transaction(function () {
-                    $update = false;
-                    $this->auction = Auction::whereId($this->auction->id)->lockForUpdate()->first();
-                    if ($this->auction->winner()->nickname !== $this->nickname && $this->auction->bid->where('price', $this->auction->new_price())->isEmpty()) {
-                        $data = [
-                            'price' => $this->auction->new_price(),
-                            'title' => $this->auction->title,
-                            'nickname' => $this->nickname,
-                            'is_bot' => is_null($this->user),
-                            'user_id' => (is_null($this->user) ? null : $this->user->id)
-                        ];
-                        if (!$data['is_bot']) {
-                            $user = $this->user;
-                            $balance = $user->balance();
-                            $ordered = $user->auctionOrder()
-                                ->where('orders.auction_id', '=', $this->auction->id)
-                                ->where('orders.status', '=', Order::SUCCESS)
-                                ->doesntExist();
-                            if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($this->auction->full_price($user->id) > 1)) {
-                                $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
-                                $data[$this->bid_type] = self::BID_COUNT;
-                                $this->user->balanceHistory()->create([
-                                    $this->bid_type => self::BID_COUNT,
-                                    'type' => Balance::MINUS
-                                ]);
-                                $update = true;
-                            }
-                        } elseif ($data['is_bot']) {
+        try {
+            $update = false;
+            DB::beginTransaction();
+            $auction = Auction::lockForUpdate()->find($this->auction->id);
+            if (!is_null($auction) && $auction->status === Auction::STATUS_ACTIVE && !$auction->finished()) {
+
+                if ($auction->winner()->nickname !== $this->nickname && $auction->bid()->where('bids.price', $auction->new_price())->doesntExist()) {
+                    $data = [
+                        'price' => $auction->new_price(),
+                        'title' => $auction->title,
+                        'nickname' => $this->nickname,
+                        'is_bot' => is_null($this->user),
+                        'user_id' => (is_null($this->user) ? null : $this->user->id)
+                    ];
+                    if (!$data['is_bot']) {
+                        $user = $this->user;
+                        $balance = $user->balance();
+                        $ordered = $user->auctionOrder()
+                            ->where('orders.auction_id', '=', $auction->id)
+                            ->where('orders.status', '=', Order::SUCCESS)
+                            ->doesntExist();
+                        if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($auction->full_price($user->id) > 1)) {
+                            $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
                             $data[$this->bid_type] = self::BID_COUNT;
-                            $data['bot_num'] = $this->botNum;
+                            $this->user->balanceHistory()->create([
+                                $this->bid_type => self::BID_COUNT,
+                                'type' => Balance::MINUS
+                            ]);
                             $update = true;
                         }
-                        if ($update && $this->auction->update(['step_time' => Carbon::now("Europe/Moscow")->addSeconds($this->auction->bid_seconds + 1)])) {
-                            $this->auction->bid()->create($data);
-                        }
+                    } elseif ($data['is_bot']) {
+                        $data[$this->bid_type] = self::BID_COUNT;
+                        $data['bot_num'] = $this->botNum;
+                        $update = true;
                     }
-                    if (!$update) $this->auction->touch();
-                });
-            } catch (Throwable $exception) {
-                Log::error('Bid Job ' . $exception->getMessage());
+                    if ($update && $auction->update(['step_time' => Carbon::now("Europe/Moscow")->addSeconds($auction->bid_seconds + 1)])) {
+                        $auction->bid()->create($data);
+                    }
+                }
             }
-            event(new BetEvent($this->auction));
+            if (!$update) $auction->touch();
+            else event(new BetEvent($auction));
+            DB::commit();
+        } catch (Throwable $exception) {
+            DB::rollBack();
+            Log::error('Bid Job ' . $exception->getMessage());
         }
     }
 }

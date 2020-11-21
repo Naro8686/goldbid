@@ -7,6 +7,7 @@ use App\Jobs\BidJob;
 use App\Models\Auction\Auction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class BetController extends Controller
 {
@@ -14,15 +15,25 @@ class BetController extends Controller
     {
         /** @var Auction $auction */
         /** @var User $user */
-        $auction = Auction::query()->where('status', '=', Auction::STATUS_ACTIVE)->findOrFail($id);
-        $user = $request->user();
-        $autobid = DB::table('auto_bids')->where([
-            ['auction_id', '=', $id],
-            ['user_id', '=', $user->id],
-            ['count', '>', 0],
-        ])->doesntExist();
-        $price = ($auction->full_price($user->id) > 1);
-        $run = ($price && $autobid && $auction->winner()->nickname !== $user->nickname);
-        BidJob::dispatchIf($run, $auction, $user->nickname, $user);
+        try {
+            //DB::transaction(function () use ($id, $request) {
+                $auction = Auction::where('status', '=', Auction::STATUS_ACTIVE)->find($id);
+                if (!is_null($auction) && !$auction->finished() && $user = $request->user()) {
+                    $noDuplicate = $auction->bid()
+                        ->where('bids.price', $auction->new_price())
+                        ->doesntExist();
+                    $autobid = $user->autoBid()
+                        ->where([
+                            ['auto_bids.auction_id', '=', $id],
+                            ['auto_bids.count', '>', 0],
+                        ])->doesntExist();
+                    $price = ($auction->full_price($user->id) > 1);
+                    if (($price && $autobid && $auction->winner()->nickname !== $user->nickname && $noDuplicate))
+                        BidJob::dispatchNow($auction, $user->nickname, $user);
+                }
+            //});
+        } catch (Throwable $throwable) {
+            \Log::info('BetController ' . $throwable->getMessage());
+        }
     }
 }

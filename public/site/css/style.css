@@ -370,11 +370,12 @@ input[type="checkbox"].fail {
 }
 
 .auction .card .favorites {
-    text-align: right;
-    margin: 5px 5px 6px auto;
+    /*text-align: right;*/
+    /*margin: 5px 5px 6px auto;*/
+
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 5px;
+    right: 5px;
     z-index: 2;
 }
 
@@ -407,7 +408,7 @@ input[type="checkbox"].fail {
 .auction .card .favorites span {
     width: 15px;
     height: 15px;
-    padding: 10px;
+    padding: 5px 10px;
     background-image: url(img/Star.png);
     background-repeat: no-repeat;
     background-size: 100%;
@@ -437,22 +438,76 @@ input[type="checkbox"].fail {
     cursor: pointer;
 }
 
+/*
+* Prefixed by https://autoprefixer.github.io
+* PostCSS: v7.0.29,
+* Autoprefixer: v9.7.6
+* Browsers: last 4 version
+*/
+
 .auction .card .product-img {
     margin: 0 auto;
     /*margin-bottom: 15px;*/
     overflow: hidden;
-    height: 190px;
+    height: 188px;
+    width: 100%;
+    -o-object-fit: contain;
+    object-fit: contain;
+    -webkit-animation: zoom_out 0.5s;
+    animation: zoom_out 0.5s;
 }
 
 .auction .card.active .product-img:hover {
-    transform: scale(1.1);
-    -webkit-transform: scale(1.1);
-    -moz-transform: scale(1.1);
-    -o-transform: scale(1.1);
-    -ms-transform: scale(1.1);
-    transition: 0.3s;
     position: relative;
     z-index: 1;
+    -webkit-animation: zoom_in 0.5s linear forwards;
+    animation: zoom_in 0.5s linear forwards;
+}
+
+
+@-webkit-keyframes zoom_in {
+    0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+    100% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+}
+
+
+@keyframes zoom_in {
+    0% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+    100% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+}
+
+@-webkit-keyframes zoom_out {
+    0% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
+}
+
+@keyframes zoom_out {
+    0% {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+    }
+    100% {
+        -webkit-transform: scale(1);
+        transform: scale(1);
+    }
 }
 
 .auction .card .name {
@@ -874,6 +929,7 @@ input[type="checkbox"].fail {
 .auction .card .btn.close {
     border-color: #FF3249;
 }
+
 .auction .card .btn.error {
     border-color: #FF002B;
 }
@@ -917,11 +973,13 @@ input[type="checkbox"].fail {
     background-color: #FF3249;
     border-radius: 50px;
 }
+
 .auction .card .btn.error button {
     width: 100%;
     background-color: #FF002B;
     border-radius: 50px;
 }
+
 .auction .card .btn.win form {
     width: 100%;
 }
@@ -965,6 +1023,7 @@ input[type="checkbox"].fail {
 .text-gray-800 {
     color: #5a5c69;
 }
+
 .lead {
     font-size: 1.2rem;
     font-weight: 400;

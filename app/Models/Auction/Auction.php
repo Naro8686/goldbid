@@ -125,14 +125,24 @@ class Auction extends Model
         'top' => 'boolean',
         'active' => 'boolean',
     ];
+    public static $selectAuctionFillable = [
+        'auctions.id', 'auctions.title', 'auctions.short_desc',
+        'auctions.img_1', 'auctions.img_2', 'auctions.img_3', 'auctions.img_4',
+        'auctions.alt_1', 'auctions.alt_2', 'auctions.alt_3', 'auctions.alt_4',
+        'auctions.start_price', 'auctions.full_price', 'auctions.bot_shutdown_count',
+        'auctions.bot_shutdown_price', 'auctions.bid_seconds', 'auctions.step_time',
+        'auctions.step_price', 'auctions.start', 'auctions.end', 'auctions.exchange',
+        'auctions.buy_now', 'auctions.top', 'auctions.active', 'auctions.status',
+        'auctions.product_id', 'auctions.created_at', 'auctions.updated_at',
+    ];
 
     /**
      * @return bool
      */
     public function jobExists()
     {
-        $botJob = $this->bots->where('status', AuctionBot::WORKED)->isNotEmpty();
-        $autoBidJob = $this->autoBid->where('status', AutoBid::WORKED)->isNotEmpty();
+        $botJob = $this->bots()->where('auction_bots.status', AuctionBot::WORKED)->take(1)->exists();
+        $autoBidJob = $this->autoBid()->where('auto_bids.status', AutoBid::WORKED)->take(1)->exists();
         return ($botJob || $autoBidJob);
     }
 
@@ -179,21 +189,31 @@ class Auction extends Model
         $count = 0;
         $stopBotOne = (int)$this->bot_shutdown_count;
         $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
-        if ($this->bid->isNotEmpty()) {
+        if ($this->bid()->take(1)->exists()) {
             if (!is_null($this->botNum(1))) {
-                $count = $count + $stopBotOne;
+                $count += $stopBotOne;
             }
             if (!is_null($this->botNum(2)) || !is_null($this->botNum(3))) {
-                $sumBids = $this->bid->sum('bet') * self::BET_RUB;
+                $sumBids = (int)($this->bid()->sum('bet') * self::BET_RUB);
             }
         }
 
-        return $count < 1 && $sumBids >= $stopBotTwoThree;
+        return ($count < 1 && $sumBids >= $stopBotTwoThree);
     }
 
     public function bid()
     {
         return $this->hasMany(Bid::class);
+    }
+
+    /**
+     * @param $nickname
+     * @return \Illuminate\Database\Eloquent\HigherOrderBuilderProxy|Carbon|mixed
+     */
+    public function lastBid($nickname)
+    {
+        $bid = $this->bid()->where('bids.nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
+        return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow");
     }
 
     public function userOrder()
@@ -207,6 +227,14 @@ class Auction extends Model
         $text = $optional ? $text : '';
         $format = number_format($price, 1, ',', ' ');
         return "{$format}{$text}";
+    }
+
+    /**
+     * @return bool
+     */
+    public function finished()
+    {
+        return !is_null($this->step_time) ? (bool)Carbon::now("Europe/Moscow")->diff($this->step_time->addSecond())->invert : false;
     }
 
     public function bidTable()
@@ -225,19 +253,23 @@ class Auction extends Model
 
     public function winner()
     {
-        return $this->bid()
-                ->latest('id')
-                ->first() ?? new Bid;
+        return ($this->bid()->orderByDesc('bids.id')->take(1)->first() ?? new Bid);
     }
 
     public function status()
     {
-        $winner = ($this->winner()->is_bot) ? 'бот' : 'игрок';
         if ((int)$this->status === self::STATUS_ACTIVE) $text = 'Активный';
         if ((int)$this->status === self::STATUS_PENDING) $text = 'Скоро начало';
         if ((int)$this->status === self::STATUS_ERROR) $text = 'Ошибка';
-        if ((int)$this->status === self::STATUS_FINISHED && !is_null($this->winner()->id)) $text = "Победил {$winner}";
-        if ((int)$this->status === self::STATUS_FINISHED && is_null($this->winner()->id)) $text = "Не состоялся";
+        if ((int)$this->status === self::STATUS_FINISHED) {
+            $bid = $this->bid()
+                ->where('bids.win', '=', true)
+                ->orderByDesc('bids.id')
+                ->take(1)
+                ->first(['bids.is_bot']);
+            if (!is_null($bid)) $text = "Победил " . (($bid->is_bot) ? 'бот' : 'игрок');
+            else $text = "Не состоялся";
+        }
         return $text ?? '';
     }
 
@@ -257,7 +289,7 @@ class Auction extends Model
 
     public function countBid()
     {
-        $price = $this->bid->isEmpty()
+        $price = $this->bid()->doesntExist()
             ? $this->start_price
             : ($this->step_price / 100);
         return round($price * Auction::BET_RUB);
@@ -305,22 +337,26 @@ class Auction extends Model
 
     public static function info()
     {
-        $auctions = self::query();
         return collect([
-            'auction_count' => $auctions->count(),
-            'active_count' => $auctions->where('active', true)->count()
+            'auction_count' => self::count(),
+            'active_count' => self::where('active', true)->count()
         ]);
     }
 
     public function auctionCard()
     {
-        $bids = $this->bid()->where('is_bot', false)->get()->groupBy('user_id');
-        return $bids->map(function ($item) {
-            return collect([
-                'bonus' => $item->sum('bonus'),
-                'bet' => $item->sum('bet'),
-            ]);
-        });
+        return $this->bid()
+            ->where('bids.is_bot', false)
+            ->selectRaw('bids.user_id, SUM(bids.bet) AS bet, SUM(bids.bonus) AS bonus')
+            ->groupBy('bids.user_id')
+            ->get()
+            ->transform(function ($bid) {
+                return [
+                    'bonus' => $bid->bonus,
+                    'bet' => $bid->bet,
+                    'user_id' => $bid->user_id,
+                ];
+            });
     }
 
     public function start()
@@ -333,7 +369,7 @@ class Auction extends Model
     public function exchangeBetBonus($user_id = null)
     {
         $bet = $bonus = 0;
-        if (isset($this->bid) && $this->status === self::STATUS_FINISHED && !is_null($user_id)) {
+        if ($this->bid()->take(1)->exists() && $this->status === self::STATUS_FINISHED && !is_null($user_id)) {
             $bet = (int)round($this->full_price() / self::BET_RUB);
             $bonus = (int)round($bet / 2);
         }
@@ -367,15 +403,19 @@ class Auction extends Model
         if (!is_null($userID)) {
             $favorite = $this->userFavorites()
                 ->where('users.id', '=', $userID)
+                ->take(1)
                 ->exists();
             $autoBid = $this->autoBid()
                 ->where('user_id', '=', $userID)
+                ->take(1)
                 ->first();
             $ordered = $this->userOrder()
                 ->where([
                     ['orders.user_id', '=', $userID],
                     ['orders.status', '=', Order::SUCCESS]
-                ])->exists();
+                ])
+                ->take(1)
+                ->exists();
         }
 
         return collect([
@@ -413,19 +453,21 @@ class Auction extends Model
     public static function auctionsForHomePageQuery($userID = null)
     {
         $userID = !is_null($userID) ? $userID : "NULL";
+        $select = implode(', ', self::$selectAuctionFillable);
         return self::where('active', '=', true)
             ->leftJoinSub("SELECT `favorites`.`auction_id` FROM `favorites` WHERE `user_id` = $userID GROUP BY `favorites`.`auction_id`", 'userFavorites', 'auctions.id', '=', 'userFavorites.auction_id')
-            ->leftJoinSub("SELECT `orders`.`auction_id` FROM `orders` WHERE `orders`.`user_id` = $userID AND `orders`.`status` = '".Order::SUCCESS."' GROUP BY `orders`.`auction_id`", 'userOrders', 'auctions.id', '=', 'userOrders.auction_id')
+            ->leftJoinSub("SELECT `orders`.`auction_id` FROM `orders` WHERE `orders`.`user_id` = $userID AND `orders`.`status` = '" . Order::SUCCESS . "' GROUP BY `orders`.`auction_id`", 'userOrders', 'auctions.id', '=', 'userOrders.auction_id')
+            ->leftJoinSub("SELECT `bids`.`auction_id`, `bids`.`user_id` FROM `bids` WHERE `bids`.`win` = 1 GROUP BY `bids`.`auction_id`, `bids`.`user_id`", 'lastBet', 'auctions.id', '=', 'lastBet.auction_id')
             ->orderByRaw("IF((lastBetUserID IS NOT NULL) AND (lastBetUserID = $userID) AND (userOrders.auction_id IS NULL),1,0) DESC")
             ->orderByDesc('top')
             ->orderByRaw('IF(userFavorites.auction_id IS NULL, 0, 1) DESC')
-            ->orderByRaw('(CASE WHEN `auctions`.`status` = '.self::STATUS_ACTIVE.' THEN `auctions`.`status` END) DESC,
-                              (CASE WHEN `auctions`.`status` = '.self::STATUS_PENDING.' THEN `auctions`.`status` END) DESC,
-                              (CASE WHEN `auctions`.`status` = '.self::STATUS_FINISHED.' THEN `auctions`.`status` END) ASC,
-                              (CASE WHEN `auctions`.`status` = '.self::STATUS_ERROR.' THEN `auctions`.`status` END) ASC')
-            ->orderByRaw('(CASE WHEN `auctions`.`status` = '.self::STATUS_PENDING.' THEN `auctions`.`start` END) ASC,
-                              (CASE WHEN `auctions`.`status` = '.self::STATUS_ACTIVE.' THEN `auctions`.`start` END) DESC')
-            ->selectRaw('auctions.*, IF(((auctions.status = '.self::STATUS_FINISHED.') OR (auctions.status = '.self::STATUS_ERROR.')),(SELECT bids.user_id FROM bids WHERE bids.auction_id = auctions.id ORDER BY id DESC LIMIT 1),NULL) AS lastBetUserID');
+            ->orderByRaw('(CASE WHEN `auctions`.`status` = ' . self::STATUS_ACTIVE . ' THEN `auctions`.`status` END) DESC,
+                              (CASE WHEN `auctions`.`status` = ' . self::STATUS_PENDING . ' THEN `auctions`.`status` END) DESC,
+                              (CASE WHEN `auctions`.`status` = ' . self::STATUS_FINISHED . ' THEN `auctions`.`status` END) ASC,
+                              (CASE WHEN `auctions`.`status` = ' . self::STATUS_ERROR . ' THEN `auctions`.`status` END) ASC')
+            ->orderByRaw('(CASE WHEN `auctions`.`status` = ' . self::STATUS_PENDING . ' THEN `auctions`.`start` END) ASC,
+                              (CASE WHEN `auctions`.`status` = ' . self::STATUS_ACTIVE . ' THEN `auctions`.`start` END) DESC')
+            ->selectRaw($select . ', IF((((auctions.status = ' . self::STATUS_FINISHED . ') OR (auctions.status = ' . self::STATUS_ERROR . ')) AND ' . $userID . ' IS NOT NULL),lastBet.user_id,NULL) AS lastBetUserID');
     }
 
     public static function auctionsForHomePage(int $paginate = 25)
@@ -452,10 +494,10 @@ class Auction extends Model
         $data['desc'] = $auction->desc;
         $data['specify'] = $auction->specify;
         $data['terms'] = $auction->terms;
-        $data['bids'] = $auction->bid()->orderBy('id', 'desc')->take(5)->get();
+        $data['bids'] = $auction->bid()->orderByDesc('bids.id')->take(5)->get();
         $data['bet'] = $data['bonus'] = 0;
-        if (Auth::check() && $user = Auth::user()) {
-            $bid = $user->bid->where('auction_id', $id);
+        if (Auth::check() && $id && $user = Auth::user()) {
+            $bid = $user->bid()->where('auction_id', $id);
             $data['bet'] = $bid->sum('bet');
             $data['bonus'] = $bid->sum('bonus');
         }
@@ -467,23 +509,22 @@ class Auction extends Model
      */
     public function bidDataForUser()
     {
-        $data['user'] = [];
-        $data['auction'] = [];
+        $data['user'] = $data['auction'] = [];
         try {
             /** @var Bid $last */
-            $last = $this->bid()->orderBy('bids.id', 'desc')
+            $last = $this->bid()->orderByDesc('bids.id')
                 ->first(['bids.user_id', 'bids.auction_id', 'bids.nickname', 'bids.price']);
             if (!is_null($last) && $user = User::find($last->user_id)) {
                 $balance = $user->balance();
-                $bid = $user->bid->where('auction_id', $last->auction_id);
-                $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first();
+                $bid = $user->bid()->where('bids.auction_id', $last->auction_id);
+                $autoBid = $user->autoBid()->where('auto_bids.auction_id', $last->auction_id)->first(['auto_bids.count']);
                 $data['user']['id'] = $user->id;
                 $data['user']['bet'] = $balance->bet;
                 $data['user']['bonus'] = $balance->bonus;
                 $data['user']['auction_bet'] = $bid->sum('bet');
                 $data['user']['auction_bonus'] = $bid->sum('bonus');
                 $data['user']['full_price'] = self::moneyFormat($this->full_price($user->id), true);
-                $data['user']['auto_bid'] = $autoBid ? $autoBid->count : null;
+                $data['user']['auto_bid'] = !is_null($autoBid) ? $autoBid->count : null;
             }
             if (!is_null($last)) {
                 $data['auction']['id'] = $last->auction_id;

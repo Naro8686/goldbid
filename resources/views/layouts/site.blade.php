@@ -58,14 +58,14 @@
                                 </p>
                                 <p>
                                     <label>Введите пароль
-                                        <input type="password" name="password" autocomplete="new-password"
+                                        <input type="password" name="password" autocomplete="off"
                                                placeholder="Не менее 8 символов">
                                     </label>
                                 </p>
                                 <p>
                                     <label>Повторите пароль
                                         <input id="password-confirm" type="password" name="password_confirmation"
-                                               autocomplete="new-password">
+                                               autocomplete="off">
                                     </label>
                                 </p>
 
@@ -122,7 +122,7 @@
                                 </p>
                                 <p>
                                     <label>Введите Пароль
-                                        <input type="password" name="password">
+                                        <input type="password" name="password" autocomplete="off">
                                     </label>
                                 </p>
                                 <p class="recovery"><a style="color: #494949; font-size: 14px;"

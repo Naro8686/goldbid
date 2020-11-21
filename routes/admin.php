@@ -16,9 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['as' => 'admin.'], function () {
     Route::get('/', 'AdminController@dashboard')->name('dashboard');
-    Route::resource('auctions', 'AuctionController')->only([
-        'index', 'destroy', 'edit','show'
-    ]);
+    Route::resource('auctions', 'AuctionController')->only(['destroy', 'edit','show']);
     Route::match(['GET', 'POST'], '/profile', 'AdminController@adminProfileChange')->name('profile');
     Route::post('products/add-group', 'ProductController@addGroup')->name('products.add_group');
     Route::get('products/{id}/duplicate', 'ProductController@duplicate')->name('products.duplicate');

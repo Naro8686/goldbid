@@ -42,10 +42,9 @@ class HomeController extends Controller
     {
         $sliders = Slider::all();
         if ($request->ajax()) {
-            $auctions = Auction::auctionsForHomePage();
-            $error = null;
-            $html = null;
+            $html = $error = null;
             try {
+                $auctions = Auction::auctionsForHomePage();
                 $html = view('site.include.auctions', ['auctions' => $auctions])->render();
             } catch (\Throwable $e) {
                 $error = $e->getMessage();

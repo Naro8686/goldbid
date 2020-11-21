@@ -455,7 +455,12 @@ table.personal__info td {
 
 .disabled {
     opacity: 0.5;
+    cursor: not-allowed !important;
 }
+
+/*.disabled:hover {*/
+/*    cursor: not-allowed !important;*/
+/*}*/
 
 small.is-invalid {
     color: red !important;

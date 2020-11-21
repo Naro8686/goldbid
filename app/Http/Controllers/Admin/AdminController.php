@@ -37,11 +37,12 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        $auctions = Auction::groupBy(['auctions.id','bidResults.bet','bidResults.bonus','bidResults.bot'])
-            ->leftJoinSub("SELECT `bids`.`auction_id`, SUM(IF(`bids`.`is_bot` = 1, 1, 0)) AS bot, SUM(IF(`bids`.`is_bot` = 0,`bids`.`bet`,0)) AS 'bet', SUM(IF(`bids`.`is_bot` = 0,`bids`.`bonus`,0)) AS 'bonus' FROM `bids` GROUP BY `bids`.auction_id", 'bidResults', 'auctions.id', '=', 'bidResults.auction_id')
-            ->selectRaw('auctions.*, IFNULL(bidResults.bet,0) AS bet, IFNULL(bidResults.bonus,0) AS bonus, IFNULL(bidResults.bot,0) AS bot');
+
         if ($request->ajax()) {
             try {
+                $auctions = Auction::groupBy(['auctions.id','bidResults.bet','bidResults.bonus','bidResults.bot'])
+                    ->leftJoinSub("SELECT `bids`.`auction_id`, SUM(IF(`bids`.`is_bot` = 1, 1, 0)) AS bot, SUM(IF(`bids`.`is_bot` = 0,`bids`.`bet`,0)) AS 'bet', SUM(IF(`bids`.`is_bot` = 0,`bids`.`bonus`,0)) AS 'bonus' FROM `bids` GROUP BY `bids`.auction_id", 'bidResults', 'auctions.id', '=', 'bidResults.auction_id')
+                    ->selectRaw('auctions.*, IFNULL(bidResults.bet,0) AS bet, IFNULL(bidResults.bonus,0) AS bonus, IFNULL(bidResults.bot,0) AS bot');
                 return datatables()->of($auctions)->editColumn('img_1', function ($auction) {
                     $img = asset($auction['img_1']);
                     return "<img style='min-width: 70px' class='w-100 img-fluid img-thumbnail' src='{$img}' alt='{$auction['alt_1']}'>";

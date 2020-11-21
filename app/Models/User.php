@@ -219,10 +219,11 @@ class User extends Authenticatable
     {
         $users = User::where('is_admin', false);
         return collect([
-            'count' => $users->count(),
-            'active' => Bid::whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count(),
-            'banned' => $users->where('has_ban', true)->count(),
-            'online' => $users->where('is_online', '>=', now("Europe/Moscow"))->count()
+            'count' => $users->count('id'),
+            'active' => Bid::whereIn('user_id', $users->pluck('id'))->distinct('user_id')->count('id'),
+            'banned' => $users->where('has_ban', true)->count('id'),
+            'online' => User::where('is_admin', false)->where('is_online', '>=', Carbon::now("Europe/Moscow"))->count('id'),
+            'sql' => $users->toSql()
         ]);
     }
 
@@ -277,14 +278,16 @@ class User extends Authenticatable
     }
 
     /**
-     * @return $this
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|mixed
      */
     public function balance()
     {
-        $balanceHistory = $this->balanceHistory;
-        $this->bet = (int)($balanceHistory->where('type', Balance::PLUS)->sum('bet') - $balanceHistory->where('type', Balance::MINUS)->sum('bet'));
-        $this->bonus = (int)($balanceHistory->where('type', Balance::PLUS)->sum('bonus') - $balanceHistory->where('type', Balance::MINUS)->sum('bonus'));
-        return $this;
+        return $this->balanceHistory()
+            ->selectRaw("`balances`.`user_id`, CAST((SUM(IF(`balances`.`type` = " . Balance::PLUS . ", `balances`.`bet`, 0)) - SUM(IF(`balances`.`type` = " . Balance::MINUS . ", `balances`.`bet`, 0))) AS UNSIGNED) AS 'bet', CAST((SUM(IF(`balances`.`type` = " . Balance::PLUS . ", `balances`.`bonus`, 0)) - SUM(IF(`balances`.`type` = " . Balance::MINUS . ", `balances`.`bonus`, 0))) AS UNSIGNED) AS 'bonus'")
+            ->groupBy(['balances.user_id'])
+            ->firstOr(function () {
+                return (object)['user_id' => $this->id, 'bet' => 0, 'bonus' => 0];
+            });
     }
 
     public function subscribe()
@@ -339,7 +342,7 @@ class User extends Authenticatable
         $data = array_filter([
             $this->fname, $this->lname, $this->mname,
             $this->phone, $this->postcode, $this->region,
-            $this->country,$this->city, $this->street,
+            $this->country, $this->city, $this->street,
             $this->gender, $this->birthday, $this->email_code_verified,
         ], static function ($var) {
             return $var === null;

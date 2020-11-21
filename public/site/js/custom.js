@@ -32,8 +32,9 @@ $(document).ready(function () {
         });
     });
 });
-$(document).on('click', '.btn.active,.inf__active button', function (e) {
-    let auction_id = $(this).closest('div[data-auction-id]').attr('data-auction-id');
+$(document).on('click', '.btn.active > button:not(.disabled),.inf__active > button:not(.disabled)', function (e) {
+    let parent = $(this).closest('div[data-auction-id]');
+    let auction_id = parent.attr('data-auction-id');
     if (auction_id)
         $.get(`${URL}/bet/${auction_id}`, (data) => {
             if (data) $('.response').empty().html(data);
@@ -132,21 +133,34 @@ function copyToClipboard(elem) {
     return succeed;
 }
 
+function preload() {
+    let preload = document.createElement('div');
+    let loader = document.createElement('div');
+    let div = document.createElement('div');
+    preload.className = 'preload__container';
+    loader.className = 'loader';
+    loader.appendChild(div);
+    preload.appendChild(loader);
+    $('#home_page').empty().html(preload);
+}
+
 function loadAuctions(page) {
+    let container = $("#home_page");
     if (isNaN(page) || page <= 0) return false;
     $.ajax({
         url: `?page=${page}`,
         type: "GET",
-        cache:false,
-        datatype: "html"
-    }).done(function (data) {
+        cache: false,
+        datatype: "html",
+        beforeSend: preload,
+    }).done((data) => {
         if (!data.error && data.html) {
             let html = $(data.html);
-            $("#home_page").empty().html(html);
+            container.empty().html(html);
             location.hash = page;
             countdown(html);
         }
-    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+    }).fail((jqXHR, ajaxOptions, thrownError) => {
         console.log(jqXHR, ajaxOptions, thrownError);
     });
 }
