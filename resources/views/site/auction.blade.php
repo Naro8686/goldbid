@@ -32,6 +32,14 @@
                         csrf: "{{csrf_token()}}",
                     },
                 });
+                $('.items > .item').on('click', function () {
+                    $('.items>div:not(.item-text)').removeClass('active');
+                    $('.items>div.item-text>div').hide();
+                    let btn = $(this);
+                    let text = $(`#a${btn.attr('id')}`);
+                    btn.addClass('active');
+                    text.show();
+                })
             });
         </script>
     @endpush

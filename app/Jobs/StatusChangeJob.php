@@ -6,7 +6,6 @@ use App\Events\StatusChangeEvent;
 use App\Mail\MailingSendMail;
 use App\Models\Auction\Auction;
 use App\Models\Balance;
-use App\Models\Bots\AuctionBot;
 use App\Models\Mailing;
 use App\Models\User;
 use Carbon\Carbon;
