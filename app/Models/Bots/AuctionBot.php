@@ -4,6 +4,7 @@ namespace App\Models\Bots;
 
 use App\Models\Auction\Auction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 /**
  * App\Models\Bots\AuctionBot
@@ -76,7 +77,7 @@ class AuctionBot extends Model
         return is_null($number) ? $this->bot->number : $this->bot->number === $number;
     }
 
-    public function timeToBet()
+    public function timeToBet(int $subSec = 0)
     {
         $stepTime = $this->auction->step_time();
         if ($this->time_to_bet === '0') {
@@ -84,14 +85,18 @@ class AuctionBot extends Model
             $max = $stepTime - 1;
         } else {
             list($max, $min) = array_pad(str_replace(' ', '', explode('-', $this->time_to_bet)), 2, null);
+            $avg = $max - $min;
             if ($max >= $stepTime) $max = $stepTime - 1;
+            if ($min >= $max) $min = (($max >= $avg) ? ($max - $avg) : 0);
         }
         $rand = rand($min, $max);
-        return ($stepTime > $rand ? ($stepTime - $rand) : ($stepTime - 1));
+        $time = ($stepTime >= $rand ? ($stepTime - $rand) : ($stepTime - 1));
+        return $time < 1 ? 0 : ($time - $subSec);
     }
 
     public function botRefresh()
     {
+        $refreshed = false;
         if ($this->auction->bots->isNotEmpty()) {
             $names = $this->auction->bots->pluck('name');
             $random = BotName::whereNotIn('name', $names)->inRandomOrder()->first(['name']);
@@ -99,17 +104,17 @@ class AuctionBot extends Model
                 $data['name'] = $random->name;
                 if ($this->number(1)) {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->change_name)), 2, null);
-                    $data['change_name'] = rand($min, $max);
+                    $data['change_name'] = rand($min, $max) < 1 ? 1 : rand($min, $max);
                 } else {
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves)), 2, null);
-                    $data['num_moves'] = rand($min, $max);
+                    $data['num_moves'] = rand($min, $max) < 1 ? 1 : rand($min, $max);
                     list($min, $max) = array_pad(str_replace(' ', '', explode('-', $this->bot->num_moves_other_bot)), 2, null);
-                    $data['num_moves_other_bot'] = rand($min, $max);
+                    $data['num_moves_other_bot'] = rand($min, $max) < 1 ? 1 : rand($min, $max);
                 }
-                $this->update($data);
-            }
+                $refreshed = $this->update($data);
+            } else Log::info('error in refresh bot data AuctionID = ' . $this->auction->id);
         }
-        return $this;
+        return $refreshed ? $this : null;
     }
 
 

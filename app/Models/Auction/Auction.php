@@ -141,10 +141,23 @@ class Auction extends Model
      */
     public function jobExists()
     {
-        $botJob = $this->bots()->where('auction_bots.status', AuctionBot::WORKED)->take(1)->exists();
-        $autoBidJob = $this->autoBid()->where('auto_bids.status', AutoBid::WORKED)->take(1)->exists();
-        return ($botJob || $autoBidJob);
+        return $this->whereHas('bots', function ($query) {
+            $query->where('auction_bots.auction_id', '=', $this->id)->where('auction_bots.status', '=', AuctionBot::WORKED);
+        })->orWhereHas('autoBid', function ($query) {
+            $query->where('auto_bids.auction_id', '=', $this->id)->where('auto_bids.status', '=', AutoBid::WORKED);
+        })->exists();
     }
+
+//    public function queueComputation()
+//    {
+//        return $this->whereHas('bid')->with(['bots' => function ($query) {
+//            $query->where('auction_bots.status', '=', AuctionBot::PENDING);
+//        }, 'autoBid' => function ($query) {
+//            $query->where('auto_bids.status', '=', AutoBid::PENDING);
+//        }, 'bid' => function ($query) {
+//            $query->where('bids.bot_num', '=', 'bots.bot_id');
+//        }]);
+//    }
 
     public function product()
     {
@@ -172,19 +185,28 @@ class Auction extends Model
         return $this->hasMany(AutoBid::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function bots()
     {
         return $this->hasMany(AuctionBot::class);
     }
 
-    public function botNum(int $num)
+
+    /**
+     * @param int $num
+     * @param string[] $select
+     * @return \Illuminate\Database\Eloquent\Builder|Model|\Illuminate\Database\Eloquent\Relations\HasMany|AuctionBot|null
+     */
+    public function botNum(int $num, $select = ['*'])
     {
         return $this->bots()->whereHas('bot', function ($query) use ($num) {
             $query->where('number', '=', $num);
-        })->first();
+        })->first($select);
     }
 
-    public function shutdownBots()
+    public function shutdownBots(): bool
     {
         $count = 0;
         $stopBotOne = (int)$this->bot_shutdown_count;
@@ -212,8 +234,8 @@ class Auction extends Model
      */
     public function lastBid($nickname)
     {
-        $bid = $this->bid()->where('bids.nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
-        return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow");
+        $bid = $this->bid()->where('nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
+        return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow")->subSeconds($this->step_time());
     }
 
     public function userOrder()
@@ -253,7 +275,7 @@ class Auction extends Model
 
     public function winner()
     {
-        return ($this->bid()->orderByDesc('bids.id')->take(1)->first() ?? new Bid);
+        return ($this->bid()->orderByDesc('id')->take(1)->first() ?? new Bid);
     }
 
     public function status()
@@ -263,10 +285,10 @@ class Auction extends Model
         if ((int)$this->status === self::STATUS_ERROR) $text = 'Ошибка';
         if ((int)$this->status === self::STATUS_FINISHED) {
             $bid = $this->bid()
-                ->where('bids.win', '=', true)
-                ->orderByDesc('bids.id')
+                ->where('win', '=', true)
+                ->orderByDesc('id')
                 ->take(1)
-                ->first(['bids.is_bot']);
+                ->first(['is_bot']);
             if (!is_null($bid)) $text = "Победил " . (($bid->is_bot) ? 'бот' : 'игрок');
             else $text = "Не состоялся";
         }
@@ -411,8 +433,8 @@ class Auction extends Model
                 ->first();
             $ordered = $this->userOrder()
                 ->where([
-                    ['orders.user_id', '=', $userID],
-                    ['orders.status', '=', Order::SUCCESS]
+                    ['user_id', '=', $userID],
+                    ['status', '=', Order::SUCCESS]
                 ])
                 ->take(1)
                 ->exists();
@@ -490,14 +512,27 @@ class Auction extends Model
     public static function auctionPage($id)
     {
         $auction = self::where('active', '=', true)->findOrFail($id);
-        $data = $auction->transformAuction(Auth::id());
+        $data = $auction->statusChangeData(Auth::id());
         $data['desc'] = $auction->desc;
         $data['specify'] = $auction->specify;
         $data['terms'] = $auction->terms;
-        $data['bids'] = $auction->bid()->orderByDesc('bids.id')->take(5)->get();
+        return $data;
+    }
+
+    public function statusChangeData($userID = null)
+    {
+        $data = $this->transformAuction($userID);
+        $data['bids'] = $this->bid()->orderByDesc('bids.id')
+            ->take(5)
+            ->get(['nickname', 'price', 'created_at'])->transform(function ($bid) {
+                $res['nickname'] = $bid->nickname;
+                $res['created_at'] = $bid->created_at->format('H:i:s');
+                $res['price'] = self::moneyFormat($bid->price, true);
+                return $res;
+            });
         $data['bet'] = $data['bonus'] = 0;
-        if (Auth::check() && $id && $user = Auth::user()) {
-            $bid = $user->bid()->where('auction_id', $id);
+        if (!is_null($userID) && $user = User::find($userID)) {
+            $bid = $user->bid()->where('auction_id', $this->id);
             $data['bet'] = $bid->sum('bet');
             $data['bonus'] = $bid->sum('bonus');
         }

@@ -35,8 +35,8 @@ class AuctionController extends Controller
     public function winInfo($id, Request $request)
     {
         $data = [];
-        $user = User::query()->findOrFail(Auth::id());
-        $auction = Auction::auctionPage($id);
+        $user = User::findOrFail(Auth::id());
+        $auction = Auction::findOrFail($id)->statusChangeData($user->id);
         if (!$auction['my_win'] || $auction['error']) return abort(403);
         $data['id'] = $auction['id'];
         $data['image'] = $auction['images'][0]['img'];

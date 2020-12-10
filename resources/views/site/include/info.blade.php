@@ -66,7 +66,7 @@
             </button>
         </form>
     @endif
-    @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED)
+    @if($auction['status'] === \App\Models\Auction\Auction::STATUS_FINISHED || $auction['status'] === \App\Models\Auction\Auction::STATUS_ERROR)
         @if(is_null($auction['winner']))
             <p class="winner">Не состоялся</p>
         @else
@@ -120,13 +120,12 @@
             <tbody>
             @foreach($auction['bids'] as $bid)
                 <tr>
-                    <td>{{\App\Models\Auction\Auction::moneyFormat($bid['price'],true)}}</td>
+                    <td>{{$bid['price']}}</td>
                     <td>{{$bid['nickname']}}</td>
-                    <td>{{$bid['created_at']->format('H:i:s')}}</td>
+                    <td>{{$bid['created_at']}}</td>
                 </tr>
             @endforeach
             </tbody>
         </table>
-
     </div>
 @endif

@@ -1,6 +1,5 @@
 function countdown(element, timer = null) {
     element.find('[data-countdown]').each(function (e, v) {
-
         let __this = $(this), seconds = ((timer !== null) ? timer : __this.data('countdown'));
         let time = new Date();
         let countdown = time.setSeconds(time.getSeconds() + seconds);
@@ -14,101 +13,46 @@ function countdown(element, timer = null) {
                     __this.html(event.strftime('%M:%S'));
             })
             .on('finish.countdown', () => {
-                //let auctionID = __this.closest('.card').data('auctionId');
                 if (__this.hasClass('to__start')) __this.html('00:00:00');
                 else __this.html('00:00');
-                //arr.push(auctionID);
-                //console.log(arr);
-                //ChangeStatus(auctionID);
-
-                //console.log(countdown,time);
-                //ChangeStatus(__this.closest('.card').data('auctionId')).then(r => console.log(r));
-                //console.log('old', __this.data('countdown'), __this.closest('.card').data('auctionId'));
-                // if ($this.data('countdown') === 0) {
-                //     if ($this.hasClass('to__start')) $this.html('00:00:00');
-                //     else $this.html('00:00');
-                //     setTimeout(function () {
-                //         if (!$this.hasClass('to__start') && $this.data('countdown') === 0) {
-                //             let card = $this.closest('.card');
-                //             let homePage = card.closest('#home_page').length
-                //             let winner = card.find('p.winner');
-                //             if (homePage && winner.text().length === 0) {
-                //                 let info = card.find('div.info');
-                //                 let favorites = card.find('div.favorites ');
-                //                 let div = card.find('div.btn.active');
-                //                 let btn = div.children('button');
-                //                 let text = btn.prev().text();
-                //                 $('<div class="lenta not__win">Не состоялся</div>').insertAfter(info);
-                //                 div.removeClass('active').addClass('not__win');
-                //                 btn.text(text)
-                //                 favorites.remove();
-                //                 card.removeClass('active');
-                //                 $this.remove();
-                //             }
-                //         }
-                //     }, 1000);
-                // }
             });
     });
 }
 
-function ChangeStatus(id) {
-    let host = `${window.location.protocol}//${window.location.hostname}`
-    let url = ((typeof id === 'number') ? `${host}/change-status/${id}` : `${host}/change-status`);
-    let home_page = $('#home_page');
-    let auction_page = $(`#auction_page[data-auction-id="${id}"]`);
-    $.ajax({
-        url: url,
-        headers: {
-            'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
-        },
-        type: "POST",
-        cache: false,
-        datatype: "json",
-        //async: true,
-    }).done(function (data) {
+Echo.channel('goldbid_database_status-change')
+    .listen('StatusChangeEvent', (data) => {
         if (Object.keys(data).length) {
+            let home_page = $(`#home_page [data-auction-id="${data.id}"]`);
+            let auction_page = $(`#auction_page[data-auction-id="${data.id}"]`);
+            let user = $(`#username`);
+            let full_price = $(`.buy__now_price`);
+            data.my_win = ((data.status === 3 || data.status === 4) && user.length && data.winner !== null) ? ($.trim(user.text()) === data.winner) : false;
+            data.error = (data.my_win && data.status === 4);
+            data.favorite = (home_page.find('.favorites>span.active').length !== 0);
+            data.bet = auction_page.find('.info__my__bid span.bet').length ? parseInt(auction_page.find('.info__my__bid span.bet').text()) : data.bet;
+            data.bonus = auction_page.find('.info__my__bid span.bonus').length ? parseInt(auction_page.find('.info__my__bid span.bonus').text()) : data.bonus;
+            data.full_price = (full_price.length && !data.my_win) ? $.trim(full_price.text()).replace(/ руб/gi, '') : data.full_price;
+
             if (home_page.length) {
-                let auction = home_page.find(`[data-auction-id="${id}"]`);
-                if (data.home_page) {
-                    let html = $(data.home_page);
-                    auction.replaceWith(html);
-                    countdown(html);
-                } else auction.remove();
+                new Vue({
+                    el: `[data-auction-id="${data.id}"]`,
+                    template: '<auction-home v-bind:auction="auction"/>',
+                    data: {
+                        auction: data
+                    },
+                });
             }
             if (auction_page.length) {
-                if (data.auction_page) {
-                    let html = $(data.auction_page);
-                    auction_page.empty().html(html);
-                    countdown(html);
-                } else auction_page.remove();
+                new Vue({
+                    el: '.card',
+                    template: '<auction-page v-bind:auction="auction" v-bind:csrf="csrf"/>',
+                    data: {
+                        auction: data,
+                        csrf: $('meta[name="csrf-token"]').attr('content')
+                    },
+                });
             }
-        }
-    }).fail(function (xhr) {
-        let data = xhr.responseJSON;
-        if (xhr.status === 403 && Object.keys(data).length) {
-            if (auction_page.length && data.auction_page) {
-                let parent = auction_page.closest('div.card');
-                parent.find('.slider-nav').remove();
-                parent.find('.slider-for').html(`<img src='${URL}/site/img/settings/error.jpg' width='100%' alt='error'>`);
-                auction_page.css("background-color", "#FF001A");
-                let html = $(data.auction_page);
-                auction_page.empty().html(html);
-            }
-            if (home_page.length && data.home_page) {
-                let html = $(data.home_page);
-                let auction = home_page.find(`[data-auction-id="${id}"]`);
-                if (id !== null && auction.length) auction.replaceWith(html);
-                else home_page.empty().html(html);
-            }
-        }
-    });
-}
 
-Echo.channel('goldbid_database_status-change')
-    .listen('StatusChangeEvent', (e) => {
-        if (Object.keys(e.data).length && e.data.status_change && $(`[data-auction-id="${e.data.auction_id}"]`).length) {
-            ChangeStatus((e.data.auction_id));
         }
     });
 

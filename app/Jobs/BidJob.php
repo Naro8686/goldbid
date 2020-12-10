@@ -4,13 +4,14 @@ namespace App\Jobs;
 
 use App\Events\BetEvent;
 use App\Models\Auction\Auction;
+use App\Models\Auction\AutoBid;
 use App\Models\Auction\Order;
 use App\Models\Balance;
+use App\Models\Bots\AuctionBot;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-
-//use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -23,6 +24,9 @@ class BidJob
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     const BID_COUNT = 1;
+    /**
+     * @var string
+     */
     public $bid_type = 'bet';
     /**
      * @var User|null
@@ -65,13 +69,15 @@ class BidJob
      */
     public function handle()
     {
-        try {
+        if (!is_null($this->auction)) {
             $update = false;
-            DB::beginTransaction();
-            $auction = Auction::lockForUpdate()->find($this->auction->id);
-            if (!is_null($auction) && $auction->status === Auction::STATUS_ACTIVE && !$auction->finished()) {
-
-                if ($auction->winner()->nickname !== $this->nickname && $auction->bid()->where('bids.price', $auction->new_price())->doesntExist()) {
+            $auction = $this->auction->refresh();
+            $winner = $auction->winner()->refresh();
+            $bid = $auction->bid();
+            try {
+                DB::beginTransaction();
+                $auction = Auction::lockForUpdate()->find($this->auction->id);
+                if ($winner->nickname !== $this->nickname && $auction->status === Auction::STATUS_ACTIVE && $bid->where('bids.price', $auction->new_price())->doesntExist()) {
                     $data = [
                         'price' => $auction->new_price(),
                         'title' => $auction->title,
@@ -79,6 +85,7 @@ class BidJob
                         'is_bot' => is_null($this->user),
                         'user_id' => (is_null($this->user) ? null : $this->user->id)
                     ];
+
                     if (!$data['is_bot']) {
                         $user = $this->user;
                         $balance = $user->balance();
@@ -86,10 +93,10 @@ class BidJob
                             ->where('orders.auction_id', '=', $auction->id)
                             ->where('orders.status', '=', Order::SUCCESS)
                             ->doesntExist();
-                        if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered && ($auction->full_price($user->id) > 1)) {
+                        if ((int)($balance->bet + $balance->bonus) >= self::BID_COUNT && $ordered) {
                             $this->bid_type = $balance->bet > 0 ? 'bet' : 'bonus';
                             $data[$this->bid_type] = self::BID_COUNT;
-                            $this->user->balanceHistory()->create([
+                            $user->balanceHistory()->create([
                                 $this->bid_type => self::BID_COUNT,
                                 'type' => Balance::MINUS
                             ]);
@@ -104,13 +111,19 @@ class BidJob
                         $auction->bid()->create($data);
                     }
                 }
+                if (!$update) $auction->touch();
+                DB::commit();
+            } catch (Throwable $exception) {
+                DB::rollBack();
+                Log::error('Bid Job ' . $exception->getMessage());
             }
-            if (!$update) $auction->touch();
-            else event(new BetEvent($auction));
-            DB::commit();
-        } catch (Throwable $exception) {
-            DB::rollBack();
-            Log::error('Bid Job ' . $exception->getMessage());
+            if (is_null($this->user) && !is_null($this->botNum)) {
+                $auction->bots()->where('status', AuctionBot::WORKED)->update(['status' => AuctionBot::PENDING]);
+            }
+            if (!is_null($this->user) && $auction->autoBid()->where('auto_bids.user_id', $this->user->id)->exists()) {
+                $auction->autoBid()->where('status', '=', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
+            }
+            event(new BetEvent($auction));
         }
     }
 }

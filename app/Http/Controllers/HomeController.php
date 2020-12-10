@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Mail\FeedbackSendMail;
 use App\Models\Auction\Auction;
-use App\Models\Auction\Order;
 use App\Models\Pages\Howitwork;
 use App\Mail\ReviewSendMail;
 use App\Models\Pages\Package;
@@ -49,7 +48,7 @@ class HomeController extends Controller
             } catch (\Throwable $e) {
                 $error = $e->getMessage();
             }
-            return response()->json(['html' => $html, 'error' => $error], 200);
+            return response()->json(['html' => $html, 'error' => $error]);
         }
         return view(self::DIR . 'index', compact('sliders'));
     }

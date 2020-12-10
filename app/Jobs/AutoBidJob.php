@@ -7,12 +7,12 @@ use App\Models\Auction\AutoBid;
 use App\Models\Auction\Bid;
 use App\Models\Auction\Order;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -31,6 +31,13 @@ class AutoBidJob implements ShouldQueue
         $this->autoBid = $autoBid;
     }
 
+    public function fail($exception = null)
+    {
+        $this->autoBid->update(['status' => AutoBid::PENDING]);
+        event(new BetEvent($this->autoBid->auction->refresh()));
+        if (!is_null($exception)) Log::info('AutoBidJob fail ' . $exception);
+    }
+
     /**
      * Execute the job.
      *
@@ -39,37 +46,25 @@ class AutoBidJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($autoBid = $this->autoBid) {
-            $user = $autoBid->user;
-            $auction = $autoBid->auction;
-            try {
-                $autoBid->bid_time = Carbon::now("Europe/Moscow");
-                DB::beginTransaction();
-                if (!is_null($auction) && !is_null($user)) {
-                    $balance = $user->balance();
-                    $notOrder = $user->auctionOrder()
-                        ->where('auction_id', '=', $auction->id)
-                        ->where('status', '=', Order::SUCCESS)
-                        ->doesntExist();
-                    $auction->autoBid()->where('status', '=', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
-                    if (($balance->bet + $balance->bonus) >= Bid::COUNT
-                        && $notOrder
-                        && !$auction->finished()
-                        && $auction->winner()->nickname !== $user->nickname
-                        && $autoBid->count > 0) {
-                        $autoBid->count -= 1;
-                        if ($autoBid->save(['timestamp' => false])) BidJob::dispatch($auction, $user->nickname, $user);
-                    } else event(new BetEvent($auction));
-                }
-                DB::commit();
-            } catch (Throwable $exception) {
-                DB::rollBack();
-                if (!is_null($auction)) {
-                    $auction->autoBid()->where('status', '=', AutoBid::WORKED)->update(['status' => AutoBid::PENDING]);
-                    event(new BetEvent($auction));
-                }
-                Log::error('AutoBidJob ' . $exception->getMessage());
+        try {
+            $autoBid = $this->autoBid->refresh();
+            $user = $autoBid->user->refresh();
+            $auction = $autoBid->auction->refresh();
+            $balance = $user->balance();
+            $notOrder = $user->auctionOrder()
+                ->where('auction_id', '=', $autoBid->auction_id)
+                ->where('status', '=', Order::SUCCESS)
+                ->doesntExist();
+            if ((($balance->bet + $balance->bonus) >= Bid::COUNT) && $notOrder && $autoBid->count > 0) {
+                $error = !($autoBid->update(['bid_time' => Carbon::now("Europe/Moscow"), 'status' => AutoBid::PENDING, 'count' => DB::raw('count - 1')]));
+            } else {
+                $error = true;
+                $autoBid->delete();
             }
+            $error ? $this->fail('fail') : BidJob::dispatchNow($auction, $user->nickname, $user);
+        } catch (Throwable $exception) {
+            $this->fail($exception->getMessage());
         }
     }
+
 }

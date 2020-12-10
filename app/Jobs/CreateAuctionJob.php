@@ -85,7 +85,7 @@ class  CreateAuctionJob implements ShouldQueue
             ];
             /** @var Auction $new */
             $new = $auction->create($data);
-            Page::query()->where('slug', $new->id)->firstOrCreate([
+            Page::where('slug', $new->id)->firstOrCreate([
                 'slug' => $new->id,
                 'title' => $new->title,
             ]);
@@ -97,7 +97,7 @@ class  CreateAuctionJob implements ShouldQueue
 
     private function createBots(Auction $new)
     {
-        $bots = Bot::query()->where('is_active', true)->get();
+        $bots = Bot::where('is_active', true)->get();
         foreach ($bots as $bot) {
             $names = [];
             foreach ($new->bots()->get(['name']) as $name) $names[] = $name->name;

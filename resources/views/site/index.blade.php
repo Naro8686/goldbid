@@ -18,7 +18,6 @@
 @section('content')
     @include('site.include.svg_loader')
     <div class="auction container">
-        <div class="favorite"></div>
         <div id="home_page" class="delete-margin">
             {{--            @include('site.include.auctions')--}}
         </div>

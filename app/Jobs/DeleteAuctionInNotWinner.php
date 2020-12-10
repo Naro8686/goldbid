@@ -46,9 +46,8 @@ class DeleteAuctionInNotWinner implements ShouldQueue
                 public_path($this->auction->img_4),
             ];
             foreach ($images as $image) if (is_file($image)) @unlink($image);
-            Page::query()->where('slug', $this->auction->id)->delete();
-            if ($this->auction->bid()->exists())
-                $this->auction->bid()->where('is_bot',true)->delete();
+            Page::where('slug', $this->auction->id)->delete();
+            $this->auction->bid()->where('is_bot', true)->delete();
             $this->auction->delete();
         } catch (Exception $e) {
             Log::error('delete_auction_job' . $e->getMessage());

@@ -37,14 +37,14 @@ class DuplicateBidJob implements ShouldQueue
     public function handle()
     {
         try {
-            if ($auction = $this->auction) {
-                DB::beginTransaction();
+            if ($auction = $this->auction->refresh()) {
+                //DB::beginTransaction();
                 $duplicates = DB::table('bids')
                     ->select('id', DB::raw('COUNT(*) as `duplicates`'))
                     ->where('auction_id', $auction->id)
                     ->groupBy('price')
                     ->having('duplicates', '>', 1)
-                    ->latest()->first();
+                    ->orderByDesc('bids.id')->first();
                 if ($duplicates) {
                     $bid = Bid::find($duplicates->id);
                     if ($user = User::find($bid->user_id)) {
@@ -55,12 +55,13 @@ class DuplicateBidJob implements ShouldQueue
                         ]);
                     }
                     $bid->delete();
+                    Log::warning($bid->price);
                 }
-                DB::commit();
+                //DB::commit();
             }
         } catch (Throwable $exception) {
-            Log::warning('Bet duplicate delete ' . $exception->getMessage());
-            DB::rollBack();
+            Log::warning('Bet duplicate delete '.$exception->getMessage());
+            //DB::rollBack();
         }
     }
 }

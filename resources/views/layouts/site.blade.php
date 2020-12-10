@@ -144,7 +144,7 @@
                     </div>
                     <div class="accaunt">
                         <a href="{{route('profile.index')}}">
-                            <p class="username">{{auth()->user()->nickname}}</p>
+                            <p id="username" class="username">{{auth()->user()->nickname}}</p>
                             <div id="avatar" class="avatar"
                                  style="background-image: url({{asset(auth()->user()->avatar())}}); background-position: center; background-size: cover; border-radius: 50%;"></div>
                         </a>

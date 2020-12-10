@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Events\BetEvent;
 use App\Jobs\AutoBidJob;
+use App\Jobs\DeleteAuctionInNotWinner;
+use App\Listeners\BetListener;
 use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
 use App\Models\Auction\Order;
+use App\Models\Bots\AuctionBot;
 use App\Settings\Setting;
 use Carbon\Carbon;
 use DB;
@@ -39,19 +42,20 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
-        //dd(Auction::find($id)->bid()->where('bot_num',1)->count());
+
         if (Auth::check()) {
             $closeAuction = Auction::whereHas('bid', function ($query) {
                 $query->where('bids.user_id', Auth::id());
-            })
-                ->where('auctions.id', $id)
+            })->where('auctions.id', $id)
                 ->where('auctions.active', false)
                 ->exists();
             if ($closeAuction)
                 return redirect()->back()->with('message', 'Аукцион закрыт по истечение отведённого времени ');
         }
         $auction = Auction::auctionPage($id);
-        return view('site.auction', compact('auction'));
+        return response()
+            ->view('site.auction', compact('auction'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 
     /**
@@ -60,7 +64,7 @@ class AuctionController extends Controller
      */
     public function addFavorite($id)
     {
-        $auction = Auction::query()->findOrFail($id);
+        $auction = Auction::findOrFail($id);
         $favorite = $auction->userFavorites();
         $user_id = Auth::id();
         if ($favorite->where('id', $user_id)->exists())
@@ -87,21 +91,22 @@ class AuctionController extends Controller
         $count = (int)$request['count'];
         try {
             DB::beginTransaction();
-            if ($first = $auction->autoBid()->where('auto_bids.user_id', $user->id)->first()) {
+            if ($first = $auction->autoBid()->where('user_id', $user->id)->first()) {
                 if ($count === 0) {
                     $first->delete();
                     event(new BetEvent($auction));
-                } else $first->update(['auto_bids.count' => $count]);
+                } else $first->update(['count' => $count]);
             } elseif ((bool)$count) {
-                $status = (int)($auction->autoBid()->where('auto_bids.status', AutoBid::WORKED)->doesntExist());
+                //$status = (int)($auction->autoBid()->where('status', AutoBid::WORKED)->doesntExist());
                 $time = Carbon::now("Europe/Moscow");
                 $new = $auction->autoBid()->create([
                     'user_id' => $user->id,
                     'count' => $count,
                     'bid_time' => $time,
-                    'status' => $status
+                    'status' => AutoBid::PENDING
                 ]);
-                AutoBidJob::dispatchIf($new->status === AutoBid::WORKED, $new)->afterResponse();
+                event(new BetEvent($auction));
+                // AutoBidJob::dispatch($new)->delay($time->addSeconds(2));
             }
             DB::commit();
         } catch (Throwable $e) {

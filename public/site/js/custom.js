@@ -10,19 +10,18 @@ $(document).ready(function () {
         autoplaySpeed: 3000
     });
 
-    $('.slider-for').slick({
-        slidesToShow: 1,
-        asNavFor: '.slider-nav',
-        autoplay: true,
-        autoplaySpeed: 5000
-    });
-    $('.slider-nav').slick({
-        slidesToShow: 4,
-        asNavFor: '.slider-for',
-        focusOnSelect: true,
-        //slidesToScroll: 1,
-
-    });
+    // $('.slider-for').slick({
+    //     slidesToShow: 1,
+    //     asNavFor: '.slider-nav',
+    //     autoplay: true,
+    //     autoplaySpeed: 5000
+    // });
+    // $('.slider-nav').slick({
+    //     slidesToShow: 4,
+    //     asNavFor: '.slider-for',
+    //     focusOnSelect: true,
+    //     //slidesToScroll: 1,
+    // });
 
     $('.cookie__btn').on('click', function () {
         let btn = $(this);

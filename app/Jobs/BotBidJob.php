@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -34,6 +35,14 @@ class BotBidJob implements ShouldQueue
         $this->first = $first;
     }
 
+    public function fail($exception = null)
+    {
+        $this->auctionBot->update(['status' => AuctionBot::PENDING]);
+        event(new BetEvent($this->auctionBot->auction->refresh()));
+        if (!is_null($exception)) Log::info('BotBidJob fail ' . $exception);
+    }
+
+
     /**
      * Execute the job.
      *
@@ -42,70 +51,73 @@ class BotBidJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($auctionBot = $this->auctionBot) {
+        if ($auctionBot = $this->auctionBot->refresh()) {
             try {
-                $auction = Auction::find($auctionBot->auction->id);
-                $auction->bots()->where('status', AuctionBot::WORKED)->update(['status' => AuctionBot::PENDING]);
-                if ($this->action($auctionBot, $this->first))
-                    BidJob::dispatch($auction, $auctionBot->name, null, $auctionBot->number());
-                else event(new BetEvent($auction));
+                $auction = $auctionBot->auction;
+                $this->action($auctionBot) ? BidJob::dispatchNow($auction, $auctionBot->name, null, $auctionBot->number()) : $this->fail('fail');
             } catch (Throwable $exception) {
-                Log::error('auctionBotJob ' . $exception->getMessage());
+                $this->fail($exception->getMessage());
             }
         }
     }
 
-    public function action(AuctionBot $auctionBot, $first)
+    /**
+     * @param AuctionBot $auctionBot
+     * @return bool
+     */
+    public function action(AuctionBot $auctionBot): bool
     {
-        if ($auctionBot->auction->winner()->nickname === $auctionBot->name) event(new BetEvent($auctionBot->auction));
         $run = false;
         switch ($auctionBot->number()) {
             case 1:
-                $run = $this->botOne($auctionBot, $first);
-                break;
-            case 3:
+                return $this->botOne($auctionBot);
             case 2:
-                $run = $this->botTwoThree($auctionBot);
-                break;
+            case 3:
+                return $this->botTwoThree($auctionBot);
+            default:
+                return $run;
         }
-        return $run;
     }
 
-    public function botOne(AuctionBot $auctionBot, $first)
+    /**
+     * @param AuctionBot $auctionBot
+     * @return bool
+     */
+    public function botOne(AuctionBot $auctionBot): bool
     {
         $run = false;
         try {
-            if ($auctionBot->auction && (int)$auctionBot->change_name > 0 && (int)$auctionBot->auction->bot_shutdown_count > 0) {
-                if (!$first) {
-                    $run = $auctionBot->minus('change_name');
-                }
-                if ($first && $auctionBot->auction->bid()->doesntExist()) {
-                    $run = $auctionBot->minus('change_name');
-                }
-                if ($run) {
-                    $auctionBot->auction->decrement('bot_shutdown_count');
-                }
+            if ((int)$auctionBot->change_name <= 0) $auctionBot = $auctionBot->botRefresh();
+            if (!is_null($auctionBot) && !is_null($auctionBot->auction) && (int)$auctionBot->change_name > 0 && (int)$auctionBot->auction->bot_shutdown_count > 0) {
+                $auctionBot->change_name -= 1;
+                $auctionBot->auction->bot_shutdown_count -= 1;
+                $run = $auctionBot->push();
             }
         } catch (Throwable $e) {
-            $run = false;
+            $this->fail($e->getMessage());
         }
-        return (bool)$run;
+        return ($run !== false);
     }
 
-    public function botTwoThree(AuctionBot $auctionBot)
+    /**
+     * @param AuctionBot $auctionBot
+     * @return bool
+     */
+    public function botTwoThree(AuctionBot $auctionBot): bool
     {
         $run = false;
         try {
-            if ($auctionBot->num_moves + $auctionBot->num_moves_other_bot > 0) {
-                $key = $auctionBot->num_moves > 0 ? "num_moves" : "num_moves_other_bot";
+            if (((int)$auctionBot->num_moves + (int)$auctionBot->num_moves_other_bot) <= 0) $auctionBot = $auctionBot->botRefresh();
+            if (!is_null($auctionBot)) {
+                $key = ($auctionBot->num_moves > 0 ? "num_moves" : "num_moves_other_bot");
                 if ($auctionBot->$key > 0) {
-                    $auctionBot->$key = $auctionBot->$key - 1;
+                    $auctionBot->$key -= 1;
                     $run = $auctionBot->save();
                 }
             }
         } catch (Throwable $e) {
-            $run = false;
+            $this->fail($e->getMessage());
         }
-        return (bool)$run;
+        return ($run !== false);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Events\StatusChangeEvent;
-use App\Models\Auction\Auction;
+use Throwable;
 use Carbon\Carbon;
+use App\Jobs\StatusChangeJob;
+use App\Models\Auction\Auction;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class StatusChangeCommand extends Command
 {
@@ -44,8 +44,8 @@ class StatusChangeCommand extends Command
     public function handle()
     {
         while (true) {
-            $this->statusChange(Carbon::now("Europe/Moscow"));
             sleep(1);
+            $this->statusChange(Carbon::now("Europe/Moscow"));
         }
     }
 
@@ -88,35 +88,37 @@ class StatusChangeCommand extends Command
     {
         try {
             $ids = $auctions->get()->pluck('id');
-
-            $auctions->update([
+            $updated = $auctions->update([
                 'status' => Auction::STATUS_ACTIVE,
                 'step_time' => DB::raw('NOW() + INTERVAL (`bid_seconds` + 1) SECOND')
             ]);
-
-            $ids->map(function ($id) {
-                event(new StatusChangeEvent(['status_change' => true, 'auction_id' => $id]));
-            });
+            if ($updated) foreach ($ids as $sec => $id) {
+                $this->info("active {$id}");
+                StatusChangeJob::dispatch($id);
+            }
         } catch (Throwable $e) {
             Log::error('status_change_pending ' . $e->getMessage());
         }
     }
 
+    /**
+     * @param $auctions
+     * @throws Throwable
+     */
     private function active($auctions)
     {
         try {
             $ids = $auctions->get()->pluck('id');
-            DB::transaction(function () use ($auctions) {
-                $auctions->lockForUpdate();
-                $auctions->update([
-                    'status' => Auction::STATUS_FINISHED,
-                    'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
-                    'top' => false
-                ]);
-            });
-            $ids->map(function ($id) {
-                event((new StatusChangeEvent(['status_change' => true, 'auction_id' => $id])));
-            });
+            //$auctions->lockForUpdate();
+            $updated = $auctions->update([
+                'status' => Auction::STATUS_FINISHED,
+                'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
+                'top' => false
+            ]);
+            if ($updated) foreach ($ids as $sec => $id) {
+                $this->info("finish {$id}");
+                StatusChangeJob::dispatch($id);
+            }
         } catch (Throwable $e) {
             Log::error('status_change_active_command ' . $e->getMessage());
         }
