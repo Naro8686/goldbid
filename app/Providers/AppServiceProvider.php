@@ -34,9 +34,7 @@ class AppServiceProvider extends ServiceProvider
             return preg_match('/^\S*$/u', $value);
         });
         Queue::looping(function () {
-            while (DB::transactionLevel() > 0) {
-                DB::rollBack();
-            }
+            while (DB::transactionLevel() > 0) DB::rollBack();
         });
     }
 }

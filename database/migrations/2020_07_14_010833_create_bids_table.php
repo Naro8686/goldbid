@@ -17,13 +17,13 @@ class CreateBidsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('auction_id')->index()->nullable();
             $table->unsignedBigInteger('user_id')->index()->nullable();
-            $table->integer('bet')->default(0);
-            $table->integer('bonus')->default(0);
-            $table->string('price')->nullable();
+            $table->integer('bet')->default(0)->index();
+            $table->integer('bonus')->default(0)->index();
+            $table->string('price')->nullable()->index();
             $table->string('title')->nullable();
-            $table->string('nickname')->nullable();
-            $table->boolean('is_bot')->default(false);
-            $table->boolean('win')->default(false);
+            $table->string('nickname')->nullable()->index();
+            $table->boolean('is_bot')->default(false)->index();
+            $table->boolean('win')->default(false)->index();
             $table->timestamps();
         });
     }

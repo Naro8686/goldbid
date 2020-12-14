@@ -2,22 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\BetEvent;
-use App\Jobs\AutoBidJob;
-use App\Jobs\DeleteAuctionInNotWinner;
-use App\Listeners\BetListener;
-use App\Models\Auction\Auction;
-use App\Models\Auction\AutoBid;
-use App\Models\Auction\Order;
-use App\Models\Bots\AuctionBot;
-use App\Settings\Setting;
-use Carbon\Carbon;
 use DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Throwable;
-
+use Carbon\Carbon;
+use App\Events\BetEvent;
+use App\Settings\Setting;
+use Illuminate\Http\Request;
+use App\Models\Auction\AutoBid;
+use App\Models\Auction\Auction;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AuctionController extends Controller
 {
@@ -79,12 +73,13 @@ class AuctionController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws Throwable
      */
-    public function autoBid($id, Request $request)
+    public function autoBid($id, Request $request): \Illuminate\Http\RedirectResponse
     {
         $bid = null;
         $auction = Auction::where('status', Auction::STATUS_ACTIVE)->findOrFail($id);
         $user = Auth::user();
         if (!$user) abort(403);
+        $time = Carbon::now("Europe/Moscow");
         $balance = $user->balance();
         $max_count = ($balance->bet + $balance->bonus);
         $request->validate(['count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']]);
@@ -92,27 +87,26 @@ class AuctionController extends Controller
         try {
             DB::beginTransaction();
             if ($first = $auction->autoBid()->where('user_id', $user->id)->first()) {
-                if ($count === 0) {
-                    $first->delete();
-                    event(new BetEvent($auction));
-                } else $first->update(['count' => $count]);
+                if ($count === 0) $first->delete();
+                else $first->update(['count' => $count]);
             } elseif ((bool)$count) {
-                //$status = (int)($auction->autoBid()->where('status', AutoBid::WORKED)->doesntExist());
-                $time = Carbon::now("Europe/Moscow");
-                $new = $auction->autoBid()->create([
+                if ($lastBet = $auction->autoBid()
+                    ->orderByDesc('auto_bids.bid_time')
+                    ->first(['auto_bids.bid_time']))
+                    $time = $lastBet->bid_time->addSecond();
+                $auction->autoBid()->create([
                     'user_id' => $user->id,
                     'count' => $count,
                     'bid_time' => $time,
                     'status' => AutoBid::PENDING
                 ]);
-                event(new BetEvent($auction));
-                // AutoBidJob::dispatch($new)->delay($time->addSeconds(2));
             }
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error('function autoBid = ' . $e->getMessage());
         }
+        if (!$auction->jobExists()) event(new BetEvent($auction));
         return redirect()->back();
     }
 

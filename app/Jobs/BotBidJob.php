@@ -88,10 +88,9 @@ class BotBidJob implements ShouldQueue
         $run = false;
         try {
             if ((int)$auctionBot->change_name <= 0) $auctionBot = $auctionBot->botRefresh();
-            if (!is_null($auctionBot) && !is_null($auctionBot->auction) && (int)$auctionBot->change_name > 0 && (int)$auctionBot->auction->bot_shutdown_count > 0) {
+            if (!is_null($auctionBot) && !is_null($auctionBot->auction) && (int)$auctionBot->change_name > 0) {
                 $auctionBot->change_name -= 1;
-                $auctionBot->auction->bot_shutdown_count -= 1;
-                $run = $auctionBot->push();
+                $run = $auctionBot->save();
             }
         } catch (Throwable $e) {
             $this->fail($e->getMessage());

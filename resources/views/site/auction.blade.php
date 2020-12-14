@@ -39,7 +39,7 @@
                     let text = $(`#a${btn.attr('id')}`);
                     btn.addClass('active');
                     text.show();
-                })
+                });
             });
         </script>
     @endpush

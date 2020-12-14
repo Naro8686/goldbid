@@ -44,8 +44,8 @@ class StatusChangeCommand extends Command
     public function handle()
     {
         while (true) {
+            $this->statusChange(Carbon::now("Europe/Moscow")->addSecond());
             sleep(1);
-            $this->statusChange(Carbon::now("Europe/Moscow"));
         }
     }
 
@@ -57,7 +57,7 @@ class StatusChangeCommand extends Command
     {
         try {
             //    DB::transaction(function () use ($current) {
-            $pending = DB::table('auctions')
+            $active = DB::table('auctions')
                 ->select(['id', 'bid_seconds'])
                 ->where([
                     ['active', '=', true],
@@ -65,9 +65,9 @@ class StatusChangeCommand extends Command
                     ['step_time', '=', null],
                     ['start', '<=', $current]
                 ]);
-            if ($pending->exists()) $this->pending($pending);
+            if ($active->exists()) $this->active($active);
 
-            $active = DB::table('auctions')
+            $finished = DB::table('auctions')
                 ->select(['id'])
                 ->where([
                     ['active', '=', true],
@@ -75,7 +75,8 @@ class StatusChangeCommand extends Command
                     ['step_time', '<>', null],
                     ['step_time', '<=', $current]
                 ]);
-            if ($active->exists()) $this->active($active);
+
+            if ($finished->exists()) $this->finished($finished);
             //  });
 
         } catch (Throwable $throwable) {
@@ -84,7 +85,7 @@ class StatusChangeCommand extends Command
     }
 
 
-    private function pending($auctions)
+    private function active($auctions)
     {
         try {
             $ids = $auctions->get()->pluck('id');
@@ -105,20 +106,22 @@ class StatusChangeCommand extends Command
      * @param $auctions
      * @throws Throwable
      */
-    private function active($auctions)
+    private function finished($auctions)
     {
         try {
-            $ids = $auctions->get()->pluck('id');
-            //$auctions->lockForUpdate();
-            $updated = $auctions->update([
-                'status' => Auction::STATUS_FINISHED,
-                'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
-                'top' => false
-            ]);
-            if ($updated) foreach ($ids as $sec => $id) {
-                $this->info("finish {$id}");
-                StatusChangeJob::dispatch($id);
-            }
+            while (DB::transactionLevel() > 0) DB::rollBack();
+            DB::transaction(function () use ($auctions) {
+                $ids = $auctions->get()->pluck('id');
+                $updated = $auctions->update([
+                    'status' => Auction::STATUS_FINISHED,
+                    'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
+                    'top' => false
+                ]);
+                if ($updated) foreach ($ids as $sec => $id) {
+                    $this->info("finish {$id}");
+                    StatusChangeJob::dispatch($id);
+                }
+            });
         } catch (Throwable $e) {
             Log::error('status_change_active_command ' . $e->getMessage());
         }

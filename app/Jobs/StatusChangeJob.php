@@ -65,7 +65,7 @@ class StatusChangeJob implements ShouldQueue
      * @param Auction $auction
      * @return Auction
      */
-    private function finish(Auction $auction)
+    private function finish(Auction $auction): Auction
     {
         CreateAuctionJob::dispatchIf((isset($auction->product) && $auction->product->visibly), $auction->product);
         $delete = false;
@@ -99,7 +99,7 @@ class StatusChangeJob implements ShouldQueue
             }
         } else $delete = true;
         if ($auction->userFavorites()->exists()) $auction->userFavorites()->detach();
-        //if ($auction->autoBid()->exists()) $auction->autoBid()->delete();
+        if ($auction->autoBid()->exists()) $auction->autoBid()->delete();
         if ($delete) DeleteAuctionInNotWinner::dispatch($auction)->delay(Carbon::now("Europe/Moscow")->addSeconds(5));
         return $auction;
     }
@@ -108,7 +108,7 @@ class StatusChangeJob implements ShouldQueue
      * @param Auction $auction
      * @return Auction
      */
-    private function active(Auction $auction)
+    private function active(Auction $auction): Auction
     {
         if ($auction->bid()->doesntExist() && $bot = $auction->botNum(1)) {
             dispatch(new BotBidJob($bot))->delay(Carbon::now("Europe/Moscow")->addSeconds($auction->step_time() - 1));

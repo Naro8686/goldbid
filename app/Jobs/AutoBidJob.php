@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\BetEvent;
+use App\Models\Auction\Auction;
 use App\Models\Auction\AutoBid;
 use App\Models\Auction\Bid;
 use App\Models\Auction\Order;
@@ -33,7 +34,8 @@ class AutoBidJob implements ShouldQueue
 
     public function fail($exception = null)
     {
-        $this->autoBid->update(['status' => AutoBid::PENDING]);
+        if ($this->autoBid->refresh())
+            $this->autoBid->update(['status' => AutoBid::PENDING]);
         event(new BetEvent($this->autoBid->auction->refresh()));
         if (!is_null($exception)) Log::info('AutoBidJob fail ' . $exception);
     }

@@ -139,7 +139,7 @@ class Auction extends Model
     /**
      * @return bool
      */
-    public function jobExists()
+    public function jobExists(): bool
     {
         return $this->whereHas('bots', function ($query) {
             $query->where('auction_bots.auction_id', '=', $this->id)->where('auction_bots.status', '=', AuctionBot::WORKED);
@@ -148,16 +148,14 @@ class Auction extends Model
         })->exists();
     }
 
-//    public function queueComputation()
-//    {
-//        return $this->whereHas('bid')->with(['bots' => function ($query) {
-//            $query->where('auction_bots.status', '=', AuctionBot::PENDING);
-//        }, 'autoBid' => function ($query) {
-//            $query->where('auto_bids.status', '=', AutoBid::PENDING);
-//        }, 'bid' => function ($query) {
-//            $query->where('bids.bot_num', '=', 'bots.bot_id');
-//        }]);
-//    }
+    /**
+     * @param int $num
+     * @return int
+     */
+    public function botCountBet(int $num = 1): int
+    {
+        return $this->bid()->where('bot_num', '=', $num)->count();
+    }
 
     public function product()
     {

@@ -115,7 +115,8 @@ class BetListener implements ShouldQueue
                 ->first(['bids.bot_num', 'bids.updated_at']);
 
             $botOne = $auction->botNum(1);
-            if ($stopBotOne >= 1 && !is_null($botOne)) {
+
+            if (!is_null($botOne) && $stopBotOne > $auction->botCountBet()) {
                 $bots->put(1, $botOne);
             }
             if ($stopBotTwoThree > $sumBids) {
@@ -144,7 +145,7 @@ class BetListener implements ShouldQueue
                     $bot->status = AuctionBot::WORKED;
                     $bot->save();
                     $result = [
-                        'model' => $bot,
+                        'model' => AuctionBot::with(['auction'])->find($bot->id),
                         'lastBet' => $auction->lastBid($bot->name)->timestamp,
                         'job' => BotBidJob::class
                     ];
@@ -172,10 +173,10 @@ class BetListener implements ShouldQueue
         try {
             DB::beginTransaction();
             $autoBet = $auction->autoBid()->where([
-                ['count', '>', 0],
-                ['user_id', '<>', $winner->user_id],
-                ['status', '=', AutoBid::PENDING],
-            ])->orderBy('bid_time')->orderBy('id')->first();
+                ['auto_bids.count', '>', 0],
+                ['auto_bids.user_id', '<>', $winner->user_id],
+                ['auto_bids.status', '=', AutoBid::PENDING],
+            ])->orderBy('auto_bids.bid_time')->orderBy('auto_bids.id')->first();
 
             if (!is_null($autoBet)) {
                 $autoBet->status = AuctionBot::WORKED;
