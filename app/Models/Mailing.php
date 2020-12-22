@@ -42,15 +42,14 @@ class Mailing extends Model
 
     public static function ads($select = ['id', 'type', 'title', 'subject', 'text'])
     {
-        return self::query()->where('type', self::ADS)
+        return self::where('type', self::ADS)
             ->get($select);
     }
 
     public static function no_ads(int $type = null)
     {
-        $mails = self::query()->where('type', '<>', self::ADS);
-        if ($type)
-            $mails->where('type', $type);
+        $mails = self::where('type', '<>', self::ADS);
+        if ($type) $mails->where('type', $type);
         return $mails
             ->get(['id', 'type', 'subject', 'text', 'visibly']);
     }

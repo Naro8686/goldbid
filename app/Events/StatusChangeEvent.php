@@ -27,10 +27,8 @@ class StatusChangeEvent implements ShouldBroadcastNow
         $this->auction = $auction;
     }
 
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
-        //return $this->auction->transformAuction(1)->toArray();
-        //'desc', 'specify', 'terms'bet, bonus,price
         return $this->auction->statusChangeData()->except(['desc', 'specify', 'terms'])->toArray();
     }
 

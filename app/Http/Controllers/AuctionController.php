@@ -36,7 +36,8 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
-
+//        $a = Auction::find($id);
+//        dump($a->botCountBet(),$a->bot_shutdown_count);
         if (Auth::check()) {
             $closeAuction = Auction::whereHas('bid', function ($query) {
                 $query->where('bids.user_id', Auth::id());
@@ -44,7 +45,8 @@ class AuctionController extends Controller
                 ->where('auctions.active', false)
                 ->exists();
             if ($closeAuction)
-                return redirect()->back()->with('message', 'Аукцион закрыт по истечение отведённого времени ');
+                return redirect()->back()
+                    ->with('message', 'Аукцион закрыт по истечение отведённого времени ');
         }
         $auction = Auction::auctionPage($id);
         return response()
@@ -84,16 +86,18 @@ class AuctionController extends Controller
         $max_count = ($balance->bet + $balance->bonus);
         $request->validate(['count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']]);
         $count = (int)$request['count'];
+        $isNew =true;
         try {
             DB::beginTransaction();
             if ($first = $auction->autoBid()->where('user_id', $user->id)->first()) {
                 if ($count === 0) $first->delete();
                 else $first->update(['count' => $count]);
+                $isNew = false;
             } elseif ((bool)$count) {
                 if ($lastBet = $auction->autoBid()
                     ->orderByDesc('auto_bids.bid_time')
-                    ->first(['auto_bids.bid_time']))
-                    $time = $lastBet->bid_time->addSecond();
+                    ->first(['auto_bids.bid_time'])) $time = $lastBet->bid_time
+                    ->addSecond();
                 $auction->autoBid()->create([
                     'user_id' => $user->id,
                     'count' => $count,
@@ -106,7 +110,7 @@ class AuctionController extends Controller
             DB::rollBack();
             Log::error('function autoBid = ' . $e->getMessage());
         }
-        if (!$auction->jobExists()) event(new BetEvent($auction));
+        if (!$auction->jobExists() && $isNew) event(new BetEvent($auction));
         return redirect()->back();
     }
 

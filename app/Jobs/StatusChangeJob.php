@@ -44,8 +44,8 @@ class StatusChangeJob implements ShouldQueue
      */
     public function handle()
     {
-        try {
-            if ($auction = Auction::find($this->auctionID)) {
+        if ($this->auctionID && $auction = Auction::find($this->auctionID)) {
+            try {
                 switch ((int)$auction->status) {
                     case Auction::STATUS_ACTIVE:
                         $this->active($auction);
@@ -54,10 +54,10 @@ class StatusChangeJob implements ShouldQueue
                         $this->finish($auction);
                         break;
                 }
-                event(new StatusChangeEvent($auction));
+            } catch (Throwable $e) {
+                Log::error('status_change_active line = ' . $e->getLine() . ' Message = ' . $e->getMessage());
             }
-        } catch (Throwable $e) {
-            Log::error('status_change_active line = ' . $e->getLine() . ' Message = ' . $e->getMessage());
+            event(new StatusChangeEvent($auction));
         }
     }
 
@@ -71,8 +71,10 @@ class StatusChangeJob implements ShouldQueue
         $delete = false;
         $bid = $auction->winner();
         if (!is_null($bid->nickname)) {
-            $bid->win = true;
-            $bid->save(['timestamp' => false]);
+            if (!$bid->win) {
+                $bid->win = true;
+                $bid->save(['timestamp' => false]);
+            }
             if (!$bid->is_bot && $bid->user_id) {
                 $user = User::find($bid->user_id);
                 if ($auction->shutdownBots()) {
@@ -111,7 +113,7 @@ class StatusChangeJob implements ShouldQueue
     private function active(Auction $auction): Auction
     {
         if ($auction->bid()->doesntExist() && $bot = $auction->botNum(1)) {
-            dispatch(new BotBidJob($bot))->delay(Carbon::now("Europe/Moscow")->addSeconds($auction->step_time() - 1));
+            dispatch(new BotBidJob($bot,true))->delay(Carbon::now("Europe/Moscow")->addSeconds(($auction->step_time() - 1)));
         }
         return $auction;
     }

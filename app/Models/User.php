@@ -233,7 +233,11 @@ class User extends Authenticatable
         foreach (Mailing::ads() as $ads) {
             $subscribe[] = [
                 'title' => $ads->title,
-                'subscribe' => $this->subscribe->where('id', $ads->id)->first() ? 'Да' : 'Нет',
+                'subscribe' => $this->subscribe()
+                    ->where('id', $ads->id)
+                    ->take(1)->exists()
+                    ? 'Да'
+                    : 'Нет',
             ];
         }
         return collect([

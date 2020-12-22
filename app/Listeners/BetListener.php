@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use DB;
 use Log;
 use Throwable;
 use Carbon\Carbon;
@@ -18,7 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 
-class BetListener implements ShouldQueue
+class BetListener
 {
     use InteractsWithQueue;
 
@@ -51,32 +50,41 @@ class BetListener implements ShouldQueue
         $auction = $event->auction->refresh();
         $winner = $auction->winner()->refresh();
         try {
-            if ($auction->autoBid()->exists() && $autoBid = self::selectAutoBid($auction, $winner)) {
-                $jobs[] = [
-                    "DB" => $autoBid['model'],
-                    "lastBet" => $autoBid['lastBet'],
-                    "job" => $autoBid['job'],
-                ];
+            if (!$auction->jobExists()) {
+                if ($auction->autoBid()->exists() && $autoBid = self::selectAutoBid($auction, $winner)) {
+                    $jobs[] = [
+                        "DB" => $autoBid['model'],
+                        "lastBet" => $autoBid['lastBet'],
+                        "job" => $autoBid['job'],
+                    ];
+                }
+                if ($auction->bots()->exists() && $bot = self::selectBot($auction, $winner)) {
+                    $jobs[] = [
+                        "DB" => $bot['model'],
+                        "lastBet" => $bot['lastBet'],
+                        "job" => $bot['job'],
+                    ];
+                }
+                if (count($jobs) > 1) usort($jobs, function ($a, $b) {
+                    if ($a["lastBet"] === $b["lastBet"]) return 0;
+                    return ($a["lastBet"] < $b["lastBet"]) ? -1 : 1;
+                });
+                if (isset($jobs[1])) $jobs[1]['DB']->update(['status' => AutoBid::PENDING]);
+                if (isset($jobs[0])) {
+                    /** @var AutoBidJob|BotBidJob $job */
+                    /** @var AutoBid|AuctionBot $db */
+                    $job = $jobs[0]['job'];
+                    $db = $jobs[0]['DB'];
+                    $time = $winner->created_at
+                        ? $winner->created_at->addSeconds($db->timeToBet())
+                        : $this->now->addSeconds($db->timeToBet());
+                    $db->update(['status' => AutoBid::WORKED]);
+                    $job::dispatch($db)->delay($time);
+
+                    //Log::info(get_class($db) . ', step_time ' . now()->addRealSeconds($auction->step_time()) . ', time = ' . $time);
+                }
             }
-            if ($auction->bots()->exists() && $bot = self::selectBot($auction, $winner)) {
-                $jobs[] = [
-                    "DB" => $bot['model'],
-                    "lastBet" => $bot['lastBet'],
-                    "job" => $bot['job'],
-                ];
-            }
-            if (count($jobs) > 1) usort($jobs, function ($a, $b) {
-                if ($a["lastBet"] === $b["lastBet"]) return 0;
-                return ($a["lastBet"] < $b["lastBet"]) ? -1 : 1;
-            });
-            if (isset($jobs[1])) $jobs[1]['DB']->update(['status' => AutoBid::PENDING]);
-            if (isset($jobs[0])) {
-                /** @var AutoBidJob|BotBidJob $job */
-                /** @var AutoBid|AuctionBot $db */
-                $job = $jobs[0]['job'];
-                $db = $jobs[0]['DB'];
-                $job::dispatch($db)->delay($this->now->addSeconds($db->timeToBet()));
-            }
+
 
         } catch (Throwable $throwable) {
             Log::error('BetListener ' . $throwable->getMessage() . ' line ' . $throwable->getLine());
@@ -103,7 +111,7 @@ class BetListener implements ShouldQueue
         $result = null;
         $bot = null;
         try {
-            DB::beginTransaction();
+            //DB::beginTransaction();
             $bots = new Collection();
             $stopBotOne = (int)$auction->bot_shutdown_count;
             $stopBotTwoThree = (int)$auction->bot_shutdown_price;
@@ -112,7 +120,7 @@ class BetListener implements ShouldQueue
             $bidBot = $bids
                 ->where('bids.is_bot', '=', true)
                 ->orderByDesc('bids.id')
-                ->first(['bids.bot_num', 'bids.updated_at']);
+                ->first(['bids.bot_num', 'bids.created_at']);
 
             $botOne = $auction->botNum(1);
 
@@ -142,8 +150,6 @@ class BetListener implements ShouldQueue
                     $bot = (($next === false) ? $first : $bots->firstWhere('id', '=', $next['id']));
                 } else $bot = $first;
                 if (is_null($winner->bot_num) || !$bot->number((int)$winner->bot_num)) {
-                    $bot->status = AuctionBot::WORKED;
-                    $bot->save();
                     $result = [
                         'model' => AuctionBot::with(['auction'])->find($bot->id),
                         'lastBet' => $auction->lastBid($bot->name)->timestamp,
@@ -151,9 +157,9 @@ class BetListener implements ShouldQueue
                     ];
                 }
             }
-            DB::commit();
+            //DB::commit();
         } catch (Throwable $throwable) {
-            DB::rollBack();
+            //DB::rollBack();
             Log::error('selectBot ' . $throwable->getMessage());
         }
         return $result;
@@ -171,25 +177,27 @@ class BetListener implements ShouldQueue
         /** @var AutoBid $autoBet */
         $result = null;
         try {
-            DB::beginTransaction();
-            $autoBet = $auction->autoBid()->where([
+            //DB::beginTransaction();
+            $autoBet = $auction
+                ->autoBid()
+                ->where([
                 ['auto_bids.count', '>', 0],
                 ['auto_bids.user_id', '<>', $winner->user_id],
-                ['auto_bids.status', '=', AutoBid::PENDING],
-            ])->orderBy('auto_bids.bid_time')->orderBy('auto_bids.id')->first();
+                ['auto_bids.status', '=', AutoBid::PENDING]
+            ])
+                ->orderBy('auto_bids.bid_time')
+                ->orderBy('auto_bids.id')->first();
 
             if (!is_null($autoBet)) {
-                $autoBet->status = AuctionBot::WORKED;
-                $autoBet->save();
                 $result = [
                     'model' => $autoBet,
                     'lastBet' => $auction->lastBid($autoBet->user->nickname)->timestamp,
                     'job' => AutoBidJob::class
                 ];
             }
-            DB::commit();
+            //DB::commit();
         } catch (Throwable $throwable) {
-            DB::rollBack();
+            //DB::rollBack();
             Log::error('selectAutoBid ' . $throwable->getMessage());
         }
         return $result;

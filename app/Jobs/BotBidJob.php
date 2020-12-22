@@ -18,6 +18,8 @@ class BotBidJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 1;
+
     public $auctionBot;
     /**
      * @var bool
@@ -37,9 +39,12 @@ class BotBidJob implements ShouldQueue
 
     public function fail($exception = null)
     {
-        $this->auctionBot->update(['status' => AuctionBot::PENDING]);
-        event(new BetEvent($this->auctionBot->auction->refresh()));
-        if (!is_null($exception)) Log::info('BotBidJob fail ' . $exception);
+        $auctionBot = $this->auctionBot->refresh();
+        if ($auctionBot && $auction = $auctionBot->auction) {
+            $auction->bots()->update(['status' => AuctionBot::PENDING]);
+            event(new BetEvent($this->auctionBot->auction->refresh()));
+        }
+        if (!is_null($exception)) Log::warning('BotBidJob fail ' . $exception);
     }
 
 
@@ -53,8 +58,16 @@ class BotBidJob implements ShouldQueue
     {
         if ($auctionBot = $this->auctionBot->refresh()) {
             try {
-                $auction = $auctionBot->auction;
-                $this->action($auctionBot) ? BidJob::dispatchNow($auction, $auctionBot->name, null, $auctionBot->number()) : $this->fail('fail');
+                $auction = $auctionBot->auction->refresh();
+                $auction->bots()->where('status', AuctionBot::WORKED)->update(['status' => AuctionBot::PENDING]);
+                if ($this->first && $auction->bid()->exists()) $this->delete();
+                else {
+                    //$this->auctionBot->update(['status' => AuctionBot::PENDING]);
+                    if ($auction->status === Auction::STATUS_ACTIVE)
+                        $this->action($auctionBot)
+                            ? BidJob::dispatchNow($auction, $auctionBot->name, null, $auctionBot->number())
+                            : $this->fail('fail');
+                }
             } catch (Throwable $exception) {
                 $this->fail($exception->getMessage());
             }

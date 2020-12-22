@@ -21,6 +21,7 @@ class AutoBidJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 1;
     /**
      * AutoBidJob constructor.
      * @param AutoBid $autoBid
@@ -34,10 +35,14 @@ class AutoBidJob implements ShouldQueue
 
     public function fail($exception = null)
     {
-        if ($this->autoBid->refresh())
-            $this->autoBid->update(['status' => AutoBid::PENDING]);
-        event(new BetEvent($this->autoBid->auction->refresh()));
-        if (!is_null($exception)) Log::info('AutoBidJob fail ' . $exception);
+        $autoBid = $this->autoBid->refresh();
+        if ($autoBid && $auction = $autoBid->auction) {
+            $auction->autoBid()
+                ->where('status', AutoBid::WORKED)
+                ->update(['status' => AutoBid::PENDING]);
+            event(new BetEvent($this->autoBid->auction->refresh()));
+        }
+        if (!is_null($exception)) Log::warning('AutoBidJob fail ' . $exception);
     }
 
     /**
@@ -57,15 +62,23 @@ class AutoBidJob implements ShouldQueue
                 ->where('auction_id', '=', $autoBid->auction_id)
                 ->where('status', '=', Order::SUCCESS)
                 ->doesntExist();
-            if ((($balance->bet + $balance->bonus) >= Bid::COUNT) && $notOrder && $autoBid->count > 0) {
-                $error = !($autoBid->update(['bid_time' => Carbon::now("Europe/Moscow"), 'status' => AutoBid::PENDING, 'count' => DB::raw('count - 1')]));
+            $auction->autoBid()
+                ->where('status', AutoBid::WORKED)
+                ->update(['status' => AutoBid::PENDING]);
+            $count = $autoBid->count;
+            if ((($balance->bet + $balance->bonus) >= Bid::COUNT) && $notOrder && $count > 0) {
+                $error = !($autoBid->update(['bid_time' => Carbon::now("Europe/Moscow"), 'count' => ($count - 1)]));
             } else {
                 $error = true;
                 $autoBid->delete();
             }
-            $error ? $this->fail('fail') : BidJob::dispatchNow($auction, $user->nickname, $user);
+            if ($auction->status === Auction::STATUS_ACTIVE)
+                $error
+                    ? $this->fail('fail')
+                    : BidJob::dispatchNow($auction, $user->nickname, $user);
+            if ($count <= 1) $autoBid->delete();
         } catch (Throwable $exception) {
-            $this->fail($exception->getMessage());
+            $this->fail($exception->getMessage().' Line '.$exception->getLine());
         }
     }
 

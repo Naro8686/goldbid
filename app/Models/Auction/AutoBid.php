@@ -57,8 +57,9 @@ class AutoBid extends Model
         $this->decrement('count');
     }
 
-    public function timeToBet(int $subSec = 0)
+    public function timeToBet(int $subSec = 0): int
     {
-        return rand(0, ($this->auction->step_time() - 1)) < 1 ? 0 : rand(0, ($this->auction->step_time() - 1 - $subSec));
+        $rand = rand(0, ($this->auction->step_time() - 1));
+        return $rand < 1 ? 0 : ($rand - $subSec);
     }
 }

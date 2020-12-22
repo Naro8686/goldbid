@@ -33,7 +33,7 @@ class BetController extends Controller
                 }
             });
         } catch (Throwable $throwable) {
-            \Log::info('BetController ' . $throwable->getMessage());
+            \Log::error('BetController ' . $throwable->getMessage());
         }
     }
 }

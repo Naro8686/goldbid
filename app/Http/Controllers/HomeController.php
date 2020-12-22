@@ -82,7 +82,11 @@ class HomeController extends Controller
                         'mime' => $request['file']->getClientMimeType(),
                     ] : null;
                 }
-                Mail::to(config('mail.from.address'))->later(5, new FeedbackSendMail($request->only(['name', 'email', 'theme', 'message', 'upload'])));
+                if (!is_null(config('mail.from.address')))
+                    Mail::to(config('mail.from.address'))
+                        ->later(5, new FeedbackSendMail($request->only([
+                            'name', 'email', 'theme', 'message', 'upload'
+                        ])));
             } catch (Exception $exception) {
                 Log::error($exception->getMessage());
             }
@@ -114,7 +118,11 @@ class HomeController extends Controller
                         'mime' => $request['file']->getClientMimeType(),
                     ] : null;
                 }
-                Mail::to(config('mail.from.address'))->later(5, new ReviewSendMail($request->only(['name', 'email', 'message', 'upload'])));
+                if (!is_null(config('mail.from.address')))
+                    Mail::to(config('mail.from.address'))
+                        ->later(5, new ReviewSendMail($request->only([
+                            'name', 'email', 'message', 'upload'
+                        ])));
             } catch (Exception $exception) {
                 Log::error('reviews send file ' . $exception->getMessage());
             }

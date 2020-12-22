@@ -63,7 +63,8 @@ class CouponController extends Controller
         }
         /** @var CouponOrder $coupon_order */
         try {
-            Mail::to(config('mail.from.address'))->later(5, new CouponOrderSendMail($coupon_order));
+            if (!is_null(config('mail.from.address'))) Mail::to(config('mail.from.address'))
+                ->later(5, new CouponOrderSendMail($coupon_order));
         } catch (\Throwable $exception) {
             Log::error('order_coupon' . $exception->getMessage());
         }

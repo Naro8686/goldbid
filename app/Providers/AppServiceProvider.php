@@ -33,8 +33,8 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('without_spaces', function ($attr, $value) {
             return preg_match('/^\S*$/u', $value);
         });
-        Queue::looping(function () {
-            while (DB::transactionLevel() > 0) DB::rollBack();
-        });
+//        Queue::looping(function () {
+//            while (DB::transactionLevel() > 0) DB::rollBack();
+//        });
     }
 }

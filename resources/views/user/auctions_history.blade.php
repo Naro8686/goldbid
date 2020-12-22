@@ -11,7 +11,6 @@
                 <th>Результат</th>
             </tr>
             @foreach($bids as $bid)
-                {{$bid['auction_id']}}
                 <tr>
                     <td>
                         <a style="color: #1B8BCB;"

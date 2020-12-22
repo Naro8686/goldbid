@@ -157,12 +157,12 @@ class Auction extends Model
         return $this->bid()->where('bot_num', '=', $num)->count();
     }
 
-    public function product()
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function type()
+    public function type(): string
     {
         $type = null;
         if ((bool)$this->buy_now) $type = 'product';
@@ -173,24 +173,20 @@ class Auction extends Model
         return $type;
     }
 
-    public function userFavorites()
+    public function userFavorites(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favorites', 'auction_id', 'user_id');
     }
 
-    public function autoBid()
+    public function autoBid(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AutoBid::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function bots()
+    public function bots(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AuctionBot::class);
     }
-
 
     /**
      * @param int $num
@@ -206,22 +202,21 @@ class Auction extends Model
 
     public function shutdownBots(): bool
     {
-        $count = 0;
-        $stopBotOne = (int)$this->bot_shutdown_count;
+        $stopBotOne = $count = (int)$this->bot_shutdown_count;
         $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
         if ($this->bid()->take(1)->exists()) {
             if (!is_null($this->botNum(1))) {
-                $count += $stopBotOne;
+                $count = $this->botCountBet();
             }
             if (!is_null($this->botNum(2)) || !is_null($this->botNum(3))) {
                 $sumBids = (int)($this->bid()->sum('bet') * self::BET_RUB);
             }
         }
 
-        return ($count < 1 && $sumBids >= $stopBotTwoThree);
+        return ($count >= $stopBotOne && $sumBids >= $stopBotTwoThree);
     }
 
-    public function bid()
+    public function bid(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Bid::class);
     }
@@ -233,16 +228,17 @@ class Auction extends Model
     public function lastBid($nickname)
     {
         $bid = $this->bid()->where('nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
+        Log::info('ID = '.$this->id.' step_time = '.$this->step_time());
         return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow")->subSeconds($this->step_time());
     }
 
-    public function userOrder()
+    public function userOrder(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         //return $this->belongsToMany(User::class,Order::class,'auction_id', 'user_id');
         return $this->hasOne(Order::class);
     }
 
-    public static function moneyFormat($price, $optional = false, $text = ' руб')
+    public static function moneyFormat($price, $optional = false, $text = ' руб'): string
     {
         $text = $optional ? $text : '';
         $format = number_format($price, 1, ',', ' ');
@@ -252,12 +248,12 @@ class Auction extends Model
     /**
      * @return bool
      */
-    public function finished()
+    public function finished(): bool
     {
         return !is_null($this->step_time) ? (bool)Carbon::now("Europe/Moscow")->diff($this->step_time->addSecond())->invert : false;
     }
 
-    public function bidTable()
+    public function bidTable(): string
     {
         $tr = "";
         foreach ($this->bid()->orderBy('id', 'desc')->take(5)->get() as $bid) {
@@ -276,7 +272,7 @@ class Auction extends Model
         return ($this->bid()->orderByDesc('id')->take(1)->first() ?? new Bid);
     }
 
-    public function status()
+    public function status(): string
     {
         if ((int)$this->status === self::STATUS_ACTIVE) $text = 'Активный';
         if ((int)$this->status === self::STATUS_PENDING) $text = 'Скоро начало';
@@ -320,7 +316,7 @@ class Auction extends Model
         return ($this->step_price / 100);
     }
 
-    public function start_price()
+    public function start_price(): string
     {
         return self::moneyFormat($this->start_price);
     }
@@ -355,7 +351,7 @@ class Auction extends Model
         return $auctions;
     }
 
-    public static function info()
+    public static function info(): Collection
     {
         return collect([
             'auction_count' => self::count(),
@@ -363,7 +359,7 @@ class Auction extends Model
         ]);
     }
 
-    public function auctionCard()
+    public function auctionCard(): \Illuminate\Database\Eloquent\Collection
     {
         return $this->bid()
             ->where('bids.is_bot', false)
@@ -386,7 +382,7 @@ class Auction extends Model
             : 0;
     }
 
-    public function exchangeBetBonus($user_id = null)
+    public function exchangeBetBonus($user_id = null): array
     {
         $bet = $bonus = 0;
         if ($this->bid()->take(1)->exists() && $this->status === self::STATUS_FINISHED && !is_null($user_id)) {
@@ -403,7 +399,7 @@ class Auction extends Model
             : 0;
     }
 
-    public function images()
+    public function images(): array
     {
         $images = [];
         $this->img_1 ? $images[] = ['img' => $this->img_1, 'alt' => $this->alt_1] : null;
@@ -413,7 +409,7 @@ class Auction extends Model
         return $images;
     }
 
-    public function transformAuction($userID = null)
+    public function transformAuction($userID = null): Collection
     {
         $winner = $this->winner();
         $images = $this->images();
@@ -490,7 +486,7 @@ class Auction extends Model
             ->selectRaw($select . ', IF((((auctions.status = ' . self::STATUS_FINISHED . ') OR (auctions.status = ' . self::STATUS_ERROR . ')) AND ' . $userID . ' IS NOT NULL),lastBet.user_id,NULL) AS lastBetUserID');
     }
 
-    public static function auctionsForHomePage(int $paginate = 25)
+    public static function auctionsForHomePage(int $paginate = 25): LengthAwarePaginator
     {
         $userID = Auth::id();
         $itemsPaginated = self::auctionsForHomePageQuery($userID)->paginate($paginate);
@@ -507,7 +503,7 @@ class Auction extends Model
         ]);
     }
 
-    public static function auctionPage($id)
+    public static function auctionPage($id): Collection
     {
         $auction = self::where('active', '=', true)->findOrFail($id);
         $data = $auction->statusChangeData(Auth::id());
@@ -517,7 +513,7 @@ class Auction extends Model
         return $data;
     }
 
-    public function statusChangeData($userID = null)
+    public function statusChangeData($userID = null): Collection
     {
         $data = $this->transformAuction($userID);
         $data['bids'] = $this->bid()->orderByDesc('bids.id')
@@ -540,7 +536,7 @@ class Auction extends Model
     /**
      * @return mixed
      */
-    public function bidDataForUser()
+    public function bidDataForUser(): array
     {
         $data['user'] = $data['auction'] = [];
         try {

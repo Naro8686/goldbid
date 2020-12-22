@@ -94,7 +94,7 @@ class AuctionBot extends Model
         return $time < 1 ? 0 : ($time - $subSec);
     }
 
-    public function botRefresh()
+    public function botRefresh(): ?AuctionBot
     {
         $refreshed = false;
         if ($this->auction->bots->isNotEmpty()) {
@@ -112,7 +112,7 @@ class AuctionBot extends Model
                     $data['num_moves_other_bot'] = rand($min, $max) < 1 ? 1 : rand($min, $max);
                 }
                 $refreshed = $this->update($data);
-            } else Log::info('error in refresh bot data AuctionID = ' . $this->auction->id);
+            } else Log::warning('error in refresh bot data AuctionID = ' . $this->auction->id);
         }
         return $refreshed ? $this : null;
     }

@@ -223,7 +223,7 @@ class AuctionController extends Controller
         return view('site.order.step_3', compact('data', 'payments'));
     }
 
-    public function buy(Request $request)
+    public function buy(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             "payment_id" => ['required', 'integer', function ($attribute, $value, $fail) {
@@ -232,7 +232,7 @@ class AuctionController extends Controller
             }],
             "order_num" => ['required', 'exists:orders,order_num'],
         ]);
-        $user = User::query()->findOrFail(Auth::id());
+        $user = User::findOrFail(Auth::id());
         $order = $user->auctionOrder()->where('order_num', '=', $request['order_num'])->firstOrFail();
         $request['payment_type'] = Setting::paymentCoupon($request['payment_id']);
         if (!$user->email) {
@@ -243,7 +243,7 @@ class AuctionController extends Controller
         }
         $order->update(['payment_type' => $request['payment_type']]);
         $auction = $order->auction;
-        if (!isset($auction)) return abort(404);
+        if (!isset($auction)) abort(404);
         if ($auction->type() === Step::BET) {
             $data = $auction->exchangeBetBonus($user->id);
             $user->balanceHistory()->create([
@@ -255,8 +255,11 @@ class AuctionController extends Controller
         }
         try {
             /** @var Order $order */
-            Mail::to(config('mail.from.address'))->later(2, new AuctionOrderSendMail($order));
-            Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, ['order_num' => $order->order_num]));
+            if (!is_null(config('mail.from.address'))) Mail::to(config('mail.from.address'))
+                ->later(2, new AuctionOrderSendMail($order));
+            Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, [
+                'order_num' => $order->order_num
+            ]));
         } catch (\Exception $e) {
             Log::error('send mail for buy auction ' . $e->getMessage());
         }

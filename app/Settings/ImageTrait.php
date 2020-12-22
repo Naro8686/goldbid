@@ -32,7 +32,7 @@ trait ImageTrait
      * @param int $h
      * @return array
      */
-    public function postUploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0)
+    public function postUploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0): array
     {
         $success = true;
         $validator = Validator::make(['upload' => $image], [
@@ -55,7 +55,7 @@ trait ImageTrait
         return ['uploaded' => $success, 'fileName' => $image_name, 'url' => $urlPath . '/' . $image_name];
     }
 
-    public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0, bool $rename = true)
+    public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0, bool $rename = true): string
     {
         $image_name = $rename ? md5(uniqid() . time()) . '.' . $image->getClientOriginalExtension() : $image->getClientOriginalName();
         if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);

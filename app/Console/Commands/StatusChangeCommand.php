@@ -24,7 +24,9 @@ class StatusChangeCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Changing the status of auctions';
+
+    protected static $run = true;
 
     /**
      * Create a new command instance.
@@ -36,24 +38,19 @@ class StatusChangeCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
-        while (true) {
-            $this->statusChange(Carbon::now("Europe/Moscow")->addSecond());
+        do {
+            self::statusChange(Carbon::now("Europe/Moscow"));
             sleep(1);
-        }
+        } while (self::$run);
     }
 
     /**
      * @param Carbon $current
      * @return mixed|void
      */
-    public function statusChange(Carbon $current)
+    public static function statusChange(Carbon $current)
     {
         try {
             //    DB::transaction(function () use ($current) {
@@ -65,7 +62,7 @@ class StatusChangeCommand extends Command
                     ['step_time', '=', null],
                     ['start', '<=', $current]
                 ]);
-            if ($active->exists()) $this->active($active);
+            if ($active->exists()) self::active($active);
 
             $finished = DB::table('auctions')
                 ->select(['id'])
@@ -76,7 +73,7 @@ class StatusChangeCommand extends Command
                     ['step_time', '<=', $current]
                 ]);
 
-            if ($finished->exists()) $this->finished($finished);
+            if ($finished->exists()) self::finished($finished);
             //  });
 
         } catch (Throwable $throwable) {
@@ -85,7 +82,7 @@ class StatusChangeCommand extends Command
     }
 
 
-    private function active($auctions)
+    private static function active($auctions)
     {
         try {
             $ids = $auctions->get()->pluck('id');
@@ -94,7 +91,6 @@ class StatusChangeCommand extends Command
                 'step_time' => DB::raw('NOW() + INTERVAL (`bid_seconds` + 1) SECOND')
             ]);
             if ($updated) foreach ($ids as $sec => $id) {
-                $this->info("active {$id}");
                 StatusChangeJob::dispatch($id);
             }
         } catch (Throwable $e) {
@@ -106,22 +102,28 @@ class StatusChangeCommand extends Command
      * @param $auctions
      * @throws Throwable
      */
-    private function finished($auctions)
+    private static function finished($auctions)
     {
         try {
-            while (DB::transactionLevel() > 0) DB::rollBack();
-            DB::transaction(function () use ($auctions) {
-                $ids = $auctions->get()->pluck('id');
-                $updated = $auctions->update([
-                    'status' => Auction::STATUS_FINISHED,
-                    'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
-                    'top' => false
-                ]);
-                if ($updated) foreach ($ids as $sec => $id) {
-                    $this->info("finish {$id}");
+            //while (DB::transactionLevel() > 0) DB::rollBack();
+            //DB::transaction(function () use ($auctions) {
+            $ids = $auctions->get()->pluck('id');
+            $updated = $auctions->update([
+                'status' => Auction::STATUS_FINISHED,
+                'end' => DB::raw('NOW() + INTERVAL 1 SECOND'),
+                'top' => false
+            ]);
+            if ($updated) foreach ($ids as $sec => $id) {
+                if ($auction = Auction::find($id, ['id'])) {
+                    $winner = $auction->winner();
+                    if (!is_null($winner->nickname)) {
+                        $winner->win = true;
+                        $winner->save(['timestamp' => false]);
+                    }
                     StatusChangeJob::dispatch($id);
                 }
-            });
+            }
+            //});
         } catch (Throwable $e) {
             Log::error('status_change_active_command ' . $e->getMessage());
         }
