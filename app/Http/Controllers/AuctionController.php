@@ -36,8 +36,6 @@ class AuctionController extends Controller
 
     public function auction($id)
     {
-//        $a = Auction::find($id);
-//        dump($a->botCountBet(),$a->bot_shutdown_count);
         if (Auth::check()) {
             $closeAuction = Auction::whereHas('bid', function ($query) {
                 $query->where('bids.user_id', Auth::id());

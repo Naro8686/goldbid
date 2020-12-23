@@ -228,7 +228,6 @@ class Auction extends Model
     public function lastBid($nickname)
     {
         $bid = $this->bid()->where('nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
-        Log::info('ID = '.$this->id.' step_time = '.$this->step_time());
         return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow")->subSeconds($this->step_time());
     }
 
