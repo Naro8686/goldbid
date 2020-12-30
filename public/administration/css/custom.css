@@ -72,3 +72,23 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+div.dataTables_wrapper{
+    min-height: 135px !important;
+}
+div.dataTables_wrapper div.dataTables_processing{
+    top: 0 !important;
+    left: 0 !important;
+    background-color: #fff6 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    border: none !important;
+}
+div.dataTables_wrapper div.dataTables_processing .fa.fa-spinner{
+    position: absolute !important;
+    top: 50% !important;
+    box-sizing: border-box !important;
+}

@@ -20,7 +20,7 @@ class AuctionOrderMiddleware
      * @param Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         /** @var User $user */
         $id = $request['id'];
@@ -39,14 +39,8 @@ class AuctionOrderMiddleware
                         $res = $e->getMessage();
                     }
                     return response()->json($res, 200);
-                } else {
-                    return redirect()->back()->with('message', $this->message);
-                }
-            } else {
-                return $next($request);
-            }
-        } else {
-            return abort(403);
-        }
+                } else return redirect()->back()->with('message', $this->message);
+            } else return $next($request);
+        } else abort(403);
     }
 }

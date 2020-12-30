@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AutoBidJob;
 use DB;
+use stdClass;
 use Throwable;
 use Carbon\Carbon;
 use App\Events\BetEvent;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 class AuctionController extends Controller
 {
     /**
-     * @var \stdClass
+     * @var stdClass
      */
     public $page;
 
@@ -70,33 +72,32 @@ class AuctionController extends Controller
     /**
      * @param $id
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return array|\Illuminate\Http\RedirectResponse
      * @throws Throwable
      */
-    public function autoBid($id, Request $request): \Illuminate\Http\RedirectResponse
+    public function autoBid($id, Request $request)
     {
+        $autoBidNew = null;
         $bid = null;
         $auction = Auction::where('status', Auction::STATUS_ACTIVE)->findOrFail($id);
         $user = Auth::user();
-        if (!$user) abort(403);
+        if (is_null($user) || $user->has_ban) abort(403);
         $time = Carbon::now("Europe/Moscow");
         $balance = $user->balance();
         $max_count = ($balance->bet + $balance->bonus);
         $request->validate(['count' => ['integer', 'min:0', 'max:' . $max_count, 'nullable']]);
         $count = (int)$request['count'];
-        $isNew =true;
         try {
             DB::beginTransaction();
             if ($first = $auction->autoBid()->where('user_id', $user->id)->first()) {
                 if ($count === 0) $first->delete();
-                else $first->update(['count' => $count]);
-                $isNew = false;
+                else if ((int)$first->count !== $count) $first->update(['count' => $count]);
             } elseif ((bool)$count) {
                 if ($lastBet = $auction->autoBid()
                     ->orderByDesc('auto_bids.bid_time')
                     ->first(['auto_bids.bid_time'])) $time = $lastBet->bid_time
                     ->addSecond();
-                $auction->autoBid()->create([
+                $autoBidNew = $auction->autoBid()->create([
                     'user_id' => $user->id,
                     'count' => $count,
                     'bid_time' => $time,
@@ -108,7 +109,9 @@ class AuctionController extends Controller
             DB::rollBack();
             Log::error('function autoBid = ' . $e->getMessage());
         }
-        if (!$auction->jobExists() && $isNew) event(new BetEvent($auction));
+        //if (!$auction->jobExists() && $isNew) event(new BetEvent($auction));
+        AutoBidJob::dispatchIf((!$auction->jobExists() && $autoBidNew instanceof AutoBid), $autoBidNew);
+        if ($request->ajax()) return $count;
         return redirect()->back();
     }
 
@@ -116,7 +119,7 @@ class AuctionController extends Controller
      * @param null $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changeStatus($id = null)
+    public function changeStatus($id = null): \Illuminate\Http\JsonResponse
     {
         $html = [];
         $status = 200;

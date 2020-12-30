@@ -78,7 +78,8 @@
                         </button>
                     </div>
                     <!-- Сюда вставляется автоставки -->
-                    <form class="auto__bid" method="POST" :action="`/${auction.id}/auto_bid`">
+                    <form class="auto__bid" method="POST" :action="`/${auction.id}/auto_bid`"
+                          v-on:submit="autoBidSubmit">
                         <input type="hidden" name="_token" :value="csrf">
                         <input :key="auction.id" class="auto__bid_inp" min="0" type="number" name="count"
                                :value="auction.autoBid"
@@ -94,7 +95,7 @@
                         <div class="inf__finish">
                             <p class="winner">Победитель: {{ auction.winner }}</p>
                             <p class="price__for_winner">Цена для победителя аукциона</p>
-                            <p class="price" >{{ auction.price }} руб</p>
+                            <p class="price">{{ auction.price }} руб</p>
                         </div>
                         <div v-if="auction.my_win" class="btn win">
                             <a :class="{ 'my___win' : (auction.my_win && auction.exchange)}"
@@ -149,6 +150,7 @@
     </div>
 </template>
 <script>
+
 export default {
     props: {
         auction: {
@@ -158,6 +160,24 @@ export default {
         csrf: {
             type: String,
             required: true
+        }
+    },
+    methods: {
+        autoBidSubmit: function (e) {
+            e.preventDefault();
+            let className = 'disabled';
+            let form = e.currentTarget;
+            let btn = $(form).find(`button[type="submit"]:not(.${className})`).addClass(className);
+            $.post(form.action, $(form).serialize()).always(() => {
+                btn.removeClass(className);
+            }).done((count) => {
+                let num = parseInt(count);
+                let bet_btn = $(form).prev().find('button');
+                if (bet_btn.hasClass(className) && num === 0)
+                    bet_btn.removeClass(className);
+                else if (btn.not(`.${className}`) && num > 0)
+                    bet_btn.addClass(className);
+            });
         }
     },
     mounted() {

@@ -90,7 +90,7 @@
                 });
             });
             $(function () {
-                $(document).on('click', '[data-target="#cardModal"]', function (e) {
+                $(document).on('click', '[data-target="#cardModal"]', function () {
                     let url = $(this).data('href');
                     let method = 'GET';
                     let data = null;

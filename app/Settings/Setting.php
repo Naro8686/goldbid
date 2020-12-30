@@ -6,7 +6,6 @@ namespace App\Settings;
 
 use App\Models\Mail;
 use App\Models\Pages\Footer;
-use App\Models\User;
 use App\Models\Setting as ConfigSite;
 use App\Models\Pages\Page;
 use Exception;
@@ -49,7 +48,7 @@ class Setting
 
     }
 
-    public function page()
+    public function page(): stdClass
     {
         return $this->page;
     }
@@ -62,7 +61,7 @@ class Setting
     /**
      * @return stdClass
      */
-    public function content()
+    public function content(): stdClass
     {
         $this->page->content = $this->page->meta->content;
         return $this->page;
@@ -79,13 +78,13 @@ class Setting
         return url($page->footer->link);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
-     */
-    public static function siteContacts()
+
+    public static function siteContacts(): stdClass
     {
-        $data = self::siteConfig()->first(['phone_number', 'email']);
-        $data->phone = $data->phone_number;
+        $data = new stdClass();
+        $siteConfig = self::siteConfig()->first(['phone_number', 'email']);
+        $data->phone = is_null($siteConfig) ? null : $siteConfig->phone_number;
+        $data->email = is_null($siteConfig) ? null : $siteConfig->email;
         $data->name = config('app.name') ?? null;
         return $data;
     }
@@ -94,7 +93,7 @@ class Setting
      * @param int|null $id
      * @return array|mixed
      */
-    public static function feedbackTheme(?int $id)
+    public static function feedbackTheme(?int $id): ?array
     {
         $themes = [
             ['id' => 1, 'value' => 'Регистрация'],
@@ -112,7 +111,7 @@ class Setting
         return (is_int($id) && is_array($themes)) ? null : $themes;
     }
 
-    public static function paymentType(?int $id)
+    public static function paymentType(?int $id): ?array
     {
         $payments = [
             ['id' => 1, 'value' => 'Банковская карта'],
@@ -128,7 +127,7 @@ class Setting
         return (is_int($id) && is_array($payments)) ? null : $payments;
     }
 
-    public static function paymentCoupon(?int $id)
+    public static function paymentCoupon(?int $id): ?array
     {
         $payments = [
             ['id' => 1, 'value' => 'visa', 'img' => asset('site/img/payment/visa.png')],
@@ -153,13 +152,13 @@ class Setting
         return (is_int($id) && is_array($payments)) ? null : $payments;
     }
 
-    public static function orderNumCoupon(int $num)
+    public static function orderNumCoupon(int $num): string
     {
         $data_format = now("Europe/Moscow")->format('ymd-His');
         return "{$data_format}-{$num}";
     }
 
-    public static function orderNumAuction(int $user_id)
+    public static function orderNumAuction(int $user_id): string
     {
         $data_format = now("Europe/Moscow")->format('ymd-His');
         return "{$data_format}-{$user_id}";
@@ -175,20 +174,19 @@ class Setting
         return ConfigSite::first() ?? ConfigSite::create(['phone_number' => '70000000000', 'email' => 'goldbid24@gmail.com']);
     }
 
-    public static function emailRandomCode()
+    public static function emailRandomCode(): string
     {
-        return mt_rand(100000, 999999);
+        return self::randomNumber(6);
     }
 
     /**
      * @param $length
      * @return string
      */
-    public static function randomNumber($length)
+    public static function randomNumber($length): string
     {
         $result = '';
-        for ($i = 0; $i < $length; $i++)
-            $result .= mt_rand(0, 9);
+        for ($i = 0; $i < $length; $i++) $result .= mt_rand(0, 9);
         return $result;
     }
 

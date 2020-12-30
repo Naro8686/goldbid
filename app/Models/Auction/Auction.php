@@ -11,7 +11,6 @@ use Illuminate\Support\Carbon;
 use App\Models\User;
 use Throwable;
 use Log;
-use DB;
 
 /**
  * App\Models\Auction\Auction
@@ -164,12 +163,9 @@ class Auction extends Model
 
     public function type(): string
     {
-        $type = null;
+        $type = 'bet';
         if ((bool)$this->buy_now) $type = 'product';
-        else {
-            if ((bool)$this->exchange) $type = 'money';
-            else $type = 'bet';
-        }
+        elseif ((bool)$this->exchange) $type = 'money';
         return $type;
     }
 
@@ -200,20 +196,30 @@ class Auction extends Model
         })->first($select);
     }
 
-    public function shutdownBots(): bool
+    public function stopBotOne(): bool
     {
         $stopBotOne = $count = (int)$this->bot_shutdown_count;
-        $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
-        if ($this->bid()->take(1)->exists()) {
-            if (!is_null($this->botNum(1))) {
-                $count = $this->botCountBet();
-            }
-            if (!is_null($this->botNum(2)) || !is_null($this->botNum(3))) {
-                $sumBids = (int)($this->bid()->sum('bet') * self::BET_RUB);
-            }
-        }
 
-        return ($count >= $stopBotOne && $sumBids >= $stopBotTwoThree);
+        if (!is_null($this->botNum(1))) {
+            $isFirst = $this->bid()->orderBy('bids.id')->take(1)->first();
+            if (!is_null($isFirst) && $isFirst->bot_num === 1)
+                $count = $this->botCountBet();
+        }
+        return ($count >= $stopBotOne);
+    }
+
+    public function stopBotTwoThree(): bool
+    {
+        $stopBotTwoThree = $sumBids = (int)$this->bot_shutdown_price;
+        if ($this->bid()->take(1)->exists() && (!is_null($this->botNum(2)) || !is_null($this->botNum(3)))) {
+            $sumBids = (int)($this->bid()->where('bids.is_bot', false)->sum('bids.bet') * self::BET_RUB);
+        }
+        return ($sumBids >= $stopBotTwoThree);
+    }
+
+    public function shutdownBots(): bool
+    {
+        return ($this->stopBotOne() && $this->stopBotTwoThree());
     }
 
     public function bid(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -227,8 +233,25 @@ class Auction extends Model
      */
     public function lastBid($nickname)
     {
-        $bid = $this->bid()->where('nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at']);
-        return !is_null($bid) ? $bid->created_at : Carbon::now("Europe/Moscow")->subSeconds($this->step_time());
+        $lastTime = Carbon::now("Europe/Moscow");
+        //$bid_time = null;
+        $bid = $this->bid()->where('nickname', '=', $nickname)->orderByDesc('bids.id')->first(['bids.created_at', 'bids.user_id']);
+//        if (!is_null($bid) && $user_id = $bid->user_id) {
+//            if ($autoBid = $this->autoBid()->where('user_id', $user_id)->first()) $bid_time = $autoBid->bid_time;
+//        }
+        if (!is_null($bid)) {
+            $lastTime = $bid->created_at;
+        } elseif ($jobs = $this->bid()
+            ->select(['bot_num', 'user_id'])
+            ->whereIn('bot_num', [1, 2, 3])
+            ->orWhereIn('user_id', $this->autoBid()->pluck('user_id'))
+            ->groupBy('bot_num', 'user_id')
+            ->get()->reverse()->first()) {
+            $winner = $this->winner();
+            if ($winner->bot_num === $jobs->bot_num && $winner->user_id === $jobs->user_id)
+                $lastTime = Carbon::now("Europe/Moscow")->subSeconds(($this->step_time() * 2));
+        }
+        return $lastTime;
     }
 
     public function userOrder(): \Illuminate\Database\Eloquent\Relations\HasOne
@@ -295,20 +318,21 @@ class Auction extends Model
             : $this->winner()->price;
     }
 
+    /**
+     * @return float|\Illuminate\Database\Eloquent\HigherOrderBuilderProxy|int|mixed|string|null
+     */
     public function new_price()
     {
-        return is_null($this->winner()->price)
-            ? $this->price()
-            : ($this->price() + $this->step_price());
+        return ($this->price() + $this->step_price());
     }
 
-    public function countBid()
-    {
-        $price = $this->bid()->doesntExist()
-            ? $this->start_price
-            : ($this->step_price / 100);
-        return round($price * Auction::BET_RUB);
-    }
+//    public function countBid(): float
+//    {
+//        $price = $this->bid()->doesntExist()
+//            ? $this->start_price
+//            : $this->step_price();
+//        return round($price * Auction::BET_RUB);
+//    }
 
     public function step_price()
     {
@@ -328,7 +352,7 @@ class Auction extends Model
         return ($new_price <= 0) ? 1 : $new_price;
     }
 
-    public static function data()
+    public static function data(): Collection
     {
         $data = self::all();
         $auctions = new Collection;

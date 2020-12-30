@@ -45,7 +45,6 @@ class BetListener
      */
     public function handle(BetEvent $event): BetEvent
     {
-
         $jobs = [];
         $auction = $event->auction->refresh();
         $winner = $auction->winner()->refresh();
@@ -111,23 +110,17 @@ class BetListener
         $result = null;
         $bot = null;
         try {
-            //DB::beginTransaction();
             $bots = new Collection();
-            $stopBotOne = (int)$auction->bot_shutdown_count;
-            $stopBotTwoThree = (int)$auction->bot_shutdown_price;
             $bids = $auction->bid();
-            $sumBids = (int)($bids->sum('bet') * Auction::BET_RUB);
             $bidBot = $bids
                 ->where('bids.is_bot', '=', true)
                 ->orderByDesc('bids.id')
                 ->first(['bids.bot_num', 'bids.created_at']);
 
-            $botOne = $auction->botNum(1);
-
-            if (!is_null($botOne) && $stopBotOne > $auction->botCountBet()) {
+            if (!$auction->stopBotOne() && $botOne = $auction->botNum(1)) {
                 $bots->put(1, $botOne);
             }
-            if ($stopBotTwoThree > $sumBids) {
+            if (!$auction->stopBotTwoThree()) {
                 $botTwo = $auction->botNum(2);
                 $botThree = $auction->botNum(3);
                 if (!is_null($botTwo)) {
@@ -157,9 +150,7 @@ class BetListener
                     ];
                 }
             }
-            //DB::commit();
         } catch (Throwable $throwable) {
-            //DB::rollBack();
             Log::error('selectBot ' . $throwable->getMessage());
         }
         return $result;
@@ -177,14 +168,16 @@ class BetListener
         /** @var AutoBid $autoBet */
         $result = null;
         try {
-            //DB::beginTransaction();
             $autoBet = $auction
                 ->autoBid()
+                ->whereHas('user', function ($query) {
+                    $query->where('users.has_ban', false);
+                })
                 ->where([
-                ['auto_bids.count', '>', 0],
-                ['auto_bids.user_id', '<>', $winner->user_id],
-                ['auto_bids.status', '=', AutoBid::PENDING]
-            ])
+                    ['auto_bids.count', '>', 0],
+                    ['auto_bids.user_id', '<>', $winner->user_id],
+                    ['auto_bids.status', '=', AutoBid::PENDING]
+                ])
                 ->orderBy('auto_bids.bid_time')
                 ->orderBy('auto_bids.id')->first();
 
@@ -195,9 +188,7 @@ class BetListener
                     'job' => AutoBidJob::class
                 ];
             }
-            //DB::commit();
         } catch (Throwable $throwable) {
-            //DB::rollBack();
             Log::error('selectAutoBid ' . $throwable->getMessage());
         }
         return $result;

@@ -102,6 +102,9 @@
                                          data-sitekey="{{config('recaptcha.key')}}">
                                     </div>
                                 @endif
+                                @error('g-recaptcha-response')
+                                <small class="alert alert-danger" role="alert">{{ $message }}</small>
+                                @enderror
                                 <p>
                                     <input class="registration sub" type="submit" name="send"
                                            value="Зарегистрироваться">

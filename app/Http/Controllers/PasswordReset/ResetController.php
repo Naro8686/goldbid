@@ -58,12 +58,11 @@ class ResetController extends Controller
 
     public function passwordChange()
     {
-        if (!session()->has('reset_id'))
-            return abort(404);
+        if (!session()->has('reset_id')) abort(404);
         return view('auth.passwords.recovery');
     }
 
-    public function passwordChangeSuccess(Request $request)
+    public function passwordChangeSuccess(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'new_password' => ['required', 'min:8'],

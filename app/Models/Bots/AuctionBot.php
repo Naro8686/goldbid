@@ -58,12 +58,12 @@ class AuctionBot extends Model
         'status' => 'integer',
     ];
 
-    public function auction()
+    public function auction(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Auction::class);
     }
 
-    public function bot()
+    public function bot(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Bot::class);
     }
@@ -134,7 +134,7 @@ class AuctionBot extends Model
      * @param int $count
      * @return int
      */
-    public function plus(string $column, int $count = 1)
+    public function plus(string $column, int $count = 1): int
     {
         return $this->increment($column, $count);
     }

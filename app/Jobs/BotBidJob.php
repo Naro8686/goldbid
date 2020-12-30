@@ -10,7 +10,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -60,14 +59,12 @@ class BotBidJob implements ShouldQueue
             try {
                 $auction = $auctionBot->auction->refresh();
                 $auction->bots()->where('status', AuctionBot::WORKED)->update(['status' => AuctionBot::PENDING]);
-                if ($this->first && $auction->bid()->exists()) $this->delete();
-                else {
-                    //$this->auctionBot->update(['status' => AuctionBot::PENDING]);
-                    if ($auction->status === Auction::STATUS_ACTIVE)
-                        $this->action($auctionBot)
-                            ? BidJob::dispatchNow($auction, $auctionBot->name, null, $auctionBot->number())
-                            : $this->fail('fail');
-                }
+                if ($this->first && $auction->bid()->take(1)->exists()) $this->delete();
+                elseif ($auction->status === Auction::STATUS_ACTIVE)
+                    $this->action($auctionBot)
+                        ? BidJob::dispatchNow($auction, $auctionBot->name, null, $auctionBot->number())
+                        : $this->fail('fail');
+
             } catch (Throwable $exception) {
                 $this->fail($exception->getMessage());
             }

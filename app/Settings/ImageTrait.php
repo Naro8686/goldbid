@@ -13,7 +13,7 @@ trait ImageTrait
      * @param $image
      * @return string
      */
-    public function icon($image)
+    public function icon($image): string
     {
         $image_name = md5(uniqid() . time()) . '.' . $image->getClientOriginalExtension();
         $iconPath = 'site/img/settings/icon/footer';
@@ -57,15 +57,16 @@ trait ImageTrait
 
     public function uploadImage($image, $path = 'site/img/upload', int $w = 0, int $h = 0, bool $rename = true): string
     {
+        $fullPath = public_path($path);
         $image_name = $rename ? md5(uniqid() . time()) . '.' . $image->getClientOriginalExtension() : $image->getClientOriginalName();
-        if (!is_dir(public_path($path))) mkdir(public_path($path), 0777, true);
+        if (!is_dir($fullPath)) mkdir($fullPath, 0777, true);
         if ($w > 0 || $h > 0) {
             $resize_image = Image::make($image->getRealPath());
             $resize_image->resize($w, $h, function ($constraint) {
                 $constraint->aspectRatio();
-            })->save((public_path($path) . '/' . $image_name));
+            })->save("{$fullPath}/{$image_name}");
         } else {
-            $image->move(public_path($path), $image_name);
+            $image->move($fullPath, $image_name);
         }
 
         return "{$path}/{$image_name}";

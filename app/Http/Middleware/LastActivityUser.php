@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Closure;
+
 
 class LastActivityUser
 {
@@ -13,9 +15,10 @@ class LastActivityUser
      * @param Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && $user = Auth::user()) {
+        $user = $request->user();
+        if (!is_null($user) && !$user->is_admin) {
             $user->is_online = Carbon::now("Europe/Moscow")->addMinutes(10);
             $user->save(['timestamps' => false]);
         }

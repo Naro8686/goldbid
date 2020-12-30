@@ -41,8 +41,8 @@ class CheckAuctionsStatus extends Command
      */
     public function handle()
     {
-        $config = ConfigSite::query()->whereNotNull('storage_period_month')->first();
-        $auctions = Auction::query()->whereNotNull('end')->get();
+        $config = ConfigSite::whereNotNull('storage_period_month')->first();
+        $auctions = Auction::whereNotNull('end')->get();
         foreach ($auctions as $key => $auction) {
             $timezone = $auction->end->timezoneName;
             $current = now($timezone);

@@ -140,9 +140,9 @@ class ProductController extends Controller
      * @param int $id
      * @return JsonResponse|RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
-        $product = Product::query()->with('auction')->findOrFail($id);
+        $product = Product::with('auction')->findOrFail($id);
         if ($request->ajax()) {
             $request->validate([
                 'exchange' => ['sometimes', 'required', 'boolean'],
@@ -218,7 +218,7 @@ class ProductController extends Controller
                 "alt_1", "alt_2", "alt_3", "alt_4",
             ]));
         }
-        if ($request['visibly']) {
+        if ((bool)$request['visibly']) {
             /** @var Product $product */
             $this->createAuction($product);
         }
@@ -259,7 +259,7 @@ class ProductController extends Controller
         return view(self::DIR . 'create', compact('companies', 'categories'));
     }
 
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request): RedirectResponse
     {
         $request->merge([
             'visibly' => $request['visibly'] === 'on',
@@ -272,7 +272,7 @@ class ProductController extends Controller
         if ($request->file('file_3')) $request['img_3'] = $this->uploadImage($request->file('file_3'), 'site/img/product', $this->width, $this->height);
         if ($request->file('file_4')) $request['img_4'] = $this->uploadImage($request->file('file_4'), 'site/img/product', $this->width, $this->height);
 
-        $product = Product::query()->create($request->only([
+        $product = Product::create($request->only([
             "title", "short_desc", "company_id",
             "category_id", "start_price", "full_price",
             "bot_shutdown_price", "bot_shutdown_count",
@@ -283,14 +283,13 @@ class ProductController extends Controller
             "alt_1", "alt_2", "alt_3", "alt_4",
         ]));
         if ($request['visibly'] === true) {
-            /** @var Product $product */
             $this->createAuction($product);
         }
 
         return redirect()->route('admin.products.index')->with('status', 'успешные дествия !');
     }
 
-    public function addGroup(Request $request)
+    public function addGroup(Request $request): RedirectResponse
     {
         $request->validate([
             'company_name' => ['string', 'max:100', 'nullable'],
@@ -313,7 +312,7 @@ class ProductController extends Controller
         }
     }
 
-    public function duplicate($id)
+    public function duplicate($id): RedirectResponse
     {
         $old = Product::query()->findOrFail($id);
         $new = $old->replicate();

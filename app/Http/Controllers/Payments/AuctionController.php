@@ -12,6 +12,7 @@ use App\Models\Balance;
 use App\Models\Mailing;
 use App\Models\User;
 use App\Settings\Setting;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ class AuctionController extends Controller
         $data = [];
         $user = User::findOrFail(Auth::id());
         $auction = Auction::findOrFail($id)->statusChangeData($user->id);
-        if (!$auction['my_win'] || $auction['error']) return abort(403);
+        if (!$auction['my_win'] || $auction['error']) abort(403);
         $data['id'] = $auction['id'];
         $data['image'] = $auction['images'][0]['img'];
         $data['alt'] = $auction['images'][0]['alt'];
@@ -51,7 +52,7 @@ class AuctionController extends Controller
                 if ($ordered = $user->auctionOrder()->where('auction_id', '=', $auction['id'])->lockForUpdate()->first()) {
                     if ((string)$ordered->status === Order::PENDING) {
                         $run = $ordered->update(['status' => Order::SUCCESS, 'exchanged' => true]);
-                    } else throw new \Exception('error');
+                    } else throw new Exception('error');
                 } else {
                     $run = Order::firstOrCreate([
                         'status' => Order::SUCCESS,
@@ -133,7 +134,7 @@ class AuctionController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
         $type = $auction->type();
-        if ($type !== Step::PRODUCT && !$winner) return abort(404);
+        if ($type !== Step::PRODUCT && !$winner) abort(404);
         switch ($step) {
             case 1:
                 return $this->stepOne($auction, $user, $order, $winner);
@@ -260,7 +261,7 @@ class AuctionController extends Controller
             Mail::to($user->email)->later(5, new MailingSendMail(Mailing::CHECKOUT, [
                 'order_num' => $order->order_num
             ]));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('send mail for buy auction ' . $e->getMessage());
         }
         $order->update(['status' => Order::SUCCESS]);
